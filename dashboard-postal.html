@@ -36,7 +36,7 @@
             top: 0;
             z-index: 1001;
             background: white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .logo-container {
@@ -341,7 +341,7 @@
             border-radius: 16px;
             padding: 25px;
             margin-bottom: 25px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             position: relative;
         }
@@ -354,21 +354,28 @@
 
         .truck-icon {
             font-size: 28px;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
             animation: truckSway 3s ease-in-out infinite;
             display: inline-block;
         }
 
         @keyframes truckSway {
-            0%, 100% { transform: rotate(-3deg) translateX(0); }
-            50% { transform: rotate(3deg) translateX(5px); }
+
+            0%,
+            100% {
+                transform: rotate(-3deg) translateX(0);
+            }
+
+            50% {
+                transform: rotate(3deg) translateX(5px);
+            }
         }
 
         .volume-bar {
             height: 42px !important;
             border-radius: 12px !important;
             background: #f1f5f9 !important;
-            box-shadow: inset 0 2px 8px rgba(0,0,0,0.1) !important;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1) !important;
             border: 1px solid #e2e8f0 !important;
         }
 
@@ -377,13 +384,13 @@
             padding: 10px 18px;
             border-radius: 12px;
             border-left: 5px solid transparent;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
             transition: all 0.3s ease;
         }
 
         .legend-item:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
         }
 
         .postal-volume {
@@ -940,7 +947,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.4); /* Dark overlay for better contrast */
+            background: rgba(0, 0, 0, 0.4);
+            /* Dark overlay for better contrast */
             z-index: 0;
         }
 
@@ -960,8 +968,15 @@
         }
 
         @keyframes loginFadeIn {
-            from { opacity: 0; transform: translateY(40px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
         }
 
 
@@ -973,7 +988,7 @@
             margin-bottom: 12px;
             color: #ffffff !important;
             letter-spacing: -1px;
-            text-shadow: 0 5px 20px rgba(0,0,0,0.8);
+            text-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
             opacity: 1 !important;
         }
 
@@ -984,7 +999,7 @@
             font-weight: 700;
             margin-bottom: 40px;
             display: block;
-            text-shadow: 0 3px 10px rgba(0,0,0,0.8);
+            text-shadow: 0 3px 10px rgba(0, 0, 0, 0.8);
             opacity: 1 !important;
         }
 
@@ -1119,99 +1134,112 @@
     <div id="dashboard-content">
         <div class="sticky-header-wrapper">
             <div class="header">
-            <div class="logo-container">
-                <h1 class="title" onclick="showView('dashboard'); window.scrollTo({top: 0, behavior: 'smooth'});" title="Kembali ke Dashboard Utama">Dashboard Postal</h1>
-                <div class="tabs">
-                    <div class="tab-item active" onclick="switchCategory('primer', this)">
-                        <span class="tab-icon">📦</span> PRIMER
-                    </div>
-                    <div class="tab-item" onclick="switchCategory('sekunder', this)">
-                        <span class="tab-icon">📦</span> SEKUNDER
-                    </div>
-                    <div class="tab-item" onclick="switchCategory('tersier', this)">
-                        <span class="tab-icon">📦</span> TERSIER
+                <div class="logo-container">
+                    <h1 class="title" onclick="showView('dashboard'); window.scrollTo({top: 0, behavior: 'smooth'});"
+                        title="Kembali ke Dashboard Utama">Dashboard Postal</h1>
+                    <div class="tabs">
+                        <div class="tab-item active" onclick="switchCategory('primer', this)">
+                            <span class="tab-icon">📦</span> PRIMER
+                        </div>
+                        <div class="tab-item" onclick="switchCategory('sekunder', this)">
+                            <span class="tab-icon">📦</span> SEKUNDER
+                        </div>
+                        <div class="tab-item" onclick="switchCategory('tersier', this)">
+                            <span class="tab-icon">📦</span> TERSIER
+                        </div>
                     </div>
                 </div>
+                <div style="display: flex; align-items: center; gap: 15px; margin-left: auto;">
+                    <span style="color: #1e3c72; font-weight: 600;">👤 <span id="user-display">Admin</span></span>
+                    <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+                </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 15px; margin-left: auto;">
-                <span style="color: #1e3c72; font-weight: 600;">👤 <span id="user-display">Admin</span></span>
-                <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+
+            <div class="submenu-container"
+                style="background: white; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; padding: 0 30px; gap: 20px;">
+                <div id="submenu-primer" class="submenu show" style="padding: 10px 0; border: none; flex: none;">
+                    <div class="submenu-left">
+                        <button class="submenu-btn" onclick="showDownload('primer')">📥 Download PPT</button>
+                        <button class="submenu-btn" onclick="showView('dashboard')">📊 Dashboard</button>
+                        <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA</button>
+                        <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
+                    </div>
+                </div>
+
+                <div id="submenu-sekunder" class="submenu" style="padding: 10px 0; border: none; flex: none;">
+                    <div class="submenu-left">
+                        <button class="submenu-btn" onclick="showDownload('sekunder')">📥 Download PPT</button>
+                        <button class="submenu-btn" onclick="showView('dashboard')">📊 Dashboard</button>
+                        <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA</button>
+                        <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
+                    </div>
+                </div>
+
+                <div id="submenu-tersier" class="submenu" style="padding: 10px 0; border: none; flex: none;">
+                    <div class="submenu-left">
+                        <button class="submenu-btn" onclick="showDownload('tersier')">📥 Download PPT</button>
+                        <button class="submenu-btn" onclick="showView('dashboard')">📊 Dashboard</button>
+                        <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA</button>
+                        <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
+                    </div>
+                </div>
+
+                <!-- Global Filter (Geser ke kiri agar tidak bertumpuk) -->
+                <div class="global-filter-wrapper" style="display: flex; align-items: center; margin-left: 20px;">
+                    <div class="submenu-right"
+                        style="background: #f8fafc; padding: 5px 15px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; gap: 8px; align-items: center;">
+                        <input type="date" class="filter-input" id="startDate" onchange="clearWeekFilter()"
+                            style="height: 38px;">
+                        <span style="font-size: 14px; color: #64748b;">s/d</span>
+                        <input type="date" class="filter-input" id="endDate" onchange="clearWeekFilter()"
+                            style="height: 38px;">
+                        <select class="filter-input" id="weekFilter" onchange="applyWeeklyFilter()"
+                            style="height: 38px;">
+                            <option value="">📅 Pilih Minggu</option>
+                        </select>
+                        <select class="filter-input" id="routeFilter" onchange="applyFilter()"
+                            style="width: 150px; height: 38px;">
+                            <option value="">Semua Rute</option>
+                            <option value="Rute 1 JAT-SB">Rute 1 JAT-SB</option>
+                            <option value="Rute 2 JAT-YK">Rute 2 JAT-YK</option>
+                            <option value="Rute 3 JAT-MN">Rute 3 JAT-MN</option>
+                            <option value="Rute 4 JAT-PWT">Rute 4 JAT-PWT</option>
+                            <option value="Rute 5 JAT-SLO">Rute 5 JAT-SLO</option>
+                            <option value="Rute 6 BD-JAT">Rute 6 BD-JAT</option>
+                            <option value="Rute 8 JAT-SB">Rute 8 JAT-SB</option>
+                            <option value="Rute 9 JAT-BD">Rute 9 JAT-BD</option>
+                            <option value="Rute 10 BD-CN">Rute 10 BD-CN</option>
+                            <option value="Rute 11 BD-SB">Rute 11 BD-SB</option>
+                            <option value="Rute 11 SB-MTR">Rute 11 SB-MTR</option>
+                            <option value="Rute 12 YK-SB">Rute 12 YK-SB</option>
+                            <option value="Rute 13 YK-SB">Rute 13 YK-SB</option>
+                            <option value="Rute 14 SM-SB">Rute 14 SM-SB</option>
+                            <option value="Rute 15 JAT-SB">Rute 15 JAT-SB</option>
+                            <option value="Rute B1 JAT-SLO">Rute B1 JAT-SLO</option>
+                            <option value="Rute 1 PBR-MDN">Rute 1 PBR-MDN</option>
+                            <option value="Rute 2A JAT-PG Fuso">Rute 2A JAT-PG Fuso</option>
+                            <option value="Rute 2B Sumatera PG - PBR">Rute 2B Sumatera PG - PBR</option>
+                            <option value="Rute 3 JAT-PG express">Rute 3 JAT-PG express</option>
+                            <option value="Rute 4A Kcu Purwokerto - Kcu Cirebon">Rute 4A Kcu Purwokerto - Kcu Cirebon
+                            </option>
+                            <option value="Exstra SPP Bndung - SPP Jakarta Timur">Exstra SPP Bndung - SPP Jakarta Timur
+                            </option>
+                            <option value="EXTRA KCU SOLO - SPP YOGYAKARTA - SPP SURABAYA">EXTRA KCU SOLO - SPP
+                                YOGYAKARTA - SPP SURABAYA</option>
+                            <option value="Extra Spp Semarang - Spp Jakarta Timur">Extra Spp Semarang - Spp Jakarta
+                                Timur</option>
+                            <option value="EXTRA SPP YOGYA - KCU SOLO - SPP JAT">EXTRA SPP YOGYA - KCU SOLO - SPP JAT
+                            </option>
+                        </select>
+                        <button class="filter-btn" onclick="applyFilter()" style="height: 38px;">🔍 Filter</button>
+                        <button class="filter-btn" onclick="resetFilter()" style="background: #64748b; height: 38px;">🔄
+                            Reset</button>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <div class="submenu-container" style="background: white; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; padding: 0 30px; gap: 20px;">
-            <div id="submenu-primer" class="submenu show" style="padding: 10px 0; border: none; flex: none;">
-                <div class="submenu-left">
-                    <button class="submenu-btn" onclick="showDownload('primer')">📥 Download PPT</button>
-                    <button class="submenu-btn" onclick="showView('dashboard')">📊 Dashboard</button>
-                    <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA</button>
-                    <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
-                </div>
-            </div>
-
-            <div id="submenu-sekunder" class="submenu" style="padding: 10px 0; border: none; flex: none;">
-                <div class="submenu-left">
-                    <button class="submenu-btn" onclick="showDownload('sekunder')">📥 Download PPT</button>
-                    <button class="submenu-btn" onclick="showView('dashboard')">📊 Dashboard</button>
-                    <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA</button>
-                    <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
-                </div>
-            </div>
-
-            <div id="submenu-tersier" class="submenu" style="padding: 10px 0; border: none; flex: none;">
-                <div class="submenu-left">
-                    <button class="submenu-btn" onclick="showDownload('tersier')">📥 Download PPT</button>
-                    <button class="submenu-btn" onclick="showView('dashboard')">📊 Dashboard</button>
-                    <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA</button>
-                    <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
-                </div>
-            </div>
-
-            <!-- Global Filter (Geser ke kiri agar tidak bertumpuk) -->
-            <div class="global-filter-wrapper" style="display: flex; align-items: center; margin-left: 20px;">
-                <div class="submenu-right" style="background: #f8fafc; padding: 5px 15px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; gap: 8px; align-items: center;">
-                    <input type="date" class="filter-input" id="startDate" onchange="clearWeekFilter()" style="height: 38px;">
-                    <span style="font-size: 14px; color: #64748b;">s/d</span>
-                    <input type="date" class="filter-input" id="endDate" onchange="clearWeekFilter()" style="height: 38px;">
-                    <select class="filter-input" id="weekFilter" onchange="applyWeeklyFilter()" style="height: 38px;">
-                        <option value="">📅 Pilih Minggu</option>
-                    </select>
-                    <select class="filter-input" id="routeFilter" onchange="applyFilter()" style="width: 150px; height: 38px;">
-                        <option value="">Semua Rute</option>
-                        <option value="Rute 1 JAT-SB">Rute 1 JAT-SB</option>
-                        <option value="Rute 2 JAT-YK">Rute 2 JAT-YK</option>
-                        <option value="Rute 3 JAT-MN">Rute 3 JAT-MN</option>
-                        <option value="Rute 4 JAT-PWT">Rute 4 JAT-PWT</option>
-                        <option value="Rute 5 JAT-SLO">Rute 5 JAT-SLO</option>
-                        <option value="Rute 6 BD-JAT">Rute 6 BD-JAT</option>
-                        <option value="Rute 8 JAT-SB">Rute 8 JAT-SB</option>
-                        <option value="Rute 9 JAT-BD">Rute 9 JAT-BD</option>
-                        <option value="Rute 10 BD-CN">Rute 10 BD-CN</option>
-                        <option value="Rute 11 BD-SB">Rute 11 BD-SB</option>
-                        <option value="Rute 11 SB-MTR">Rute 11 SB-MTR</option>
-                        <option value="Rute 12 YK-SB">Rute 12 YK-SB</option>
-                        <option value="Rute 13 YK-SB">Rute 13 YK-SB</option>
-                        <option value="Rute 14 SM-SB">Rute 14 SM-SB</option>
-                        <option value="Rute 15 JAT-SB">Rute 15 JAT-SB</option>
-                        <option value="Rute B1 JAT-SLO">Rute B1 JAT-SLO</option>
-                        <option value="Rute 1 PBR-MDN">Rute 1 PBR-MDN</option>
-                        <option value="Rute 2A JAT-PG Fuso">Rute 2A JAT-PG Fuso</option>
-                        <option value="Rute 2B Sumatera PG - PBR">Rute 2B Sumatera PG - PBR</option>
-                        <option value="Rute 3 JAT-PG express">Rute 3 JAT-PG express</option>
-                        <option value="Rute 4A Kcu Purwokerto - Kcu Cirebon">Rute 4A Kcu Purwokerto - Kcu Cirebon</option>
-                        <option value="Exstra SPP Bndung - SPP Jakarta Timur">Exstra SPP Bndung - SPP Jakarta Timur</option>
-                        <option value="EXTRA KCU SOLO - SPP YOGYAKARTA - SPP SURABAYA">EXTRA KCU SOLO - SPP YOGYAKARTA - SPP SURABAYA</option>
-                        <option value="Extra Spp Semarang - Spp Jakarta Timur">Extra Spp Semarang - Spp Jakarta Timur</option>
-                        <option value="EXTRA SPP YOGYA - KCU SOLO - SPP JAT">EXTRA SPP YOGYA - KCU SOLO - SPP JAT</option>
-                    </select>
-                    <button class="filter-btn" onclick="applyFilter()" style="height: 38px;">🔍 Filter</button>
-                    <button class="filter-btn" onclick="resetFilter()" style="background: #64748b; height: 38px;">🔄 Reset</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="dashboard-container" style="padding-top: 10px;">
+        <div class="dashboard-container" style="padding-top: 10px;">
             <div id="activePeriodLabel" style="margin-bottom: 10px; font-size: 13px; font-weight: 600; color: #475569;">
             </div>
 
@@ -1401,7 +1429,8 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th><input type="checkbox" id="selectAllSLA" onchange="toggleAllSLA()" style="margin-right: 5px;"></th>
+                            <th><input type="checkbox" id="selectAllSLA" onchange="toggleAllSLA()"
+                                    style="margin-right: 5px;"></th>
                             <th>Nama Rute</th>
                             <th>Target Waktu</th>
                             <th>Realisasi Waktu</th>
@@ -1415,48 +1444,64 @@
                             <td>1</td>
                             <td><input type="checkbox" class="sla-checkbox"></td>
                             <td>Rute 1: JAT - Surabaya</td>
-                            <td data-editable="true" style="background: #fffde7; cursor: pointer;" title="Klik untuk edit">14 jam</td>
-                            <td data-editable="true" style="background: #fffde7; cursor: pointer;" title="Klik untuk edit">13.5 jam</td>
+                            <td data-editable="true" style="background: #fffde7; cursor: pointer;"
+                                title="Klik untuk edit">14 jam</td>
+                            <td data-editable="true" style="background: #fffde7; cursor: pointer;"
+                                title="Klik untuk edit">13.5 jam</td>
                             <td style="color: #4CAF50;">-30 menit</td>
                             <td><span class="sla-status status-ontime">On-Time</span></td>
                             <td>
-                                <button onclick="deleteSLA('Rute 1: JAT - Surabaya')" style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️ Hapus</button>
+                                <button onclick="deleteSLA('Rute 1: JAT - Surabaya')"
+                                    style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️
+                                    Hapus</button>
                             </td>
                         </tr>
                         <tr>
                             <td>2</td>
                             <td><input type="checkbox" class="sla-checkbox"></td>
                             <td>Rute 2: JAT - Yogyakarta</td>
-                            <td data-editable="true" style="background: #fffde7; cursor: pointer;" title="Klik untuk edit">7 jam</td>
-                            <td data-editable="true" style="background: #fffde7; cursor: pointer;" title="Klik untuk edit">7.75 jam</td>
+                            <td data-editable="true" style="background: #fffde7; cursor: pointer;"
+                                title="Klik untuk edit">7 jam</td>
+                            <td data-editable="true" style="background: #fffde7; cursor: pointer;"
+                                title="Klik untuk edit">7.75 jam</td>
                             <td style="color: #f44336;">+45 menit</td>
                             <td><span class="sla-status status-delay">Delay</span></td>
                             <td>
-                                <button onclick="deleteSLA('Rute 2: JAT - Yogyakarta')" style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️ Hapus</button>
+                                <button onclick="deleteSLA('Rute 2: JAT - Yogyakarta')"
+                                    style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️
+                                    Hapus</button>
                             </td>
                         </tr>
                         <tr>
                             <td>3</td>
                             <td><input type="checkbox" class="sla-checkbox"></td>
                             <td>Rute 3: JAT - Medan</td>
-                            <td data-editable="true" style="background: #fffde7; cursor: pointer;" title="Klik untuk edit">36 jam</td>
-                            <td data-editable="true" style="background: #fffde7; cursor: pointer;" title="Klik untuk edit">35 jam</td>
+                            <td data-editable="true" style="background: #fffde7; cursor: pointer;"
+                                title="Klik untuk edit">36 jam</td>
+                            <td data-editable="true" style="background: #fffde7; cursor: pointer;"
+                                title="Klik untuk edit">35 jam</td>
                             <td style="color: #4CAF50;">-1 jam</td>
                             <td><span class="sla-status status-ontime">On-Time</span></td>
                             <td>
-                                <button onclick="deleteSLA('Rute 3: JAT - Medan')" style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️ Hapus</button>
+                                <button onclick="deleteSLA('Rute 3: JAT - Medan')"
+                                    style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️
+                                    Hapus</button>
                             </td>
                         </tr>
                         <tr>
                             <td>4</td>
                             <td><input type="checkbox" class="sla-checkbox"></td>
                             <td>Rute 4: JAT - Purwokerto</td>
-                            <td data-editable="true" style="background: #fffde7; cursor: pointer;" title="Klik untuk edit">6 jam</td>
-                            <td data-editable="true" style="background: #fffde7; cursor: pointer;" title="Klik untuk edit">6.5 jam</td>
+                            <td data-editable="true" style="background: #fffde7; cursor: pointer;"
+                                title="Klik untuk edit">6 jam</td>
+                            <td data-editable="true" style="background: #fffde7; cursor: pointer;"
+                                title="Klik untuk edit">6.5 jam</td>
                             <td style="color: #f44336;">+30 menit</td>
                             <td><span class="sla-status status-delay">Delay</span></td>
                             <td>
-                                <button onclick="deleteSLA('Rute 4: JAT - Purwokerto')" style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️ Hapus</button>
+                                <button onclick="deleteSLA('Rute 4: JAT - Purwokerto')"
+                                    style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️
+                                    Hapus</button>
                             </td>
                         </tr>
                     </tbody>
@@ -1469,7 +1514,8 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th><input type="checkbox" id="selectAllVolume" onchange="toggleAllVolume()" style="margin-right: 5px;"></th>
+                            <th><input type="checkbox" id="selectAllVolume" onchange="toggleAllVolume()"
+                                    style="margin-right: 5px;"></th>
                             <th>Nama Rute</th>
                             <th>Volume Postal (kg)</th>
                             <th>Volume Poslog (kg)</th>
@@ -1488,8 +1534,12 @@
                             <td>65,549.63</td>
                             <td style="color: #4CAF50;">12,450.37</td>
                             <td>
-                                <button onclick="editVolume('Rute 1: JAT - Surabaya')" style="background: #2196F3; color: white; border: none; padding: 5px 10px; border-radius: 4px; margin-right: 5px; cursor: pointer;">✏️ Edit</button>
-                                <button onclick="deleteVolume('Rute 1: JAT - Surabaya')" style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️ Hapus</button>
+                                <button onclick="editVolume('Rute 1: JAT - Surabaya')"
+                                    style="background: #2196F3; color: white; border: none; padding: 5px 10px; border-radius: 4px; margin-right: 5px; cursor: pointer;">✏️
+                                    Edit</button>
+                                <button onclick="deleteVolume('Rute 1: JAT - Surabaya')"
+                                    style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️
+                                    Hapus</button>
                             </td>
                         </tr>
                         <tr>
@@ -1501,8 +1551,12 @@
                             <td>27,999.52</td>
                             <td style="color: #4CAF50;">22,000.48</td>
                             <td>
-                                <button onclick="editVolume('Rute 1: Surabaya - JAT')" style="background: #2196F3; color: white; border: none; padding: 5px 10px; border-radius: 4px; margin-right: 5px; cursor: pointer;">✏️ Edit</button>
-                                <button onclick="deleteVolume('Rute 1: Surabaya - JAT')" style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️ Hapus</button>
+                                <button onclick="editVolume('Rute 1: Surabaya - JAT')"
+                                    style="background: #2196F3; color: white; border: none; padding: 5px 10px; border-radius: 4px; margin-right: 5px; cursor: pointer;">✏️
+                                    Edit</button>
+                                <button onclick="deleteVolume('Rute 1: Surabaya - JAT')"
+                                    style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️
+                                    Hapus</button>
                             </td>
                         </tr>
                         <tr>
@@ -1514,8 +1568,12 @@
                             <td>14,049.34</td>
                             <td style="color: #4CAF50;">13,951</td>
                             <td>
-                                <button onclick="editVolume('Rute 2: JAT - Yogyakarta')" style="background: #2196F3; color: white; border: none; padding: 5px 10px; border-radius: 4px; margin-right: 5px; cursor: pointer;">✏️ Edit</button>
-                                <button onclick="deleteVolume('Rute 2: JAT - Yogyakarta')" style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️ Hapus</button>
+                                <button onclick="editVolume('Rute 2: JAT - Yogyakarta')"
+                                    style="background: #2196F3; color: white; border: none; padding: 5px 10px; border-radius: 4px; margin-right: 5px; cursor: pointer;">✏️
+                                    Edit</button>
+                                <button onclick="deleteVolume('Rute 2: JAT - Yogyakarta')"
+                                    style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️
+                                    Hapus</button>
                             </td>
                         </tr>
                         <tr>
@@ -1527,8 +1585,12 @@
                             <td>23,792.74</td>
                             <td style="color: #4CAF50;">4,207</td>
                             <td>
-                                <button onclick="editVolume('Rute 2: Yogyakarta - JAT')" style="background: #2196F3; color: white; border: none; padding: 5px 10px; border-radius: 4px; margin-right: 5px; cursor: pointer;">✏️ Edit</button>
-                                <button onclick="deleteVolume('Rute 2: Yogyakarta - JAT')" style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️ Hapus</button>
+                                <button onclick="editVolume('Rute 2: Yogyakarta - JAT')"
+                                    style="background: #2196F3; color: white; border: none; padding: 5px 10px; border-radius: 4px; margin-right: 5px; cursor: pointer;">✏️
+                                    Edit</button>
+                                <button onclick="deleteVolume('Rute 2: Yogyakarta - JAT')"
+                                    style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">🗑️
+                                    Hapus</button>
                             </td>
                         </tr>
                     </tbody>
@@ -1548,12 +1610,12 @@
             const protocol = window.location.protocol; // http: atau https:
             const hostname = window.location.hostname; // IP atau localhost
             const port = 3001;
-            
+
             // If running from file:// protocol, use localhost fallback
             if (protocol === 'file:') {
                 return 'http://localhost:3001/api';
             }
-            
+
             return `${protocol}//${hostname}:${port}/api`;
         };
         const API_URL = getAPIURL();
@@ -1565,7 +1627,7 @@
 
         async function switchCategory(category, element) {
             currentMenu = category;
-            
+
             // Update active tab UI
             document.querySelectorAll('.tab-item').forEach(tab => tab.classList.remove('active'));
             if (element) element.classList.add('active');
@@ -1654,7 +1716,7 @@
 
                         if (result.success) {
                             alert(`✅ ${result.message}\n\nKategori: ${category.toUpperCase()}\n\nDashboard akan menyesuaikan tanggal agar data terlihat.`);
-                            
+
                             // Auto-adjust filters if dates provided
                             if (result.minDate && result.maxDate) {
                                 document.getElementById('startDate').value = result.minDate;
@@ -1689,7 +1751,7 @@
                 z-index: 10000;
                 min-width: 400px;
             `;
-            
+
             editDialog.innerHTML = `
                 <h3 style="margin-bottom: 20px; color: #333;">✏️ Edit Data SLA - ${routeName}</h3>
                 <div style="margin-bottom: 15px;">
@@ -1705,19 +1767,19 @@
                     <button onclick="saveSLAEdit('${routeName}')" style="padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer;">Simpan</button>
                 </div>
             `;
-            
+
             document.body.appendChild(editDialog);
         }
 
         function saveSLAEdit(routeName) {
             const targetTime = document.getElementById('targetTime').value;
             const realisasiTime = document.getElementById('realisasiTime').value;
-            
+
             if (!targetTime || !realisasiTime) {
                 alert('❌ Semua field harus diisi!');
                 return;
             }
-            
+
             alert(`✅ Data SLA untuk ${routeName} berhasil diperbarui!`);
             document.querySelector('[style*="position: fixed"]').remove();
             loadSLAData();
@@ -1738,7 +1800,7 @@
                 z-index: 10000;
                 min-width: 400px;
             `;
-            
+
             editDialog.innerHTML = `
                 <h3 style="margin-bottom: 20px; color: #333;">✏️ Edit Data Volume - ${routeName}</h3>
                 <div style="margin-bottom: 15px;">
@@ -1754,19 +1816,19 @@
                     <button onclick="saveVolumeEdit('${routeName}')" style="padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer;">Simpan</button>
                 </div>
             `;
-            
+
             document.body.appendChild(editDialog);
         }
 
         function saveVolumeEdit(routeName) {
             const volumePostal = document.getElementById('volumePostal').value;
             const volumePoslog = document.getElementById('volumePoslog').value;
-            
+
             if (!volumePostal || !volumePoslog) {
                 alert('❌ Semua field harus diisi!');
                 return;
             }
-            
+
             alert(`✅ Data Volume untuk ${routeName} berhasil diperbarui!`);
             document.querySelector('[style*="position: fixed"]').remove();
             loadVolumeData();
@@ -1860,7 +1922,7 @@
 
                 for (let i = 0; i < routeCards.length; i += cardsPerSlide) {
                     let slide = pptx.addSlide();
-                    
+
                     // Definisi posisi 2x2 grid (x, y, w, h dalam inci)
                     const positions = [
                         { x: 0.2, y: 0.2, w: 4.7, h: 2.6 }, // Atas Kiri
@@ -1887,7 +1949,7 @@
                                     clonedCard.querySelectorAll('.sla-status, .delay-badge, .sla-timeline, button').forEach(el => {
                                         el.style.display = 'none';
                                     });
-                                    
+
                                     // Pastikan legend tetap muncul dan rapi
                                     clonedCard.querySelectorAll('.volume-legend').forEach(el => {
                                         el.style.display = 'flex';
@@ -1945,13 +2007,13 @@
             const now = new Date();
             const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
             const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
-            
+
             // Set defaults for all views initially
             ['dashboard', 'sla', 'volume'].forEach(view => {
                 viewFilters[view].startDate = firstDay;
                 viewFilters[view].endDate = lastDay;
             });
-            
+
             // Set initial inputs
             document.getElementById('startDate').value = firstDay;
             document.getElementById('endDate').value = lastDay;
@@ -2046,8 +2108,8 @@
             // Tampilkan label periode
             const start = new Date(startDate);
             const end = new Date(endDate);
-            const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-            
+            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
             let labelText = "";
             if (weekKey === "ALL") {
                 labelText = "Menampilkan data: SEMUA MINGGU";
@@ -2059,7 +2121,7 @@
             } else {
                 const start = new Date(startDate);
                 const end = new Date(endDate);
-                const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
                 labelText = startDate === endDate
                     ? `Menampilkan data harian: ${start.getDate()} ${months[start.getMonth()]} ${start.getFullYear()}`
                     : `Menampilkan data: ${start.getDate()} ${months[start.getMonth()]} - ${end.getDate()} ${months[end.getMonth()]} ${end.getFullYear()}`;
@@ -2099,7 +2161,7 @@
             const lastDay = new Date(year, month + 1, 0); // hari terakhir bulan ini
 
             // Format YYYY-MM-DD tanpa timezone shift
-            const fmt = (d) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+            const fmt = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
             document.getElementById('startDate').value = fmt(firstDay);
             document.getElementById('endDate').value = fmt(lastDay);
         }
@@ -2173,7 +2235,7 @@
 
                 // Panggil render rute mutakhir
                 await loadRoutesFromServer(weekKey);
-                
+
                 // Terapkan filter visual kartu 
                 const rfValue = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
                 if (rfValue && typeof filterRouteCards === 'function') {
@@ -2214,22 +2276,22 @@
         function formatWeekOption(startDateStr, endDateStr) {
             const startDate = new Date(startDateStr);
             const endDate = new Date(endDateStr);
-            
+
             const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
-            
+
             const startDay = startDate.getDate();
             const startMonth = months[startDate.getMonth()];
             const startYear = startDate.getFullYear();
-            
+
             const endDay = endDate.getDate();
             const endMonth = months[endDate.getMonth()];
             const endYear = endDate.getFullYear();
-            
+
             // Calculate week number (W-16 etc)
             const firstDayOfYear = new Date(startYear, 0, 1);
             const pastDaysOfYear = (startDate - firstDayOfYear) / 86400000;
             const weekNumber = Math.ceil((pastDaysOfYear + firstDayOfYear.getDay() + 1) / 7);
-            
+
             let dateStr = "";
             if (startMonth === endMonth && startYear === endYear) {
                 dateStr = `${startDay}-${endDay} ${startMonth} ${startYear}`;
@@ -2238,7 +2300,7 @@
             } else {
                 dateStr = `${startDay} ${startMonth} ${startYear} - ${endDay} ${endMonth} ${endYear}`;
             }
-            
+
             return `${dateStr} (W-${weekNumber})`;
         }
 
@@ -2247,14 +2309,14 @@
             try {
                 const response = await fetch(`${API_URL}/weeks?category=${currentMenu}`);
                 const result = await response.json();
-                
+
                 if (result.success && result.data.length > 0) {
                     const weekFilter = document.getElementById('weekFilter');
                     const currentValue = weekFilter.value;
-                    
+
                     // Set "Semua Minggu" as the first/default option
                     weekFilter.innerHTML = '<option value="ALL">📅 SEMUA MINGGU</option>';
-                    
+
                     // Add week options
                     result.data.forEach(week => {
                         const option = document.createElement('option');
@@ -2262,7 +2324,7 @@
                         option.textContent = formatWeekOption(week.startDate, week.endDate);
                         weekFilter.appendChild(option);
                     });
-                    
+
                     // Restore previous selection if it still exists
                     if (currentValue) {
                         weekFilter.value = currentValue;
@@ -2278,7 +2340,7 @@
             const weekSelect = document.getElementById('weekFilter');
             const weekKey = weekSelect.value;
             const routeFilter = document.getElementById('routeFilter').value;
-            
+
             if (!weekKey) return;
 
             try {
@@ -2294,7 +2356,7 @@
                 } else {
                     const selectedOption = weekSelect.options[weekSelect.selectedIndex];
                     weekLabel = selectedOption.text;
-                    
+
                     const dates = weekKey.split('_'); // Split by underscore as per getWeekRange in server.js
                     if (dates.length === 2) {
                         startDate = dates[0];
@@ -2303,7 +2365,7 @@
                         document.getElementById('endDate').value = dates[1];
                     }
                 }
-                
+
                 // Sync to all views
                 ['dashboard', 'sla', 'volume'].forEach(view => {
                     viewFilters[view].weekKey = weekKey;
@@ -2320,7 +2382,7 @@
                 } else if (currentView === 'volume') {
                     await loadVolumeData(weekKey);
                 }
-                
+
                 // Note: The period label will be updated inside each load function 
                 // using the actual data range returned from server.
             } catch (error) {
@@ -2345,10 +2407,10 @@
             const categoryTag = `[${currentMenu.toUpperCase()}]`;
             const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
             const routeTag = (routeFilter && routeFilter !== 'Semua Rute') ? ` | Rute: ${routeFilter}` : '';
-            
+
             label.textContent = `${categoryTag} ${text}${routeTag}`;
-            
-            label.style.background = mode === 'weekly' 
+
+            label.style.background = mode === 'weekly'
                 ? 'linear-gradient(135deg, #1e3c72, #2a5298)'
                 : 'linear-gradient(135deg, #4CAF50, #388E3C)';
             label.style.color = 'white';
@@ -2359,11 +2421,11 @@
             if (statCards.length >= 6) {
                 // 0: Total Rute
                 statCards[0].textContent = stats.total_routes || 0;
-                
+
                 // Calculate SLA % from global slaData
                 let totalSLA = 0;
                 let onTimeCount = 0;
-                
+
                 if (window.slaData && window.slaData.length > 0) {
                     window.slaData.forEach(item => {
                         const titikList = item.titik || [];
@@ -2375,37 +2437,37 @@
                         });
                     });
                 }
-                
+
                 const slaOnTime = totalSLA > 0 ? Math.round((onTimeCount / totalSLA) * 100) : 87;
                 const slaDelay = 100 - slaOnTime;
 
                 // 1: SLA On-Time
-                statCards[1].textContent = slaOnTime + '%'; 
-                
+                statCards[1].textContent = slaOnTime + '%';
+
                 // 2: SLA Delay
                 statCards[2].textContent = slaDelay + '%';
-                
+
                 // Hitung persentase volume terhadap kapasitas
                 const cap = stats.total_capacity || 1; // avoid division by zero
                 const postalPctVal = ((stats.postal_volume || 0) / cap * 100);
                 const poslogPctVal = ((stats.poslog_volume || 0) / cap * 100);
-                
+
                 // Format dengan 1 desimal
                 const postalPct = postalPctVal.toFixed(1);
                 const poslogPct = poslogPctVal.toFixed(1);
-                
+
                 // Hitung Sisa Kapasitas agar total tepat 100% (Requirement: 3 item = 100%)
                 const sisaPct = (100 - parseFloat(postalPct) - parseFloat(poslogPct)).toFixed(1);
 
                 // 3: Volume Postal
                 const postalReal = Math.round(stats.postal_volume || 0).toLocaleString('id-ID');
                 statCards[3].innerHTML = `${postalReal} kg <span style="position: absolute; top: 18px; right: 18px; font-size: 22px; font-weight: 800; opacity: 0.9;">(${postalPct}%)</span>`;
-                
+
                 // 4: Volume Poslog
                 const poslogVol = stats.poslog_volume || 0;
                 const poslogReal = Math.round(poslogVol).toLocaleString('id-ID');
                 statCards[4].innerHTML = `${poslogReal} kg <span style="position: absolute; top: 18px; right: 18px; font-size: 22px; font-weight: 800; opacity: 0.9;">(${poslogPct}%)</span>`;
-                
+
                 // 5: Sisa Kapasitas (Harus melengkapi total agar 100%)
                 statCards[5].textContent = sisaPct + '%';
             }
@@ -2424,7 +2486,7 @@
                     if (statusLower.includes('delay') || statusLower.includes('keterlambatan') || statusLower.includes('terlambat')) {
                         let minutes = parseInt(t.selisih) || 0;
                         let delayText = t.selisih || 'Delay';
-                        
+
                         // Calculate difference if selisih is absent
                         if (!t.selisih && t.target && t.realisasi && t.target !== '-' && t.realisasi !== '-') {
                             const targetParts = t.target.split(':');
@@ -2473,7 +2535,7 @@
 
         function formatVolume(volume) {
             if (volume >= 1000000) {
-                return (volume / 1000000).toLocaleString('id-ID', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + 'M kg';
+                return (volume / 1000000).toLocaleString('id-ID', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'M kg';
             } else if (volume >= 1000) {
                 // Gunakan pemisah ribuan untuk angka ribuan agar lebih jelas
                 return Math.round(volume).toLocaleString('id-ID') + ' kg';
@@ -2645,7 +2707,7 @@
                 // Determine display time (Always absolute HH:MM as per example)
                 const displayTime = formatAbsoluteTime(titik.realisasi);
                 const targetDisplay = formatAbsoluteTime(titik.target);
-                
+
                 // Calculate delay
                 let isDelay = false;
                 if (titik.realisasi && titik.target) {
@@ -2857,7 +2919,7 @@
                     let finalData = result.data;
                     // Server-side filtering is now used, so client-side filter is optional fallback
                     // Keep for extra safety or remove if confident
-                    
+
                     // Store in global variable and sort by order
                     slaData = sortRoutesByOrder(finalData);
 
@@ -2983,17 +3045,17 @@
                         if (timeParts.length >= 2) {
                             const rH = parseInt(timeParts[0]);
                             const rM = parseInt(timeParts[1]);
-                            
+
                             if (!isNaN(rH)) {
                                 const rMin = rH * 60 + rM;
-                                
+
                                 // Hitung selisih realisasi vs N22 (target)
                                 if (titik.target && titik.target !== '-') {
                                     const targetParts = titik.target.split(':');
                                     if (targetParts.length >= 2) {
                                         const tH = parseInt(targetParts[0]);
                                         const tM = parseInt(targetParts[1]);
-                                        
+
                                         if (!isNaN(tH)) {
                                             const tMin = tH * 60 + tM;
                                             let diffMin = rMin - tMin;
@@ -3001,11 +3063,11 @@
                                             diffMin = Math.abs(diffMin);
                                             const dH = Math.floor(diffMin / 60);
                                             const dM = Math.round(diffMin % 60);
-                                            selisihDisplay = `${sign}${String(dH).padStart(2,'0')}:${String(dM).padStart(2,'0')}`;
-                                            
+                                            selisihDisplay = `${sign}${String(dH).padStart(2, '0')}:${String(dM).padStart(2, '0')}`;
+
                                             if (sign === '+' && rMin > tMin) {
                                                 statusClass = 'status-delay';
-                                                statusText  = 'Delay';
+                                                statusText = 'Delay';
                                             }
                                         }
                                     }
@@ -3017,9 +3079,9 @@
                     // Override status dari kolom status Excel jika ada
                     if (titik.status && titik.status.trim() !== '') {
                         const isDelayed = titik.status.toLowerCase().includes('terlambat') ||
-                                          titik.status.toLowerCase().includes('delay');
+                            titik.status.toLowerCase().includes('delay');
                         statusClass = isDelayed ? 'status-delay' : 'status-ontime';
-                        statusText  = titik.status;
+                        statusText = titik.status;
                     }
 
                     const realisasiColor = statusClass === 'status-delay' ? '#e53e3e' : '#1e6f3e';
@@ -3076,7 +3138,7 @@
                 const startDate = document.getElementById('startDate').value;
                 const endDate = document.getElementById('endDate').value;
                 const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
-                
+
                 let url = `${API_URL}/volume?category=${currentMenu}&routeFilter=${encodeURIComponent(routeFilter)}`;
                 if (weekKey) {
                     url += `&weekKey=${weekKey}&aggregate=true`;
@@ -3124,7 +3186,7 @@
                                 const save = () => {
                                     const newVal = parseFloat(input.value) || 0;
                                     if (_volumeData[rowIdx]) _volumeData[rowIdx][col] = newVal;
-                                    
+
                                     // Sync with routesData
                                     const ruteName = _volumeData[rowIdx].rute;
                                     const rd = routesData.find(r => r.name === ruteName);
@@ -3235,7 +3297,7 @@
 
             // ===== PRE-CALCULATE: Akumulasi per Rute untuk Sisa/minggu =====
             const isWeekFilter = document.getElementById('weekFilter') && document.getElementById('weekFilter').value !== '';
-            
+
             // Kelompokkan data per rute
             const routeAggregation = {};
             volumeData.forEach(record => {
@@ -3418,7 +3480,7 @@
 
                     // Initialize defaults
                     await loadAvailableWeeks();
-                    
+
                     // Set default menu active class
                     currentMenu = 'primer';
                     document.querySelectorAll('.menu-btn').forEach(btn => {
@@ -3571,7 +3633,7 @@
         // Apply role based restrictions
         function applyRoleRestrictions() {
             if (!currentUser) return;
-            
+
             if (isAdmin()) {
                 document.body.classList.remove('is-viewer');
             } else {
@@ -3636,7 +3698,7 @@
                 const startDate = document.getElementById('startDate').value;
                 const endDate = document.getElementById('endDate').value;
                 const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
-                
+
                 let url = `${API_URL}/routes?category=${currentMenu}&routeFilter=${encodeURIComponent(routeFilter)}`;
                 if (weekKey) {
                     url += `&weekKey=${weekKey}`;
@@ -3659,7 +3721,7 @@
                     }));
 
                     routesData = sortRoutesByOrder(rawData);
-                    
+
                     // Update dropdown rute hanya jika kita sedang melihat SEMUA rute
                     // Ini agar list rute tidak berkurang saat kita memilih salah satu
                     if (!routeFilter) {
@@ -3699,22 +3761,22 @@
         function populateRouteDropdown(data) {
             const dropdown = document.getElementById('routeFilter');
             if (!dropdown) return;
-            
+
             const currentValue = dropdown.value;
-            
+
             // Keep "Semua Rute" as first option
             let optionsHTML = '<option value="">Semua Rute</option>';
-            
+
             // Get unique route names from data and sort using the custom route order
             const uniqueRouteNames = [...new Set(data.map(item => item.name))];
             const sortedRouteObjects = sortRoutesByOrder(uniqueRouteNames.map(name => ({ name })));
             const uniqueRoutes = sortedRouteObjects.map(obj => obj.name);
-            
+
             uniqueRoutes.forEach(routeName => {
                 const selected = routeName === currentValue ? 'selected' : '';
                 optionsHTML += `<option value="${routeName}" ${selected}>${routeName}</option>`;
             });
-            
+
             dropdown.innerHTML = optionsHTML;
         }
 
@@ -3773,7 +3835,7 @@
         function renderRoutes() {
             const container = document.getElementById('routesContainer');
             if (!container) return;
-            
+
             if (!routesData || routesData.length === 0) {
                 container.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; padding: 40px; background: #f8f9fa; border-radius: 12px; border: 2px dashed #ddd; color: #666;"><h3>📭 Tidak ada data yang ditemukan.</h3><p style="margin-top:10px;">Coba ubah Filter Periode Tanggal, atau silakan upload data Volume terlebih dahulu.</p></div>';
                 return;
@@ -3870,7 +3932,7 @@
 
                     // 2. Tentukan Timeline SLA (Dinamis atau Dummy)
                     let slaTimelineHtml = '';
-                    
+
                     // Coba ambil dari database SLA yang sudah diupload (dinamis)
                     if (slaData && slaData.length > 0) {
                         const dynamicSLA = renderSLACards(slaData, routeName);
@@ -4040,7 +4102,7 @@
                     } else if (totalVisual2 === 0) {
                         vSpace2 = 100;
                     }
-                    
+
                     const visualPostal2 = vPostal2;
                     const visualNonPostal2 = vNonPostal2;
                     const visualSpace2 = vSpace2;
@@ -4068,7 +4130,7 @@
                 html += `</div>`;
             }
             container.innerHTML = html;
-            
+
             // Apply current visibility state
             applySLAVisibility();
         }
@@ -4088,13 +4150,13 @@
                 alert('Pilih setidaknya satu data SLA untuk dihapus.');
                 return;
             }
-            
+
             if (!confirm(`⚠️ Apakah Anda yakin ingin menghapus ${checkboxes.length} data SLA yang terpilih?`)) {
                 return;
             }
-            
+
             const routeNames = Array.from(checkboxes).map(cb => cb.value);
-            
+
             try {
                 const response = await fetch(`${API_URL}/sla`, {
                     method: 'DELETE',
@@ -4103,7 +4165,7 @@
                     },
                     body: JSON.stringify({ routeNames: routeNames })
                 });
-                
+
                 const result = await response.json();
                 if (result.success) {
                     alert(`✅ Data SLA terpilih berhasil dihapus!`);
@@ -4133,13 +4195,13 @@
                 alert('Pilih setidaknya satu data Volume untuk dihapus.');
                 return;
             }
-            
+
             if (!confirm(`⚠️ Apakah Anda yakin ingin menghapus ${checkboxes.length} data Volume yang terpilih?`)) {
                 return;
             }
-            
+
             const routeNames = Array.from(checkboxes).map(cb => cb.value);
-            
+
             try {
                 const response = await fetch(`${API_URL}/volume`, {
                     method: 'DELETE',
@@ -4148,7 +4210,7 @@
                     },
                     body: JSON.stringify({ routeNames: routeNames })
                 });
-                
+
                 const result = await response.json();
                 if (result.success) {
                     alert(`✅ Data Volume terpilih berhasil dihapus!`);
@@ -4216,13 +4278,13 @@
     <script>
         // =================== TOGGLE SLA ===================
         let slaVisible = true;
-        
+
         function applySLAVisibility() {
             // Toggle SLA Timeline
             document.querySelectorAll('.sla-timeline').forEach(el => {
                 el.style.display = slaVisible ? '' : 'none';
             });
-            
+
             // Sembunyikan elemen yang tidak diperlukan (status, tombol) tapi TETAP munculkan Nama Rute
             document.querySelectorAll('.route-header').forEach(header => {
                 header.querySelectorAll('.sla-status, .delay-badge, button').forEach(el => {
@@ -4232,12 +4294,12 @@
 
             // Pastikan judul arah (h4) tetap muncul
             document.querySelectorAll('.route-section h4').forEach(el => {
-                el.style.display = ''; 
+                el.style.display = '';
             });
 
             // Ensure .volume-legend is always visible ("muncul Chartbar dengan label dan angka")
             document.querySelectorAll('.volume-legend').forEach(el => {
-                el.style.display = 'flex'; 
+                el.style.display = 'flex';
             });
 
             const btn = document.getElementById('toggleSLABtn');
@@ -4357,7 +4419,7 @@
         // Delete SLA Data function
         function deleteSLAData() {
             const confirmation = confirm('Apakah Anda yakin ingin menghapus semua data SLA?\n\nData yang dihapus tidak dapat dikembalikan!');
-            
+
             if (confirmation) {
                 // TODO: Implement delete SLA logic
                 alert('Delete SLA Data - Fitur akan segera tersedia!');
@@ -4367,7 +4429,7 @@
         // Delete Volume Data function
         function deleteVolumeData() {
             const confirmation = confirm('Apakah Anda yakin ingin menghapus semua data Volume?\n\nData yang dihapus tidak dapat dikembalikan!');
-            
+
             if (confirmation) {
                 // TODO: Implement delete Volume logic
                 alert('Delete Volume Data - Fitur akan segera tersedia!');
@@ -4392,7 +4454,7 @@
                 max-height: 70vh;
                 overflow-y: auto;
             `;
-            
+
             dialog.innerHTML = `
                 <h3 style="margin-bottom: 20px; color: #333;">🗑️ Pilih Data Volume yang Akan Dihapus</h3>
                 <div style="margin-bottom: 20px;">
@@ -4433,7 +4495,7 @@
                     <button onclick="confirmDeleteSelectedVolume(this.parentElement.parentElement)" style="padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 8px; cursor: pointer;">🗑️ Hapus yang Dipilih</button>
                 </div>
             `;
-            
+
             document.body.appendChild(dialog);
         }
 
@@ -4451,14 +4513,14 @@
         function confirmDeleteSelectedVolume(dialogElement) {
             const selectedItems = Array.from(document.querySelectorAll('#volumeDeleteList input[type="checkbox"]:checked'))
                 .map(cb => cb.value);
-            
+
             if (selectedItems.length === 0) {
                 alert('❌ Silakan pilih minimal satu item yang akan dihapus!');
                 return;
             }
-            
+
             const confirmation = confirm(`Apakah Anda yakin ingin menghapus ${selectedItems.length} data Volume?\n\nItem yang dipilih:\n${selectedItems.join('\n')}`);
-            
+
             if (confirmation) {
                 dialogElement.remove();
                 alert(`✅ ${selectedItems.length} data Volume berhasil dihapus!`);
@@ -4488,7 +4550,7 @@
                 min-width: 400px;
                 text-align: center;
             `;
-            
+
             dialog.innerHTML = `
                 <h3 style="margin-bottom: 15px; color: #333;">⚠️ Konfirmasi Hapus SLA</h3>
                 <p style="margin-bottom: 20px; color: #666;">Apakah Anda yakin ingin menghapus data SLA untuk:</p>
@@ -4500,14 +4562,14 @@
                     <button onclick="confirmDeleteSLA('${routeName}', this.parentElement.parentElement)" style="padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 8px; cursor: pointer;">🗑️ Hapus</button>
                 </div>
             `;
-            
+
             document.body.appendChild(dialog);
         }
 
         // Confirm delete SLA
         function confirmDeleteSLA(routeName, dialogElement) {
             dialogElement.remove();
-            
+
             // Implement actual delete logic
             fetch(`${API_URL}/sla`, {
                 method: 'DELETE',
@@ -4516,19 +4578,19 @@
                 },
                 body: JSON.stringify({ routeName: routeName })
             })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    alert(`✅ Data SLA untuk "${routeName}" berhasil dihapus!`);
-                    loadSLAData();
-                } else {
-                    alert(`❌ Gagal menghapus data SLA: ${result.message}`);
-                }
-            })
-            .catch(error => {
-                console.error('Error deleting SLA:', error);
-                alert(`❌ Error menghapus Data SLA: ${error.message}`);
-            });
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        alert(`✅ Data SLA untuk "${routeName}" berhasil dihapus!`);
+                        loadSLAData();
+                    } else {
+                        alert(`❌ Gagal menghapus data SLA: ${result.message}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting SLA:', error);
+                    alert(`❌ Error menghapus Data SLA: ${error.message}`);
+                });
         }
 
         // Edit Volume function
@@ -4553,7 +4615,7 @@
                 min-width: 400px;
                 text-align: center;
             `;
-            
+
             dialog.innerHTML = `
                 <h3 style="margin-bottom: 15px; color: #333;">⚠️ Konfirmasi Hapus Volume</h3>
                 <p style="margin-bottom: 20px; color: #666;">Apakah Anda yakin ingin menghapus data Volume untuk:</p>
@@ -4565,14 +4627,14 @@
                     <button onclick="confirmDeleteVolume('${routeName}', this.parentElement.parentElement)" style="padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 8px; cursor: pointer;">🗑️ Hapus</button>
                 </div>
             `;
-            
+
             document.body.appendChild(dialog);
         }
 
         // Confirm delete Volume
         function confirmDeleteVolume(routeName, dialogElement) {
             dialogElement.remove();
-            
+
             // Implement actual delete logic
             fetch(`${API_URL}/volume`, {
                 method: 'DELETE',
@@ -4581,26 +4643,26 @@
                 },
                 body: JSON.stringify({ routeName: routeName })
             })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    alert(`✅ Data Volume untuk "${routeName}" berhasil dihapus!`);
-                    loadVolumeData();
-                } else {
-                    alert(`❌ Gagal menghapus data Volume: ${result.message}`);
-                }
-            })
-            .catch(error => {
-                console.error('Error deleting Volume:', error);
-                alert(`❌ Error menghapus Data Volume: ${error.message}`);
-            });
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        alert(`✅ Data Volume untuk "${routeName}" berhasil dihapus!`);
+                        loadVolumeData();
+                    } else {
+                        alert(`❌ Gagal menghapus data Volume: ${result.message}`);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error deleting Volume:', error);
+                    alert(`❌ Error menghapus Data Volume: ${error.message}`);
+                });
         }
 
         // Toggle all SLA checkboxes
         function toggleAllSLA() {
             const selectAllCheckbox = document.getElementById('selectAllSLA');
             const slaCheckboxes = document.querySelectorAll('.sla-checkbox');
-            
+
             slaCheckboxes.forEach(checkbox => {
                 checkbox.checked = selectAllCheckbox.checked;
             });
@@ -4610,7 +4672,7 @@
         function toggleAllVolume() {
             const selectAllCheckbox = document.getElementById('selectAllVolume');
             const volumeCheckboxes = document.querySelectorAll('.volume-checkbox');
-            
+
             volumeCheckboxes.forEach(checkbox => {
                 checkbox.checked = selectAllCheckbox.checked;
             });
@@ -4618,6 +4680,6 @@
     </script>
 </body>
 
-</html><!DOCTYPE html>
+</html>
+<!DOCTYPE html>
 <html lang="id">
-
