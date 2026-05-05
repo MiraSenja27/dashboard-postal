@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Postal - by : Hamira</title>
     <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         * {
@@ -1095,7 +1096,7 @@
             </div>
             <h1 class="login-title">Dashboard Postal</h1>
             <p class="login-subtitle">by : Hamira</p>
-            <form onsubmit="return login(event)">
+            <form onsubmit="login(event); return false;">
                 <div style="position: relative;">
                     <span
                         style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 20px;">👤</span>
@@ -1586,8 +1587,12 @@
 
             // Load data for selected category with current filter preserved
             const currentWeekKey = document.getElementById('weekFilter').value;
-            if (currentView === 'dashboard') await loadDashboardData(currentWeekKey);
-            else if (currentView === 'sla') await loadSLAData(currentWeekKey);
+            
+            // Always update weeks and dashboard in background to keep stats synced
+            await loadAvailableWeeks();
+            await loadDashboardData(currentWeekKey);
+            
+            if (currentView === 'sla') await loadSLAData(currentWeekKey);
             else if (currentView === 'volume') await loadVolumeData(currentWeekKey);
         }
 
@@ -1707,25 +1712,51 @@
                 </div>
                 <div style="display: flex; gap: 10px; justify-content: flex-end;">
                     <button onclick="this.parentElement.parentElement.remove()" style="padding: 8px 16px; background: #999; color: white; border: none; border-radius: 4px; cursor: pointer;">Batal</button>
-                    <button onclick="saveSLAEdit('${routeName}')" style="padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer;">Simpan</button>
+                    <button id="btnSaveSLAEdit" style="padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer;">Simpan</button>
                 </div>
             `;
             
             document.body.appendChild(editDialog);
-        }
 
-        function saveSLAEdit(routeName) {
-            const targetTime = document.getElementById('targetTime').value;
-            const realisasiTime = document.getElementById('realisasiTime').value;
-            
-            if (!targetTime || !realisasiTime) {
-                alert('❌ Semua field harus diisi!');
-                return;
-            }
-            
-            alert(`✅ Data SLA untuk ${routeName} berhasil diperbarui!`);
-            document.querySelector('[style*="position: fixed"]').remove();
-            loadSLAData();
+            document.getElementById('btnSaveSLAEdit').onclick = async () => {
+                const targetTime = document.getElementById('targetTime').value;
+                const realisasiTime = document.getElementById('realisasiTime').value;
+                
+                if (!targetTime || !realisasiTime) {
+                    alert('❌ Semua field harus diisi!');
+                    return;
+                }
+
+                try {
+                    // Get existing data to preserve other points
+                    const record = slaData.find(s => s.rute === routeName);
+                    if (!record) throw new Error("Data tidak ditemukan");
+
+                    const updatedTitik = JSON.parse(JSON.stringify(record.titik));
+                    if (updatedTitik.length > 0) {
+                        updatedTitik[0].target = targetTime;
+                        updatedTitik[0].realisasi = realisasiTime;
+                    }
+
+                    const response = await fetch(`${API_URL}/sla`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ rute: routeName, titik: updatedTitik, tanggal: record.tanggal })
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        alert(`✅ Data SLA untuk ${routeName} berhasil diperbarui!`);
+                        editDialog.remove();
+                        await loadSLAData();
+                        await loadDashboardData();
+                    } else {
+                        alert(`❌ Gagal: ${result.message}`);
+                    }
+                } catch (error) {
+                    alert(`❌ Error: ${error.message}`);
+                }
+            };
         }
 
         // Fungsi untuk edit dan hapus data Volume
@@ -1756,25 +1787,41 @@
                 </div>
                 <div style="display: flex; gap: 10px; justify-content: flex-end;">
                     <button onclick="this.parentElement.parentElement.remove()" style="padding: 8px 16px; background: #999; color: white; border: none; border-radius: 4px; cursor: pointer;">Batal</button>
-                    <button onclick="saveVolumeEdit('${routeName}')" style="padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer;">Simpan</button>
+                    <button id="btnSaveVolEdit" style="padding: 8px 16px; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer;">Simpan</button>
                 </div>
             `;
             
             document.body.appendChild(editDialog);
-        }
 
-        function saveVolumeEdit(routeName) {
-            const volumePostal = document.getElementById('volumePostal').value;
-            const volumePoslog = document.getElementById('volumePoslog').value;
-            
-            if (!volumePostal || !volumePoslog) {
-                alert('❌ Semua field harus diisi!');
-                return;
-            }
-            
-            alert(`✅ Data Volume untuk ${routeName} berhasil diperbarui!`);
-            document.querySelector('[style*="position: fixed"]').remove();
-            loadVolumeData();
+            document.getElementById('btnSaveVolEdit').onclick = async () => {
+                const postal = document.getElementById('volumePostal').value;
+                const poslog = document.getElementById('volumePoslog').value;
+                
+                if (!postal || !poslog) {
+                    alert('❌ Semua field harus diisi!');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_URL}/volume`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ rute: routeName, postal, nonPostal: poslog })
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        alert(`✅ Data Volume untuk ${routeName} berhasil diperbarui!`);
+                        editDialog.remove();
+                        await loadVolumeData();
+                        await loadDashboardData();
+                    } else {
+                        alert(`❌ Gagal: ${result.message}`);
+                    }
+                } catch (error) {
+                    alert(`❌ Error: ${error.message}`);
+                }
+            };
         }
 
         function deleteVolume(routeName) {
@@ -2071,27 +2118,15 @@
                 updatePeriodLabel(labelText, 'daily');
             }
 
-            // Apply filter based on current view
-            if (currentView === 'dashboard') {
-                await loadDashboardData(weekKey);
-            } else if (currentView === 'sla') {
+            // Always update dashboard data in background so stats are synced
+            await loadDashboardData(weekKey);
+
+            // Apply filter based on current view for specific tables
+            if (currentView === 'sla') {
                 await loadSLAData(weekKey);
             } else if (currentView === 'volume') {
                 await loadVolumeData(weekKey);
             }
-        }
-
-        function filterRouteCards(routeFilter) {
-            const routeCards = document.querySelectorAll('.route-card');
-            routeCards.forEach(card => {
-                const routeName = card.querySelector('.route-name').textContent;
-                // Check if route name contains the filter text
-                if (routeName.includes(routeFilter)) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
         }
 
         // Set filter ke bulan berjalan
@@ -2147,8 +2182,6 @@
                 const startDate = document.getElementById('startDate').value;
                 const endDate = document.getElementById('endDate').value;
 
-                // Load available weeks for weekly filter
-                await loadAvailableWeeks();
 
                 // Build query params
                 const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
@@ -2179,12 +2212,6 @@
                 // Panggil render rute mutakhir
                 await loadRoutesFromServer(weekKey);
                 
-                // Terapkan filter visual kartu 
-                const rfValue = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
-                if (rfValue && typeof filterRouteCards === 'function') {
-                    filterRouteCards(rfValue);
-                }
-
                 // Update period label
                 const currentWeekKey = document.getElementById('weekFilter').value;
                 if (currentWeekKey === "ALL") {
@@ -2317,10 +2344,11 @@
                     viewFilters[view].endDate = endDate;
                 });
 
-                // Reload data based on active view
-                if (currentView === 'dashboard') {
-                    await loadDashboardData(weekKey);
-                } else if (currentView === 'sla') {
+                // Always update dashboard data in background so stats are synced
+                await loadDashboardData(weekKey);
+
+                // Reload data based on active view for tables
+                if (currentView === 'sla') {
                     await loadSLAData(weekKey);
                 } else if (currentView === 'volume') {
                     await loadVolumeData(weekKey);
@@ -3084,7 +3112,7 @@
                 
                 let url = `${API_URL}/volume?category=${currentMenu}&routeFilter=${encodeURIComponent(routeFilter)}`;
                 if (weekKey) {
-                    url += `&weekKey=${weekKey}&aggregate=true`;
+                    url += `&weekKey=${weekKey}`;
                 } else if (startDate && endDate) {
                     url += `&startDate=${startDate}&endDate=${endDate}`;
                 }
@@ -3096,8 +3124,13 @@
                 if (result.success) {
                     let finalData = result.data;
 
-                    // Sort data by route order
-                    const sortedData = sortRoutesByOrder(finalData);
+                    // Sort data: first by route order, then by date within the same route
+                    const sortedData = [...finalData].sort((a, b) => {
+                        const orderA = ROUTE_ORDER.findIndex(r => (a.rute || "").toLowerCase().includes(r.toLowerCase()));
+                        const orderB = ROUTE_ORDER.findIndex(r => (b.rute || "").toLowerCase().includes(r.toLowerCase()));
+                        if (orderA !== orderB) return orderA - orderB;
+                        return new Date(a.tanggal) - new Date(b.tanggal);
+                    });
 
                     // Function to render table and attach listeners
                     const renderVolumeTable = (data) => {
@@ -3126,17 +3159,44 @@
                                 this.textContent = '';
                                 this.appendChild(input);
                                 input.focus(); input.select();
-                                const save = () => {
+                                const save = async () => {
                                     const newVal = parseFloat(input.value) || 0;
-                                    if (_volumeData[rowIdx]) _volumeData[rowIdx][col] = newVal;
-                                    
-                                    // Sync with routesData
                                     const ruteName = _volumeData[rowIdx].rute;
-                                    const rd = routesData.find(r => r.name === ruteName);
-                                    if (rd) { rd[col === 'nonPostal' ? 'nonPostal' : col] = newVal; renderRoutes(); }
+                                    const tanggal = _volumeData[rowIdx].tanggal;
+                                    const id = _volumeData[rowIdx].id;
 
-                                    // Re-render table to instantly update all mathematical calculations (Sisa/hari, Sisa/minggu)
-                                    renderVolumeTable(_volumeData);
+                                    try {
+                                        const response = await fetch(`${API_URL}/volume`, {
+                                            method: 'PUT',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({ 
+                                                id: id,
+                                                rute: ruteName, 
+                                                tanggal: tanggal,
+                                                [col]: newVal 
+                                            })
+                                        });
+
+                                        const result = await response.json();
+                                        if (result.success) {
+                                            if (_volumeData[rowIdx]) _volumeData[rowIdx][col] = newVal;
+                                            
+                                            // Sync with routesData
+                                            const rd = routesData.find(r => r.name === ruteName);
+                                            if (rd) { rd[col === 'nonPostal' ? 'nonPostal' : col] = newVal; renderRoutes(); }
+
+                                            renderVolumeTable(_volumeData);
+                                            // Silently update dashboard in background
+                                            loadDashboardData().catch(e => console.error(e));
+                                        } else {
+                                            alert("Gagal menyimpan: " + result.message);
+                                            renderVolumeTable(_volumeData);
+                                        }
+                                    } catch (err) {
+                                        console.error(err);
+                                        alert("Koneksi gagal");
+                                        renderVolumeTable(_volumeData);
+                                    }
                                 };
                                 input.addEventListener('blur', save);
                                 input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); });
@@ -3204,6 +3264,7 @@
                                 <div style="display: flex; gap: 10px;">
                                     <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadVolume(currentMenu)">📤 Upload Volume</button>
                                     <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedVolume()">🗑️ Hapus Terpilih</button>
+                                    <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadVolumeExcel()">Excel 📊</button>
                                 </div>
                                 ` : ''}
                             </th>
@@ -3316,7 +3377,12 @@
 
                 // Kapasitas Mingguan column
                 const weeklyCap = record.kapasitas || 0;
-                rowsHTML += `<td>${weeklyCap.toLocaleString('id-ID')}</td>`;
+                const weeklyCapDisplay = weeklyCap.toLocaleString('id-ID');
+                if (isAdmin()) {
+                    rowsHTML += `<td data-editable="true" data-row="${rowIdx}" data-col="kapasitas" style="cursor:pointer; text-align: left;" title="Klik untuk edit">${weeklyCapDisplay}</td>`;
+                } else {
+                    rowsHTML += `<td>${weeklyCapDisplay}</td>`;
+                }
 
                 // Kapasitas Harian column (Weekly / 7)
                 const dailyCap = weeklyCap / 7;
@@ -3362,6 +3428,7 @@
                                 <div style="display: flex; gap: 10px;">
                                     <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadVolume(currentMenu)">📤 Upload Volume</button>
                                     <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedVolume()">🗑️ Hapus Terpilih</button>
+                                    <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadVolumeExcel()">Excel 📊</button>
                                 </div>
                                 ` : ''}
                             </th>
@@ -3401,6 +3468,61 @@
                     </tfoot>
                 </table>
             `;
+        }
+
+        function downloadVolumeExcel() {
+            if (!window._volumeData || window._volumeData.length === 0) {
+                alert('Tidak ada data untuk didownload');
+                return;
+            }
+
+            try {
+                // Persiapkan data untuk Excel (sesuai urutan kolom di tabel)
+                const excelData = window._volumeData.map((record, index) => {
+                    const weeklyCap = record.kapasitas || 0;
+                    const dailyCap = weeklyCap / 7;
+                    const postal = record.postal || 0;
+                    const poslog = record.nonPostal || 0;
+                    const sisaHari = dailyCap - postal - poslog;
+                    const sisaPctHari = dailyCap > 0 ? (sisaHari / dailyCap * 100) : 0;
+
+                    return {
+                        'No': index + 1,
+                        'Tanggal': record.tanggal,
+                        'Nama Rute': record.rute,
+                        'Postal (kg)': postal,
+                        'Poslog (kg)': poslog,
+                        'Kapasitas/minggu': weeklyCap,
+                        'Kapasitas/hari': dailyCap,
+                        'Sisa/hari (kg)': sisaHari,
+                        'Sisa/hari (%)': sisaPctHari.toFixed(1) + '%'
+                    };
+                });
+
+                // Buat worksheet
+                const ws = XLSX.utils.json_to_sheet(excelData);
+                
+                // Atur lebar kolom agar rapi
+                const wscols = [
+                    {wch: 5}, {wch: 15}, {wch: 35}, {wch: 15}, {wch: 15}, 
+                    {wch: 18}, {wch: 15}, {wch: 15}, {wch: 12}
+                ];
+                ws['!cols'] = wscols;
+
+                // Buat workbook
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Volume Kiriman");
+
+                // Generate nama file (dengan info filter rute/minggu)
+                const rf = document.getElementById('routeFilter')?.value || 'Semua Rute';
+                const filename = `Volume_Kiriman_${rf.replace(/\s+/g, '_')}_${new Date().getTime()}.xlsx`;
+
+                // Download
+                XLSX.writeFile(wb, filename);
+            } catch (err) {
+                console.error('Download Excel Error:', err);
+                alert('Gagal mendownload Excel: ' + err.message);
+            }
         }
 
         // Initialize with current month date range
@@ -3654,31 +3776,25 @@
                 const result = await response.json();
 
                 if (result.success && result.data && result.data.length > 0) {
-                    // Convert server data to frontend format then sort by fixed order
                     const rawData = result.data.map(record => ({
                         name: record.route_name,
                         postal: parseFloat(record.postal_volume || 0),
                         nonPostal: parseFloat(record.non_postal_volume || 0),
-                        kapasitas: parseFloat(record.kapasitas || 0) / 7,
-                        sisa: (parseFloat(record.kapasitas || 0) / 7) - (parseFloat(record.postal_volume || 0) + parseFloat(record.non_postal_volume || 0))
+                        kapasitas: parseFloat(record.kapasitas || 0),
+                        sisa: parseFloat(record.kapasitas || 0) - (parseFloat(record.postal_volume || 0) + parseFloat(record.non_postal_volume || 0))
                     }));
 
                     routesData = sortRoutesByOrder(rawData);
                     
-                    // Update dropdown rute hanya jika kita sedang melihat SEMUA rute
-                    // Ini agar list rute tidak berkurang saat kita memilih salah satu
+                    // Update dropdown if we are NOT currently filtering by a specific route
+                    // This allows switching between routes while keeping the full list available
                     if (!routeFilter) {
                         populateRouteDropdown(routesData);
                     }
 
-                    console.log('✅ Loaded routes:', routesData.length);
-
-                    // Re-render routes with uploaded data
                     renderRoutes();
 
-                    // Update period label based on data range
-                    if (weekKey === "ALL" && result.data.length > 0) {
-                        // For Dashboard, we just show "SEMUA MINGGU" or the total span
+                    if (weekKey === "ALL") {
                         updatePeriodLabel(`Menampilkan data: SEMUA MINGGU`, 'weekly');
                     } else if (weekKey && weekKey !== "ALL") {
                         const weekSelect = document.getElementById('weekFilter');
@@ -3688,10 +3804,12 @@
                         updatePeriodLabel(`Menampilkan data: ${formatDateIndo(startDate)} s/d ${formatDateIndo(endDate)}`, 'daily');
                     }
                 } else {
-                    console.log('No uploaded data found for this filter.');
+                    // CLEAR UI IF NO DATA
                     routesData = [];
                     renderRoutes();
-                    updatePeriodLabel(`Data Tidak Ditemukan`, 'daily');
+                    console.log('No uploaded data found for this filter.');
+                    const container = document.getElementById('routesContainer');
+                    if (container) container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #64748b; font-weight: 600;">⚠️ Tidak ada data untuk filter ini</div>';
                 }
             } catch (error) {
                 console.error('Error loading routes:', error);
@@ -3784,8 +3902,8 @@
                 return;
             }
 
-            const capacity = 100000;
-            let html = '';
+            // Capacity is now dynamic per route card
+                let html = '';
             let i = 0;
 
             while (i < routesData.length) {
