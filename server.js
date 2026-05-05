@@ -538,39 +538,7 @@ app.post('/api/upload-sla', upload.single('file'), (req, res) => {
   }
 });
 
-// Get available weeks
-app.get('/api/weeks', (req, res) => {
-  const { category } = req.query;
-  
-  let filtered = db.volumeData;
-  
-  if (category) {
-    filtered = filtered.filter(item => item.category === category);
-  }
-  
-  // Get unique weeks
-  const weeks = {};
-  filtered.forEach(item => {
-    if (item.weekKey) {
-      if (!weeks[item.weekKey]) {
-        weeks[item.weekKey] = {
-          weekKey: item.weekKey,
-          startDate: item.weekStart,
-          endDate: item.weekEnd,
-          recordCount: 0
-        };
-      }
-      weeks[item.weekKey].recordCount++;
-    }
-  });
-  
-  // Convert to array and sort by date
-  const weeksList = Object.values(weeks).sort((a, b) => 
-    new Date(b.startDate) - new Date(a.startDate)
-  );
-  
-  res.json({ success: true, data: weeksList });
-});
+
 
 // Get volume data
 app.get('/api/volume', (req, res) => {
@@ -988,6 +956,79 @@ app.delete('/api/volume', (req, res) => {
   } catch (error) {
     console.error('Error deleting Volume data:', error);
     res.status(500).json({ success: false, message: 'Error deleting Volume data: ' + error.message });
+  }
+});
+
+// Update Volume data
+app.put('/api/volume', (req, res) => {
+  try {
+    const { rute, postal, nonPostal, tanggal, id } = req.body;
+    
+    if (!rute && !id) {
+      return res.status(400).json({ success: false, message: 'Rute or ID is required' });
+    }
+    
+    let updated = false;
+    db.volumeData = db.volumeData.map(item => {
+      // Use == for flexible matching of string/number IDs from request
+      const match = id ? (item.id == id) : (item.rute === rute && (!tanggal || item.tanggal === tanggal));
+      if (match) {
+        updated = true;
+        return {
+          ...item,
+          postal: postal !== undefined ? parseFloat(postal) : item.postal,
+          nonPostal: nonPostal !== undefined ? parseFloat(nonPostal) : item.nonPostal,
+          kapasitas: req.body.kapasitas !== undefined ? parseFloat(req.body.kapasitas) : item.kapasitas,
+          // Recalculate space if needed
+          sisa: (req.body.kapasitas || item.kapasitas) > 0 ? (1 - (((postal !== undefined ? parseFloat(postal) : item.postal) + (nonPostal !== undefined ? parseFloat(nonPostal) : item.nonPostal)) / (req.body.kapasitas || item.kapasitas))) : item.sisa
+        };
+      }
+      return item;
+    });
+    
+    if (!updated) {
+      return res.status(404).json({ success: false, message: 'Data volume tidak ditemukan' });
+    }
+    
+    saveData(db);
+    res.json({ success: true, message: 'Data volume berhasil diperbarui' });
+  } catch (error) {
+    console.error('Error updating volume:', error);
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Update SLA data
+app.put('/api/sla', (req, res) => {
+  try {
+    const { rute, titik, tanggal, id } = req.body;
+    
+    if (!rute && !id) {
+      return res.status(400).json({ success: false, message: 'Rute or ID is required' });
+    }
+    
+    let updated = false;
+    db.slaData = db.slaData.map(item => {
+      const match = id ? (item.id === id) : (item.rute === rute && (!tanggal || item.tanggal === tanggal));
+      if (match) {
+        updated = true;
+        return {
+          ...item,
+          titik: titik || item.titik
+        };
+      }
+      return item;
+    });
+    
+    if (!updated) {
+      return res.status(404).json({ success: false, message: 'Data SLA tidak ditemukan' });
+    }
+    
+    saveData(db);
+    res.json({ success: true, message: 'Data SLA berhasil diperbarui' });
+  } catch (error) {
+    console.error('Error updating SLA:', error);
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 
