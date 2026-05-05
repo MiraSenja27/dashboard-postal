@@ -6,15 +6,17 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors({
-    origin: true,
-    credentials: true
-}));
+app.use(cors()); // Allow all origins for easier deployment
 app.use(express.json());
 app.use(express.static(__dirname));
+
+// Serve dashboard-postal.html at the root
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dashboard-postal.html'));
+});
 
 // JSON Database file
 const DB_FILE = path.join(__dirname, 'data.json');
