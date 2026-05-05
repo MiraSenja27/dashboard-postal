@@ -1609,14 +1609,14 @@
         const getAPIURL = () => {
             const protocol = window.location.protocol; // http: atau https:
             const hostname = window.location.hostname; // IP atau localhost
-            const port = 3001;
 
             // If running from file:// protocol, use localhost fallback
             if (protocol === 'file:') {
-                return 'http://localhost:3001/api';
+                return 'http://localhost:5000/api';
             }
 
-            return `${protocol}//${hostname}:${port}/api`;
+            // Use relative URL (same origin) when served by Express
+            return '/api';
         };
         const API_URL = getAPIURL();
 
