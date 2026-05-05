@@ -1545,16 +1545,21 @@
     <script>
         // Auto-detect API URL based on environment
         const getAPIURL = () => {
-            const protocol = window.location.protocol; // http: atau https:
-            const hostname = window.location.hostname; // IP atau localhost
-            const port = 3001;
+            const protocol = window.location.protocol;
+            const hostname = window.location.hostname;
             
             // If running from file:// protocol, use localhost fallback
             if (protocol === 'file:') {
                 return 'http://localhost:3001/api';
             }
             
-            return `${protocol}//${hostname}:${port}/api`;
+            // If running on localhost, use port 3001
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                return `${protocol}//${hostname}:3001/api`;
+            }
+            
+            // On Replit or other cloud hosting, use relative URL (same origin)
+            return '/api';
         };
         const API_URL = getAPIURL();
 
