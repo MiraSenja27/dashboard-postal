@@ -1084,6 +1084,16 @@
                 flex-direction: column;
             }
         }
+
+        /* Fix for table overflow on mobile */
+        #sla-view, #volume-view {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            background-color: #ffffff;
+            width: 100%;
+            border-radius: 8px;
+            padding-bottom: 15px;
+        }
     </style>
 </head>
 
