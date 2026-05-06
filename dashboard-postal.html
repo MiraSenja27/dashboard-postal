@@ -1250,52 +1250,8 @@
                         <div class="ranking-title">
                             🏆 Top 5 Rute Delay
                         </div>
-                        <ul class="ranking-list">
-                            <li class="ranking-item rank-1">
-                                <span class="ranking-position">1</span>
-                                <span class="ranking-name">Rute 2: JAT - Yogyakarta</span>
-                                <span class="ranking-delay">⏱️ 45 menit</span>
-                                <div class="ranking-datetime">
-                                    <span class="ranking-date">📅 14 Apr 2026</span>
-                                    <span class="ranking-time">🕐 16:45</span>
-                                </div>
-                            </li>
-                            <li class="ranking-item rank-2">
-                                <span class="ranking-position">2</span>
-                                <span class="ranking-name">Rute 4: JAT - Purwokerto</span>
-                                <span class="ranking-delay">⏱️ 30 menit</span>
-                                <div class="ranking-datetime">
-                                    <span class="ranking-date">📅 13 Apr 2026</span>
-                                    <span class="ranking-time">🕐 14:30</span>
-                                </div>
-                            </li>
-                            <li class="ranking-item rank-3">
-                                <span class="ranking-position">3</span>
-                                <span class="ranking-name">Rute 8: JAT - Surabaya</span>
-                                <span class="ranking-delay">⏱️ 25 menit</span>
-                                <div class="ranking-datetime">
-                                    <span class="ranking-date">📅 13 Apr 2026</span>
-                                    <span class="ranking-time">🕐 22:25</span>
-                                </div>
-                            </li>
-                            <li class="ranking-item">
-                                <span class="ranking-position">4</span>
-                                <span class="ranking-name">Rute 12: Yogyakarta - Surabaya</span>
-                                <span class="ranking-delay">⏱️ 20 menit</span>
-                                <div class="ranking-datetime">
-                                    <span class="ranking-date">📅 12 Apr 2026</span>
-                                    <span class="ranking-time">🕐 18:20</span>
-                                </div>
-                            </li>
-                            <li class="ranking-item">
-                                <span class="ranking-position">5</span>
-                                <span class="ranking-name">Rute 15: JAT - Surabaya</span>
-                                <span class="ranking-delay">⏱️ 15 menit</span>
-                                <div class="ranking-datetime">
-                                    <span class="ranking-date">📅 12 Apr 2026</span>
-                                    <span class="ranking-time">🕐 09:15</span>
-                                </div>
-                            </li>
+                        <ul id="ranking-rute" class="ranking-list">
+                            <li style="padding: 20px; text-align: center; color: #999;">Memuat data rute...</li>
                         </ul>
                     </div>
 
@@ -1303,52 +1259,8 @@
                         <div class="ranking-title">
                             🚛 Top 5 NOPOL Delay
                         </div>
-                        <ul class="ranking-list">
-                            <li class="ranking-item rank-1">
-                                <span class="ranking-position">1</span>
-                                <span class="ranking-name">B 1234 XYZ</span>
-                                <span class="ranking-delay">⏱️ 60 menit</span>
-                                <div class="ranking-datetime">
-                                    <span class="ranking-date">📅 14 Apr 2026</span>
-                                    <span class="ranking-time">🕐 15:30</span>
-                                </div>
-                            </li>
-                            <li class="ranking-item rank-2">
-                                <span class="ranking-position">2</span>
-                                <span class="ranking-name">B 5678 ABC</span>
-                                <span class="ranking-delay">⏱️ 50 menit</span>
-                                <div class="ranking-datetime">
-                                    <span class="ranking-date">📅 14 Apr 2026</span>
-                                    <span class="ranking-time">🕐 10:20</span>
-                                </div>
-                            </li>
-                            <li class="ranking-item rank-3">
-                                <span class="ranking-position">3</span>
-                                <span class="ranking-name">B 9012 DEF</span>
-                                <span class="ranking-delay">⏱️ 40 menit</span>
-                                <div class="ranking-datetime">
-                                    <span class="ranking-date">📅 13 Apr 2026</span>
-                                    <span class="ranking-time">🕐 20:15</span>
-                                </div>
-                            </li>
-                            <li class="ranking-item">
-                                <span class="ranking-position">4</span>
-                                <span class="ranking-name">B 3456 GHI</span>
-                                <span class="ranking-delay">⏱️ 35 menit</span>
-                                <div class="ranking-datetime">
-                                    <span class="ranking-date">📅 13 Apr 2026</span>
-                                    <span class="ranking-time">🕐 08:45</span>
-                                </div>
-                            </li>
-                            <li class="ranking-item">
-                                <span class="ranking-position">5</span>
-                                <span class="ranking-name">B 7890 JKL</span>
-                                <span class="ranking-delay">⏱️ 28 menit</span>
-                                <div class="ranking-datetime">
-                                    <span class="ranking-date">📅 12 Apr 2026</span>
-                                    <span class="ranking-time">🕐 17:50</span>
-                                </div>
-                            </li>
+                        <ul id="ranking-nopol" class="ranking-list">
+                            <li style="padding: 20px; text-align: center; color: #999;">Memuat data nopol...</li>
                         </ul>
                     </div>
                 </div>
@@ -2445,35 +2357,46 @@
         }
 
         function updateRankings(data) {
-            const rankingList = document.querySelector('.ranking-list');
-            if (!rankingList) return;
+            const ruteList = document.getElementById('ranking-rute');
+            const nopolList = document.getElementById('ranking-nopol');
+            if (!ruteList || !nopolList) return;
 
-            // Collect all points with delays
-            const delays = [];
+            // Tampung semua titik yang mengalami delay
+            const ruteDelays = [];
+            const nopolDelays = [];
+
             data.forEach(item => {
                 const titikList = item.titik || [];
                 titikList.forEach(t => {
-                    const statusLower = t.status ? t.status.toLowerCase() : '';
+                    const statusLower = (t.status || '').toLowerCase();
                     if (statusLower.includes('delay') || statusLower.includes('keterlambatan') || statusLower.includes('terlambat')) {
                         let minutes = parseInt(t.selisih) || 0;
                         let delayText = t.selisih || 'Delay';
                         
-                        // Calculate difference if selisih is absent
+                        // Hitung selisih jika tidak ada di data
                         if (!t.selisih && t.target && t.realisasi && t.target !== '-' && t.realisasi !== '-') {
-                            const targetParts = t.target.split(':');
-                            const realisasiParts = t.realisasi.split(':');
-                            if (targetParts.length === 2 && realisasiParts.length === 2) {
-                                const targetMins = parseInt(targetParts[0]) * 60 + parseInt(targetParts[1]);
-                                const realisasiMins = parseInt(realisasiParts[0]) * 60 + parseInt(realisasiParts[1]);
-                                let diff = realisasiMins - targetMins;
-                                if (diff < 0) diff += 24 * 60; // Crosses midnight
+                            const tParts = t.target.split(':');
+                            const rParts = t.realisasi.split(':');
+                            if (tParts.length === 2 && rParts.length === 2) {
+                                let diff = (parseInt(rParts[0])*60 + parseInt(rParts[1])) - (parseInt(tParts[0])*60 + parseInt(tParts[1]));
+                                if (diff < 0) diff += 1440; // Jika lewat tengah malam
                                 minutes = diff;
                                 delayText = diff + ' menit';
                             }
                         }
 
-                        delays.push({
+                        // Masukkan ke kategori Rute
+                        ruteDelays.push({
                             name: item.rute,
+                            delay: minutes,
+                            delayText: delayText,
+                            date: item.tanggal,
+                            time: t.realisasi
+                        });
+
+                        // Masukkan ke kategori NOPOL
+                        nopolDelays.push({
+                            name: item.nopol || 'Tanpa Nopol',
                             delay: minutes,
                             delayText: delayText,
                             date: item.tanggal,
@@ -2483,25 +2406,28 @@
                 });
             });
 
-            // Sort by delay descending and take top 5
-            const top5 = delays.sort((a, b) => b.delay - a.delay).slice(0, 5);
+            // Render fungsi helper
+            const renderList = (listElement, delays, type) => {
+                const top5 = delays.sort((a, b) => b.delay - a.delay).slice(0, 5);
+                if (top5.length === 0) {
+                    listElement.innerHTML = `<li style="padding: 20px; text-align: center; color: #999;">Tidak ada delay ${type} tercatat</li>`;
+                    return;
+                }
+                listElement.innerHTML = top5.map((item, index) => `
+                    <li class="ranking-item ${index < 3 ? 'rank-' + (index + 1) : ''}">
+                        <span class="ranking-position">${index + 1}</span>
+                        <span class="ranking-name">${item.name}</span>
+                        <span class="ranking-delay">⏱️ ${item.delayText}</span>
+                        <div class="ranking-datetime">
+                            <span class="ranking-date">📅 ${formatDateIndo(item.date)}</span>
+                            <span class="ranking-time">🕐 ${item.time}</span>
+                        </div>
+                    </li>
+                `).join('');
+            };
 
-            if (top5.length === 0) {
-                rankingList.innerHTML = '<li style="padding: 20px; text-align: center; color: #999;">Tidak ada keterlambatan tercatat</li>';
-                return;
-            }
-
-            rankingList.innerHTML = top5.map((item, index) => `
-                <li class="ranking-item ${index < 3 ? 'rank-' + (index + 1) : ''}">
-                    <span class="ranking-position">${index + 1}</span>
-                    <span class="ranking-name">${item.name}</span>
-                    <span class="ranking-delay">⏱️ ${item.delayText}</span>
-                    <div class="ranking-datetime">
-                        <span class="ranking-date">📅 ${formatDateIndo(item.date)}</span>
-                        <span class="ranking-time">🕐 ${item.time}</span>
-                    </div>
-                </li>
-            `).join('');
+            renderList(ruteList, ruteDelays, 'rute');
+            renderList(nopolList, nopolDelays, 'nopol');
         }
 
         function formatVolume(volume) {
@@ -3531,7 +3457,7 @@
             initDefaultDates();
 
             // Check if user is already logged in
-            const savedUser = localStorage.getItem('currentUser');
+            const savedUser = sessionStorage.getItem('currentUser');
 
             if (savedUser) {
                 try {
@@ -3567,7 +3493,7 @@
                     await showView('dashboard');
                 } catch (error) {
                     console.error('Error parsing saved user:', error);
-                    localStorage.removeItem('currentUser');
+                    sessionStorage.removeItem('currentUser');
                     document.getElementById('login-page').style.display = 'flex';
                 }
             } else {
@@ -3586,8 +3512,8 @@
             if (username === 'admin' && password === 'admin123') {
                 currentUser = { username: username, id: 1, role: 'admin' };
 
-                // Save user to localStorage
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                // Save user to sessionStorage
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
 
                 document.getElementById('login-page').style.display = 'none';
                 document.getElementById('dashboard-content').style.display = 'block';
@@ -3611,7 +3537,7 @@
             if (username.toLowerCase() === 'postal' && password === 'mirasenja') {
                 currentUser = { username: 'postal', id: 2, role: 'viewer' };
 
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
 
                 document.getElementById('login-page').style.display = 'none';
                 document.getElementById('dashboard-content').style.display = 'block';
@@ -3642,8 +3568,8 @@
                 if (result.success) {
                     currentUser = result.user;
 
-                    // Save user to localStorage
-                    localStorage.setItem('currentUser', JSON.stringify(result.user));
+                    // Save user to sessionStorage
+                    sessionStorage.setItem('currentUser', JSON.stringify(result.user));
 
                     document.getElementById('login-page').style.display = 'none';
                     document.getElementById('dashboard-content').style.display = 'block';
@@ -3675,7 +3601,7 @@
         // Logout function
         function logout() {
             if (confirm('Apakah Anda yakin ingin logout?')) {
-                localStorage.removeItem('currentUser');
+                sessionStorage.removeItem('currentUser');
                 currentUser = null;
                 document.getElementById('login-page').style.display = 'flex';
                 document.getElementById('dashboard-content').style.display = 'none';
