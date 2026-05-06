@@ -1312,6 +1312,15 @@
             <div id="sla-view" class="hidden" style="position: relative;">
                 <table class="data-table">
                     <thead>
+                        <tr class="action-header">
+                            <th colspan="8" style="text-align: left; padding: 10px; border-bottom: 1px solid #eee;">
+                                <div style="display: flex; gap: 10px;">
+                                    <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadSLA(currentMenu)">📤 Upload SLA</button>
+                                    <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedSLA()">🗑️ Hapus Terpilih</button>
+                                    <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadSLAExcel()">Excel 📊</button>
+                                </div>
+                            </th>
+                        </tr>
                         <tr>
                             <th>No</th>
                             <th><input type="checkbox" id="selectAllSLA" onchange="toggleAllSLA()" style="margin-right: 5px;"></th>
@@ -2864,7 +2873,7 @@
                 }
             } catch (error) {
                 console.error('Error loading SLA data:', error);
-                alert('❌ Koneksi ke server gagal. Pastikan server berjalan.');
+                // Notification removed as requested
             }
         }
 
@@ -2874,10 +2883,11 @@
                 <table class="data-table">
                     <thead>
                         <tr class="action-header">
-                            <th colspan="7" style="text-align: left; padding: 10px; border-bottom: 1px solid #eee;">
+                            <th colspan="11" style="text-align: left; padding: 10px; border-bottom: 1px solid #eee;">
                                 <div style="display: flex; gap: 10px;">
                                     <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadSLA(currentMenu)">📤 Upload SLA</button>
                                     <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedSLA()">🗑️ Hapus Terpilih</button>
+                                    <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadSLAExcel()">Excel 📊</button>
                                 </div>
                             </th>
                         </tr>
@@ -2910,6 +2920,15 @@
 
             // Build table header — N22 adalah patokan target waktu (tidak diubah)
             let headerHTML = `
+                <tr class="action-header">
+                    <th colspan="11" style="text-align: left; padding: 10px; border-bottom: 1px solid #eee;">
+                        <div style="display: flex; gap: 10px;">
+                            <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadSLA(currentMenu)">📤 Upload SLA</button>
+                            <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedSLA()">🗑️ Hapus Terpilih</button>
+                            <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadSLAExcel()">Excel 📊</button>
+                        </div>
+                    </th>
+                </tr>
                 <tr class="main-header">
                     <th style="width: 50px;">No</th>
                     <th style="width: 40px;"><input type="checkbox" id="selectAllSLA" onchange="toggleAllSLA()"></th>
@@ -3120,7 +3139,7 @@
                                         }
                                     } catch (err) {
                                         console.error(err);
-                                        alert("Koneksi gagal");
+                                        // alert("Koneksi gagal"); // Removed as requested
                                         renderVolumeTable(_volumeData);
                                     }
                                 };
@@ -4209,7 +4228,134 @@
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('❌ Terjadi kesalahan saat menghapus data Volume.');
+                // alert removed for silent workflow
+            }
+        }
+
+        async function deleteSelectedSLA() {
+            const checkboxes = document.querySelectorAll('.sla-checkbox:checked');
+            if (checkboxes.length === 0) {
+                return;
+            }
+            
+            // Collect route names from checkboxes (exclude dummy 'on' values if any)
+            const routeNames = Array.from(checkboxes)
+                .map(cb => cb.value)
+                .filter(val => val && val !== 'on');
+                
+            // If they are dummy data checkboxes without values, try to get the route name from the next column
+            if (routeNames.length === 0 && checkboxes.length > 0) {
+                Array.from(checkboxes).forEach(cb => {
+                    const row = cb.closest('tr');
+                    if (row) {
+                        const routeCell = row.querySelectorAll('td')[2];
+                        if (routeCell) routeNames.push(routeCell.textContent.trim());
+                    }
+                });
+            }
+            
+            if (routeNames.length === 0) return;
+
+            try {
+                const response = await fetch(`${API_URL}/sla`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ routeNames: routeNames })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    console.log(`✅ Data SLA terpilih berhasil dihapus!`);
+                    loadSLAData();
+                    loadDashboardData();
+                } else {
+                    console.error(`❌ Error: ${result.message}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        }
+
+        function downloadSLAExcel() {
+            if (!slaData || slaData.length === 0) {
+                console.log('Tidak ada data SLA untuk didownload');
+                return;
+            }
+
+            try {
+                const excelData = [];
+                slaData.forEach((record, index) => {
+                    const titikList = record.titik || [];
+                    titikList.forEach((titik, tIdx) => {
+                        let displayRealisasi = (titik.realisasi && titik.realisasi !== null) ? titik.realisasi : '-';
+                        let selisihDisplay = '-';
+                        let statusText = 'On-Time';
+
+                        if (displayRealisasi !== '-') {
+                            const timeParts = displayRealisasi.split(':');
+                            if (timeParts.length >= 2) {
+                                const rH = parseInt(timeParts[0]);
+                                const rM = parseInt(timeParts[1]);
+                                if (!isNaN(rH)) {
+                                    const rMin = rH * 60 + rM;
+                                    if (titik.target && titik.target !== '-') {
+                                        const targetParts = titik.target.split(':');
+                                        if (targetParts.length >= 2) {
+                                            const tH = parseInt(targetParts[0]);
+                                            const tM = parseInt(targetParts[1]);
+                                            if (!isNaN(tH)) {
+                                                const tMin = tH * 60 + tM;
+                                                let diffMin = rMin - tMin;
+                                                const sign = diffMin < 0 ? '-' : '+';
+                                                diffMin = Math.abs(diffMin);
+                                                const dH = Math.floor(diffMin / 60);
+                                                const dM = Math.round(diffMin % 60);
+                                                selisihDisplay = `${sign}${String(dH).padStart(2,'0')}:${String(dM).padStart(2,'0')}`;
+                                                
+                                                if (sign === '+' && rMin > tMin) {
+                                                    statusText = 'Delay';
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (titik.status && titik.status.trim() !== '') {
+                            statusText = titik.status;
+                        }
+
+                        excelData.push({
+                            'No': tIdx === 0 ? index + 1 : '',
+                            'Tanggal': tIdx === 0 ? (record.tanggal || '-') : '',
+                            'Nama Rute': tIdx === 0 ? (record.rute || '-') : '',
+                            'NOPOL': record.nopol || '-',
+                            'Titik': titik.label || '-',
+                            'N22 (Target)': titik.target || '-',
+                            'Realisasi': displayRealisasi,
+                            'Selisih': selisihDisplay,
+                            'Status': statusText
+                        });
+                    });
+                });
+
+                const ws = XLSX.utils.json_to_sheet(excelData);
+                const wscols = [
+                    {wch: 5}, {wch: 15}, {wch: 35}, {wch: 15}, {wch: 25}, 
+                    {wch: 15}, {wch: 15}, {wch: 15}, {wch: 15}
+                ];
+                ws['!cols'] = wscols;
+
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "SLA Waktu");
+
+                const rf = document.getElementById('routeFilter')?.value || 'Semua Rute';
+                const filename = `SLA_Waktu_${rf.replace(/\s+/g, '_')}_${new Date().getTime()}.xlsx`;
+
+                XLSX.writeFile(wb, filename);
+            } catch (err) {
+                console.error('Download Excel Error:', err);
             }
         }
     </script>
@@ -4522,61 +4668,31 @@
 
         // Delete SLA per baris function
         function deleteSLA(routeName) {
-            // Create custom confirmation dialog
-            const dialog = document.createElement('div');
-            dialog.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: white;
-                padding: 25px;
-                border-radius: 12px;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-                z-index: 10000;
-                min-width: 400px;
-                text-align: center;
-            `;
-            
-            dialog.innerHTML = `
-                <h3 style="margin-bottom: 15px; color: #333;">⚠️ Konfirmasi Hapus SLA</h3>
-                <p style="margin-bottom: 20px; color: #666;">Apakah Anda yakin ingin menghapus data SLA untuk:</p>
-                <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; color: #1e3c72;">
-                    ${routeName}
-                </div>
-                <div style="display: flex; gap: 10px; justify-content: center;">
-                    <button onclick="this.parentElement.parentElement.remove()" style="padding: 10px 20px; background: #999; color: white; border: none; border-radius: 8px; cursor: pointer;">Batal</button>
-                    <button onclick="confirmDeleteSLA('${routeName}', this.parentElement.parentElement)" style="padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 8px; cursor: pointer;">🗑️ Hapus</button>
-                </div>
-            `;
-            
-            document.body.appendChild(dialog);
+            // Langsung hapus tanpa dialog konfirmasi agar cepat
+            const pseudoDialog = { remove: () => {} };
+            confirmDeleteSLA(routeName, pseudoDialog);
         }
 
         // Confirm delete SLA
         function confirmDeleteSLA(routeName, dialogElement) {
-            dialogElement.remove();
+            if (dialogElement && typeof dialogElement.remove === 'function') dialogElement.remove();
             
-            // Implement actual delete logic
             fetch(`${API_URL}/sla`, {
                 method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ routeName: routeName })
             })
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    alert(`✅ Data SLA untuk "${routeName}" berhasil dihapus!`);
+                    console.log(`✅ Data SLA untuk "${routeName}" berhasil dihapus!`);
                     loadSLAData();
                 } else {
-                    alert(`❌ Gagal menghapus data SLA: ${result.message}`);
+                    console.error(`❌ Gagal menghapus data SLA: ${result.message}`);
                 }
             })
             .catch(error => {
                 console.error('Error deleting SLA:', error);
-                alert(`❌ Error menghapus Data SLA: ${error.message}`);
             });
         }
 
@@ -4587,61 +4703,31 @@
 
         // Delete Volume per baris function
         function deleteVolume(routeName) {
-            // Create custom confirmation dialog
-            const dialog = document.createElement('div');
-            dialog.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: white;
-                padding: 25px;
-                border-radius: 12px;
-                box-shadow: 0 10px 40px rgba(0,0,0,0.3);
-                z-index: 10000;
-                min-width: 400px;
-                text-align: center;
-            `;
-            
-            dialog.innerHTML = `
-                <h3 style="margin-bottom: 15px; color: #333;">⚠️ Konfirmasi Hapus Volume</h3>
-                <p style="margin-bottom: 20px; color: #666;">Apakah Anda yakin ingin menghapus data Volume untuk:</p>
-                <div style="background: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: bold; color: #4CAF50;">
-                    📦 ${routeName}
-                </div>
-                <div style="display: flex; gap: 10px; justify-content: center;">
-                    <button onclick="this.parentElement.parentElement.remove()" style="padding: 10px 20px; background: #999; color: white; border: none; border-radius: 8px; cursor: pointer;">Batal</button>
-                    <button onclick="confirmDeleteVolume('${routeName}', this.parentElement.parentElement)" style="padding: 10px 20px; background: #f44336; color: white; border: none; border-radius: 8px; cursor: pointer;">🗑️ Hapus</button>
-                </div>
-            `;
-            
-            document.body.appendChild(dialog);
+            // Langsung hapus tanpa dialog konfirmasi agar cepat
+            const pseudoDialog = { remove: () => {} };
+            confirmDeleteVolume(routeName, pseudoDialog);
         }
 
         // Confirm delete Volume
         function confirmDeleteVolume(routeName, dialogElement) {
-            dialogElement.remove();
+            if (dialogElement && typeof dialogElement.remove === 'function') dialogElement.remove();
             
-            // Implement actual delete logic
             fetch(`${API_URL}/volume`, {
                 method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ routeName: routeName })
             })
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    alert(`✅ Data Volume untuk "${routeName}" berhasil dihapus!`);
+                    console.log(`✅ Data Volume untuk "${routeName}" berhasil dihapus!`);
                     loadVolumeData();
                 } else {
-                    alert(`❌ Gagal menghapus data Volume: ${result.message}`);
+                    console.error(`❌ Gagal menghapus data Volume: ${result.message}`);
                 }
             })
             .catch(error => {
                 console.error('Error deleting Volume:', error);
-                alert(`❌ Error menghapus Data Volume: ${error.message}`);
             });
         }
 
