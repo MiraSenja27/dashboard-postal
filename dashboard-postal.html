@@ -1516,15 +1516,17 @@
             const targetSubmenu = document.getElementById(`submenu-${category}`);
             if (targetSubmenu) targetSubmenu.classList.add('show');
 
-            // Load data for selected category with current filter preserved
-            const currentWeekKey = document.getElementById('weekFilter').value;
-            
-            // Always update weeks and dashboard in background to keep stats synced
+            // Reset weekFilter to ALL when switching category, so data from the new
+            // category is not accidentally filtered out by a week that only exists in another category
+            const weekFilter = document.getElementById('weekFilter');
+            if (weekFilter) weekFilter.value = 'ALL';
+
+            // Reload weeks list for the new category
             await loadAvailableWeeks();
-            await loadDashboardData(currentWeekKey);
-            
-            if (currentView === 'sla') await loadSLAData(currentWeekKey);
-            else if (currentView === 'volume') await loadVolumeData(currentWeekKey);
+            await loadDashboardData('ALL');
+
+            if (currentView === 'sla') await loadSLAData('ALL');
+            else if (currentView === 'volume') await loadVolumeData('ALL');
         }
 
         async function showUpload(category) {
@@ -1672,7 +1674,7 @@
                     const response = await fetch(`${API_URL}/sla`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ rute: routeName, titik: updatedTitik, tanggal: record.tanggal })
+                        body: JSON.stringify({ rute: routeName, titik: updatedTitik, tanggal: record.tanggal, category: currentMenu })
                     });
 
                     const result = await response.json();
@@ -1734,10 +1736,15 @@
                 }
 
                 try {
+                    // Find the record to get its tanggal (optional but recommended)
+                    const record = volumeData ? volumeData.find(v => v.rute === routeName) : null;
+                    const payload = { rute: routeName, postal, nonPostal: poslog, category: currentMenu };
+                    if (record && record.tanggal) payload.tanggal = record.tanggal;
+
                     const response = await fetch(`${API_URL}/volume`, {
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ rute: routeName, postal, nonPostal: poslog })
+                        body: JSON.stringify(payload)
                     });
 
                     const result = await response.json();
@@ -2843,14 +2850,15 @@
                     const tableHTML = buildSLATable(slaData);
 
                     // Find the #sla-view container and update only the table content
-                    if (slaView) {
+                    const slaViewEl = document.getElementById('sla-view');
+                    if (slaViewEl) {
                         // Update the entire view or just the table
-                        const tableElement = slaView.querySelector('.data-table');
+                        const tableElement = slaViewEl.querySelector('.data-table');
                         if (tableElement) {
                             tableElement.outerHTML = tableHTML;
                         } else {
                             // Restore missing else block for initial render
-                            slaView.innerHTML = `
+                            slaViewEl.innerHTML = `
                                 <h2 style="margin-bottom: 20px; color: #333; display: flex; align-items: center; gap: 10px;">
                                     📊 Database SLA Waktu
                                     <span style="font-size: 14px; font-weight: normal; background: #e0e7ff; color: #1e3c72; padding: 4px 12px; border-radius: 20px;">
@@ -4179,7 +4187,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ routeNames: routeNames })
+                    body: JSON.stringify({ routeNames: routeNames, category: currentMenu })
                 });
                 
                 const result = await response.json();
@@ -4224,7 +4232,7 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ routeNames: routeNames })
+                    body: JSON.stringify({ routeNames: routeNames, category: currentMenu })
                 });
                 
                 const result = await response.json();
@@ -4242,49 +4250,6 @@
             }
         }
 
-        async function deleteSelectedSLA() {
-            const checkboxes = document.querySelectorAll('.sla-checkbox:checked');
-            if (checkboxes.length === 0) {
-                return;
-            }
-            
-            // Collect route names from checkboxes (exclude dummy 'on' values if any)
-            const routeNames = Array.from(checkboxes)
-                .map(cb => cb.value)
-                .filter(val => val && val !== 'on');
-                
-            // If they are dummy data checkboxes without values, try to get the route name from the next column
-            if (routeNames.length === 0 && checkboxes.length > 0) {
-                Array.from(checkboxes).forEach(cb => {
-                    const row = cb.closest('tr');
-                    if (row) {
-                        const routeCell = row.querySelectorAll('td')[2];
-                        if (routeCell) routeNames.push(routeCell.textContent.trim());
-                    }
-                });
-            }
-            
-            if (routeNames.length === 0) return;
-
-            try {
-                const response = await fetch(`${API_URL}/sla`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ routeNames: routeNames })
-                });
-                
-                const result = await response.json();
-                if (result.success) {
-                    console.log(`✅ Data SLA terpilih berhasil dihapus!`);
-                    loadSLAData();
-                    loadDashboardData();
-                } else {
-                    console.error(`❌ Error: ${result.message}`);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
 
         function downloadSLAExcel() {
             if (!slaData || slaData.length === 0) {
@@ -4671,73 +4636,53 @@
             }
         }
 
-        // Edit SLA function
-        function editSLA(routeName) {
-            alert(`Edit SLA untuk ${routeName} - Fitur akan segera tersedia!`);
-        }
-
         // Delete SLA per baris function
         function deleteSLA(routeName) {
-            // Langsung hapus tanpa dialog konfirmasi agar cepat
-            const pseudoDialog = { remove: () => {} };
-            confirmDeleteSLA(routeName, pseudoDialog);
-        }
-
-        // Confirm delete SLA
-        function confirmDeleteSLA(routeName, dialogElement) {
-            if (dialogElement && typeof dialogElement.remove === 'function') dialogElement.remove();
+            if (!confirm(`⚠️ Apakah Anda yakin ingin menghapus data SLA untuk rute "${routeName}"?`)) return;
             
             fetch(`${API_URL}/sla`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ routeName: routeName })
+                body: JSON.stringify({ routeName: routeName, category: currentMenu })
             })
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    console.log(`✅ Data SLA untuk "${routeName}" berhasil dihapus!`);
+                    alert(`✅ Data SLA untuk "${routeName}" berhasil dihapus!`);
                     loadSLAData();
+                    loadDashboardData();
                 } else {
-                    console.error(`❌ Gagal menghapus data SLA: ${result.message}`);
+                    alert(`❌ Gagal menghapus data SLA: ${result.message}`);
                 }
             })
             .catch(error => {
                 console.error('Error deleting SLA:', error);
+                alert('❌ Terjadi kesalahan saat menghapus data SLA.');
             });
-        }
-
-        // Edit Volume function
-        function editVolume(routeName) {
-            alert(`Edit Volume untuk ${routeName} - Fitur akan segera tersedia!`);
         }
 
         // Delete Volume per baris function
         function deleteVolume(routeName) {
-            // Langsung hapus tanpa dialog konfirmasi agar cepat
-            const pseudoDialog = { remove: () => {} };
-            confirmDeleteVolume(routeName, pseudoDialog);
-        }
-
-        // Confirm delete Volume
-        function confirmDeleteVolume(routeName, dialogElement) {
-            if (dialogElement && typeof dialogElement.remove === 'function') dialogElement.remove();
+            if (!confirm(`⚠️ Apakah Anda yakin ingin menghapus data Volume untuk rute "${routeName}"?`)) return;
             
             fetch(`${API_URL}/volume`, {
                 method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ routeName: routeName })
+                body: JSON.stringify({ routeName: routeName, category: currentMenu })
             })
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    console.log(`✅ Data Volume untuk "${routeName}" berhasil dihapus!`);
+                    alert(`✅ Data Volume untuk "${routeName}" berhasil dihapus!`);
                     loadVolumeData();
+                    loadDashboardData();
                 } else {
-                    console.error(`❌ Gagal menghapus data Volume: ${result.message}`);
+                    alert(`❌ Gagal menghapus data Volume: ${result.message}`);
                 }
             })
             .catch(error => {
                 console.error('Error deleting Volume:', error);
+                alert('❌ Terjadi kesalahan saat menghapus data Volume.');
             });
         }
 
