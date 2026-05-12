@@ -1563,8 +1563,11 @@
 
                         if (result.success) {
                             alert(`✅ ${result.message}\n\nData berhasil diupload dan dashboard akan diperbarui.`);
-                            // Load data from server after upload
+                            // Refresh ALL views after upload to ensure data appears
+                            await loadAvailableWeeks();
                             await loadDashboardData();
+                            if (currentView === 'volume') await loadVolumeData();
+                            if (currentView === 'sla') await loadSLAData();
                         } else {
                             alert(`❌ Error: ${result.message}`);
                         }
@@ -1604,8 +1607,10 @@
                                 document.getElementById('endDate').value = result.maxDate;
                             }
 
-                            // Refresh data based on current view using applyFilter to sync everything
+                            // Refresh ALL views after upload to ensure data appears
+                            await loadAvailableWeeks();
                             await applyFilter();
+                            if (currentView === 'sla') await loadSLAData();
                         } else {
                             alert(`❌ Error: ${result.message}`);
                         }
@@ -1762,10 +1767,25 @@
             };
         }
 
-        function deleteVolume(routeName) {
+        async function deleteVolume(routeName) {
             if (confirm(`⚠️ Apakah Anda yakin ingin menghapus data Volume untuk ${routeName}?`)) {
-                alert(`✅ Data Volume untuk ${routeName} berhasil dihapus!`);
-                loadVolumeData();
+                try {
+                    const response = await fetch(`${API_URL}/volume`, {
+                        method: 'DELETE',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ routeName: routeName, category: currentMenu })
+                    });
+                    const result = await response.json();
+                    if (result.success) {
+                        alert(`✅ ${result.message}`);
+                        await loadVolumeData();
+                        await loadDashboardData();
+                    } else {
+                        alert(`❌ Gagal: ${result.message}`);
+                    }
+                } catch (error) {
+                    alert(`❌ Error: ${error.message}`);
+                }
             }
         }
 
