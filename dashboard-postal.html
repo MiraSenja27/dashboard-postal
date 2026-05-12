@@ -1886,19 +1886,58 @@
                                     });
                                 }
 
-                                // Posisi Truk untuk PPT (Top = Kiri, Bottom = Kanan)
+                                // Posisi Truk untuk PPT - Di LUAR chart bar
+                                // truck-right (arah kanan): truk di KIRI bar
+                                // truck-left (arah kiri): truk di KANAN bar
+                                const routeVisuals = clonedCard.querySelectorAll('.route-visual');
+                                routeVisuals.forEach(rv => {
+                                    // Set route-visual sebagai flex container horizontal
+                                    rv.style.display = 'flex';
+                                    rv.style.alignItems = 'center';
+                                    rv.style.gap = '8px';
+                                    rv.style.position = 'relative';
+                                });
+
                                 const trucks = clonedCard.querySelectorAll('.truck-icon');
-                                trucks.forEach((truck, idx) => {
+                                trucks.forEach((truck) => {
+                                    // Reset animasi dan posisi absolute
                                     truck.style.animation = 'none';
                                     truck.style.opacity = '1';
                                     truck.style.display = 'block';
+                                    truck.style.position = 'relative';
+                                    truck.style.top = '0';
+                                    truck.style.left = 'auto';
+                                    truck.style.right = 'auto';
+                                    truck.style.fontSize = '30px';
+                                    truck.style.flexShrink = '0';
+                                    truck.style.lineHeight = '1';
+
+                                    const parentVisual = truck.parentElement;
+
                                     if (truck.classList.contains('truck-right')) {
-                                        truck.style.left = '0';
-                                        truck.style.right = 'auto';
+                                        // Arah kanan → truk di KIRI bar chart
+                                        // Pastikan truk adalah child pertama (sebelum volume-bar)
+                                        truck.style.transform = 'scaleX(-1)';
+                                        truck.style.order = '-1';
+                                        if (parentVisual) {
+                                            parentVisual.insertBefore(truck, parentVisual.firstChild);
+                                        }
                                     } else if (truck.classList.contains('truck-left')) {
-                                        truck.style.right = '0';
-                                        truck.style.left = 'auto';
+                                        // Arah kiri → truk di KANAN bar chart
+                                        // Pastikan truk adalah child terakhir (setelah volume-bar)
+                                        truck.style.transform = 'scaleX(1)';
+                                        truck.style.order = '2';
+                                        if (parentVisual) {
+                                            parentVisual.appendChild(truck);
+                                        }
                                     }
+                                });
+
+                                // Pastikan volume-bar menyesuaikan lebar
+                                const volumeBars = clonedCard.querySelectorAll('.volume-bar');
+                                volumeBars.forEach(bar => {
+                                    bar.style.flex = '1';
+                                    bar.style.minWidth = '0';
                                 });
                             }
                         });
