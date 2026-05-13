@@ -1,4 +1,9 @@
-const express = require('express');
+const mongoose = require('mongoose');
+
+// Menghubungkan dashboard ke database cloud
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ Mantap! Database Terhubung.'))
+  .catch(err => console.error('❌ Gagal konek:', err));const express = require('express');
 const cors = require('cors');
 const multer = require('multer');
 const xlsx = require('xlsx');
