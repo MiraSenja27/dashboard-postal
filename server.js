@@ -272,7 +272,7 @@ function getWeekRange(dateStr) {
 
 // ─── Configure multer ─────────────────────────────────────────────────────────
 
-const upload = multer({ dest: "uploads/" });
+const upload = multer({ dest: "/tmp" });
 
 // ─── API Routes ───────────────────────────────────────────────────────────────
 
@@ -1066,9 +1066,7 @@ app.get("/dashboard-chartbar.html", (req, res) =>
 
 // ─── Start ────────────────────────────────────────────────────────────────────
 
-connectDB().then(() => {
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-    console.log("Default login: admin / admin123");
-  });
-});
+// Jalankan koneksi database
+connectDB();
+// Baris ini SANGAT PENTING untuk Vercel
+module.exports = app;
