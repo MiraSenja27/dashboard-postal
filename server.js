@@ -58,10 +58,9 @@ const userSchema = new mongoose.Schema({
   role: { type: String, default: "viewer" },
 });
 
-const VolumeData = mongoose.model("VolumeData", volumeSchema);
-const SlaData = mongoose.model("SlaData", slaSchema);
-const User = mongoose.model("User", userSchema);
-
+const VolumeData = mongoose.models.VolumeData || mongoose.model("VolumeData", volumeSchema);
+const SlaData = mongoose.models.SlaData || mongoose.model("SlaData", slaSchema);
+const User = mongoose.models.User || mongoose.model("User", userSchema);
 // ─── Connect to MongoDB ───────────────────────────────────────────────────────
 
 async function connectDB() {
