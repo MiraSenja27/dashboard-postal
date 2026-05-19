@@ -1830,18 +1830,35 @@
                     fontSize: 32, bold: true, color: '1e3c72'
                 });
 
-                // Capture stats grid
-                const statsGrid = document.querySelector('.stats-grid');
-                if (statsGrid) {
-                    const canvas = await html2canvas(statsGrid, {
-                        backgroundColor: '#ffffff',
-                        scale: 2
-                    });
-                    const imgData = canvas.toDataURL('image/png');
-                    slide2.addImage({
-                        data: imgData,
-                        x: 0.5, y: 1.2, w: 9, h: 2.5
-                    });
+                // Capture stats grid cards individually
+                const statCards = document.querySelectorAll('.stats-grid .stat-card');
+                if (statCards && statCards.length > 0) {
+                    const cardsCount = statCards.length;
+                    const spacingX = 0.15;
+                    const maxSlideWidth = 9.5; // Leaving 0.25 margin on each side for a 10-inch slide
+                    
+                    // Calculate dynamic width based on number of cards to fit in one row
+                    const cardWidth = (maxSlideWidth - (spacingX * (cardsCount - 1))) / cardsCount;
+                    const cardHeight = cardWidth * 0.6; // Maintain an aesthetic aspect ratio
+                    const startX = 0.25;
+                    const startY = 1.5;
+
+                    for (let i = 0; i < statCards.length; i++) {
+                        const card = statCards[i];
+                        const canvas = await html2canvas(card, {
+                            backgroundColor: null, // Transparent background for rounded corners
+                            scale: 2
+                        });
+                        const imgData = canvas.toDataURL('image/png');
+                        
+                        slide2.addImage({
+                            data: imgData,
+                            x: startX + (i * (cardWidth + spacingX)),
+                            y: startY,
+                            w: cardWidth,
+                            h: cardHeight
+                        });
+                    }
                 }
 
                 // Slide 3: Top 5 Rankings - Screenshot
