@@ -3211,14 +3211,22 @@
                                 const col = this.dataset.col;
                                 const rowIdx = parseInt(this.dataset.row);
                                 const input = document.createElement('input');
-                                input.type = 'number';
-                                input.value = parseFloat(original.replace(/\./g, '').replace(',', '.')) || 0;
+                                
+                                if (col === 'unit') {
+                                    input.type = 'text';
+                                    input.setAttribute('list', 'unitOptions');
+                                    input.value = original === '-' ? '' : original;
+                                } else {
+                                    input.type = 'number';
+                                    input.value = parseFloat(original.replace(/\./g, '').replace(',', '.')) || 0;
+                                }
+
                                 input.style.cssText = 'width:90%; border:1px solid #2a5298; border-radius:4px; padding:2px 6px; font-size:inherit; background:#fff;';
                                 this.textContent = '';
                                 this.appendChild(input);
                                 input.focus(); input.select();
                                 const save = async () => {
-                                    const newVal = parseFloat(input.value) || 0;
+                                    const newVal = col === 'unit' ? input.value.trim() : (parseFloat(input.value) || 0);
                                     const ruteName = _volumeData[rowIdx].rute;
                                     const tanggal = _volumeData[rowIdx].tanggal;
                                     const id = _volumeData[rowIdx].id;
@@ -3328,6 +3336,7 @@
                             </th>
                             <th style="padding: 10px 0; border-bottom: 1px solid #eee; vertical-align: middle; text-align: center; font-size: 16px; font-weight: 800; color: #FF8C42;">0</th>
                             <th style="padding: 10px 0; border-bottom: 1px solid #eee; vertical-align: middle; text-align: center; font-size: 16px; font-weight: 800; color: #008080;">0</th>
+                            <th style="padding: 10px 0; border-bottom: 1px solid #eee; vertical-align: middle; text-align: center; font-size: 16px; font-weight: 800; color: #607D8B;">0</th>
                             <th colspan="5" style="border-bottom: 1px solid #eee;"></th>
                         </tr>
                         <tr class="main-header">
@@ -3337,6 +3346,7 @@
                             <th>Nama Rute</th>
                             <th style="width: 110px; white-space: nowrap;">Postal (kg)</th>
                             <th style="width: 110px; white-space: nowrap;">Poslog (kg)</th>
+                            <th style="width: 90px; white-space: nowrap;">Unit</th>
                             <th style="width: 160px; white-space: nowrap;">Kapasitas/minggu</th>
                             <th style="width: 130px; white-space: nowrap;">Kapasitas/hari</th>
                             <th style="width: 120px; white-space: nowrap;">Sisa/minggu</th>
@@ -3368,6 +3378,7 @@
                     routeAggregation[rute] = {
                         totalPostal: 0,
                         totalPoslog: 0,
+                        totalUnit: 0,
                         jumlahHari: 0,
                         kapasitasMinggu: record.kapasitas || 0,
                         tanggalSet: new Set()
@@ -3375,6 +3386,7 @@
                 }
                 routeAggregation[rute].totalPostal += (record.postal || 0);
                 routeAggregation[rute].totalPoslog += (record.nonPostal || 0);
+                routeAggregation[rute].totalUnit += (record.unit || 0);
                 // Hitung hari unik (hindari duplikat tanggal)
                 if (record.tanggal) {
                     routeAggregation[rute].tanggalSet.add(record.tanggal);
@@ -3431,6 +3443,14 @@
                     rowsHTML += `<td data-editable="true" data-row="${rowIdx}" data-col="nonPostal" style="cursor:pointer; text-align: left;" title="Klik untuk edit">${nonPostalValue}</td>`;
                 } else {
                     rowsHTML += `<td style="text-align: left;">${nonPostalValue}</td>`;
+                }
+
+                // Unit column (editable only for admin)
+                const unitValue = (record.unit != null && record.unit !== '') ? record.unit : '-';
+                if (isAdmin()) {
+                    rowsHTML += `<td data-editable="true" data-row="${rowIdx}" data-col="unit" style="cursor:pointer; text-align: left;" title="Klik untuk edit">${unitValue}</td>`;
+                } else {
+                    rowsHTML += `<td style="text-align: left;">${unitValue}</td>`;
                 }
 
                 // Kapasitas Mingguan column
@@ -3492,6 +3512,7 @@
                             </th>
                             <th style="padding: 10px 0; border-bottom: 1px solid #eee; vertical-align: middle; text-align: center; font-size: 16px; font-weight: 800; color: #FF8C42;">${totalPostal.toLocaleString('id-ID')}</th>
                             <th style="padding: 10px 0; border-bottom: 1px solid #eee; vertical-align: middle; text-align: center; font-size: 16px; font-weight: 800; color: #008080;">${totalPoslog.toLocaleString('id-ID')}</th>
+                            <th style="padding: 10px 0; border-bottom: 1px solid #eee; vertical-align: middle; text-align: center; font-size: 16px; font-weight: 800; color: #607D8B;">-</th>
                             <th colspan="5" style="border-bottom: 1px solid #eee;"></th>
                         </tr>
                         <tr class="main-header">
@@ -3501,6 +3522,7 @@
                             <th>Nama Rute</th>
                             <th style="width: 110px; white-space: nowrap;">Postal (kg)</th>
                             <th style="width: 110px; white-space: nowrap;">Poslog (kg)</th>
+                            <th style="width: 90px; white-space: nowrap;">Unit</th>
                             <th style="width: 160px; white-space: nowrap;">Kapasitas/minggu</th>
                             <th style="width: 130px; white-space: nowrap;">Kapasitas/hari</th>
                             <th style="width: 120px; white-space: nowrap;">Sisa/minggu</th>
@@ -3525,6 +3547,12 @@
                         </tr>
                     </tfoot>
                 </table>
+                <datalist id="unitOptions">
+                    <option value="CDE">
+                    <option value="CDD">
+                    <option value="CDD Long">
+                    <option value="Fuso Long">
+                </datalist>
             `;
         }
 
@@ -3550,6 +3578,7 @@
                         'Nama Rute': record.rute,
                         'Postal (kg)': postal,
                         'Poslog (kg)': poslog,
+                        'Unit': record.unit || 0,
                         'Kapasitas/minggu': weeklyCap,
                         'Kapasitas/hari': dailyCap,
                         'Sisa/hari (kg)': sisaHari,
@@ -4654,16 +4683,24 @@
                 td.addEventListener('click', function () {
                     if (this.querySelector('input')) return;
                     const original = this.textContent.trim();
+                    const col = this.getAttribute('data-col');
                     const input = document.createElement('input');
-                    input.value = original;
+                    if (col === 'unit') {
+                        input.type = 'text';
+                        input.setAttribute('list', 'unitOptions');
+                        input.value = original === '-' ? '' : original;
+                    } else {
+                        input.type = 'number';
+                        input.value = parseFloat(original.replace(/\./g, '').replace(',', '.')) || 0;
+                    }
                     input.style.cssText = 'width:90%; border:1px solid #2a5298; border-radius:4px; padding:2px 6px; font-size:inherit;';
                     this.textContent = '';
                     this.appendChild(input);
                     input.focus();
                     input.select();
                     input.addEventListener('blur', () => {
-                        const newVal = input.value.trim();
-                        this.textContent = newVal;
+                        const newVal = col === 'unit' ? input.value.trim() : (parseFloat(input.value) || 0);
+                        this.textContent = newVal === '' && col === 'unit' ? '-' : newVal;
                         if (onSave) onSave(this, newVal, original);
                     });
                     input.addEventListener('keydown', (e) => { if (e.key === 'Enter') input.blur(); });
