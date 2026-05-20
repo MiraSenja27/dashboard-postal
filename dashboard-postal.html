@@ -3966,6 +3966,13 @@
 
             while (i < routesData.length) {
                 const route1 = routesData[i];
+                
+                // Jangan tampilkan Rute Ekstra jika tidak ada datanya (kosong)
+                if (/^(EXTRA|Ekstra|Exstra)/i.test(route1.name) && (!route1.postal && !route1.nonPostal)) {
+                    i += 1;
+                    continue;
+                }
+
                 const route2 = routesData[i + 1];
 
                 // Extract route number from first route
