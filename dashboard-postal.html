@@ -2747,31 +2747,39 @@
             const routesGrid = document.querySelector('.routes-grid');
             if (!routesGrid || routes.length === 0) return;
 
-            // Group routes, merging all routes containing "4A" into a single group
-                function getGroupKey(route) {
-                    const name = (route.route_name || "").toUpperCase();
-                    const number = (route.route_number || "").toString().toUpperCase();
-                    if (name.includes("4A") || number.includes("4A")) {
-                        return "RUTE_4A_GROUP";
-                    }
-                    return route.route_number || route.route_name || Math.random().toString();
+            // Ekstrak prefix rute dari route_name, contoh:
+            // "Rute 4A: JAT - Surabaya" => "Rute 4A"
+            // "Rute 1: JAT - Yogyakarta" => "Rute 1"
+            // Semua rute 4A (apapun arahnya) digabung dalam 1 group
+            function getGroupKey(route) {
+                const name = (route.route_name || '').trim();
+                // Cek apakah mengandung 4A (case-insensitive)
+                if (name.toUpperCase().includes('4A')) {
+                    return 'RUTE_4A_GROUP';
                 }
-                const groupedRoutes = {};
-                routes.forEach(route => {
-                    const key = getGroupKey(route);
-                    if (!groupedRoutes[key]) {
-                        groupedRoutes[key] = [];
-                    }
-                    groupedRoutes[key].push(route);
-                });
+                // Ambil prefix sebelum tanda ':' sebagai kunci grup
+                const colonIdx = name.indexOf(':');
+                if (colonIdx > 0) {
+                    return name.substring(0, colonIdx).trim();
+                }
+                return name;
+            }
 
-            // Generate HTML for route cards (show first 4 routes)
+            const groupedRoutes = {};
+            routes.forEach(route => {
+                const key = getGroupKey(route);
+                if (!groupedRoutes[key]) {
+                    groupedRoutes[key] = [];
+                }
+                groupedRoutes[key].push(route);
+            });
+
+            // Generate HTML untuk route cards (tampilkan maks 4 grup)
             let html = '';
             let count = 0;
-            for (const routeNumber in groupedRoutes) {
+            for (const key in groupedRoutes) {
                 if (count >= 4) break;
-                const routeGroup = groupedRoutes[routeNumber];
-                html += generateRouteCard(routeGroup);
+                html += generateRouteCard(groupedRoutes[key]);
                 count++;
             }
 
@@ -2779,8 +2787,10 @@
         }
 
         function generateRouteCard(routeGroup) {
-            const outbound = routeGroup.find(r => r.direction.includes('-')) || routeGroup[0];
-            const inbound = routeGroup.find(r => r.direction && !r.direction.includes(outbound.direction)) || routeGroup[1];
+            // Data dari API tidak memiliki field direction, gunakan urutan array:
+            // routeGroup[0] = outbound (pertama), routeGroup[1] = inbound (jika ada)
+            const outbound = routeGroup[0];
+            const inbound = routeGroup.length > 1 ? routeGroup[1] : null;
 
             // Calculate percentages using actual kapasitas from Excel data
             function calcBarPercents(route) {
