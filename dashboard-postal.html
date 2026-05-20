@@ -3794,7 +3794,7 @@
             'Rute 2A JAT-PG Fuso', 'Rute 2A PG-JAT Fuso',
             'Rute 2B Sumatera PG - PBR', 'Rute 2B Sumatera PBR - PG',
             'Rute 3 JAT-PG express', 'Rute 3 PG-JAT express',
-            'Rute 4A Kcu Purwokerto - Kcu Cirebon',
+            'Rute 4A Kcu Purwokerto - Kcu Cirebon', 'RUTE 4A CIREBON - PURWOKERTO',
             'RUTE B1 (15) JAT-Solo', 'RUTE B1 (15) Solo-JAT',
             'EXTRA KCU SOLO - SPP YOGYAKARTA - SPP SURABAYA',
             'EXTRA SPP YOGYA - KCU SOLO - SPP JAT',
@@ -3977,7 +3977,7 @@
                 if (route2) {
                     const match2 = route2.name.match(/^(Rute \d+[A-Z]?|RUTE B\d+|EXTRA.*?)\s/i);
                     const routeKey2 = match2 ? match2[1] : route2.name;
-                    isSamePair = (routeKey1 === routeKey2);
+                    isSamePair = (routeKey1.toUpperCase() === routeKey2.toUpperCase());
                 }
 
                 const slaDataMap = {
