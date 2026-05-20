@@ -4131,7 +4131,10 @@
 
                 // Track card index for edit/delete
                 const cardIdx1 = i;
-                const displayName = routeKey1;
+                let displayName = routeKey1;
+                if (/^(EXTRA|Ekstra|Exstra)/i.test(route1.name)) {
+                    displayName = 'Extra';
+                }
                 html += `<div class="route-card"><div class="route-header" style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
                     <div class="route-name" style="flex:1; min-width:0;">${displayName}</div>
                     <span class="sla-status status-ontime" style="display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold;">✓ On-Time</span>
