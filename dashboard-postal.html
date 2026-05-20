@@ -3979,6 +3979,10 @@
                     const routeKey2 = match2 ? match2[1] : route2.name;
                     isSamePair = (routeKey1.toUpperCase() === routeKey2.toUpperCase());
                 }
+                // Rute Ekstra/Extra hanya 1 arah, jangan digabung ke dalam 1 container
+                if (/^(EXTRA|Ekstra|Exstra)/i.test(route1.name)) {
+                    isSamePair = false;
+                }
 
                 const slaDataMap = {
                     'Rute 1 JAT-SB': [{ t: '23:00', l: 'JAT (OUT)' }, { t: '02:45', l: 'CN (IN)' }, { t: '03:15', l: 'CN (OUT)' }, { t: '12:00', l: 'SB (IN)' }],
