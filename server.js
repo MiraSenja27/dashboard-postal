@@ -22,7 +22,6 @@ const volumeSchema = new mongoose.Schema({
   postal: { type: Number, default: 0 },
   nonPostal: { type: Number, default: 0 },
   kapasitas: { type: Number, default: 0 },
-  unit: { type: String, default: "" },
   sisa: { type: Number, default: 0 },
   category: { type: String, default: "primer" },
   weekStart: { type: String },
@@ -325,7 +324,6 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
       postal: -1,
       poslog: -1,
       kapasitas: -1,
-      unit: -1,
       space: -1,
     };
 
@@ -351,7 +349,6 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
         colMap.poslog = findCol(["poslog", "non postal", "non_postal"]);
         colMap.kapasitas = findCol(["kapasit", "kapasitas", "capacity"]);
         colMap.space = findCol(["space", "sisa"]);
-        colMap.unit = findCol(["unit"]);
         break;
       }
     }
@@ -416,8 +413,6 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
           colMap.poslog !== -1 ? parseIndoNumber(row[colMap.poslog]) : 0;
         const kapasitas =
           colMap.kapasitas !== -1 ? parseIndoNumber(row[colMap.kapasitas]) : 0;
-        const unitVal =
-          colMap.unit !== -1 ? (row[colMap.unit] != null ? String(row[colMap.unit]).trim() : "") : "";
 
         let spaceAvailable = 0;
         if (colMap.space !== -1 && row[colMap.space] != null) {
@@ -438,7 +433,6 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
           postal: postalVolume,
           nonPostal: nonPostalVolume,
           kapasitas,
-          unit: unitVal,
           sisa: spaceAvailable,
           category: category || "primer",
           weekStart: weekRange.startDate,
@@ -846,34 +840,28 @@ app.get("/api/routes", async (req, res) => {
     const routeMap = {};
     filtered.forEach((item) => {
       if (!item || !item.rute) return;
-      if (!routeMap[item.rute]) {
+      if (!routeMap[item.rute])
         routeMap[item.rute] = {
           route_name: item.rute,
-          unit: item.unit || '-', // store unit
           postal_volume: 0,
           non_postal_volume: 0,
-          weekly_capacity_total: 0,
-          daily_capacity_total: 0,
+          kapasitas_total: 0,
           space_sum: 0,
           count: 0,
         };
-      }
-      const weeklyCap = item.kapasitas || 0;
-      const dailyCap = weeklyCap / 7;
+      const dailyCapacity = (item.kapasitas || 0) / 7;
       routeMap[item.rute].postal_volume += item.postal || 0;
       routeMap[item.rute].non_postal_volume += item.nonPostal || 0;
-      routeMap[item.rute].weekly_capacity_total += weeklyCap;
-      routeMap[item.rute].daily_capacity_total += dailyCap;
-      routeMap[item.rute].space_sum += dailyCap - (item.postal || 0) - (item.nonPostal || 0);
+      routeMap[item.rute].kapasitas_total += dailyCapacity;
+      routeMap[item.rute].space_sum +=
+        dailyCapacity - (item.postal || 0) - (item.nonPostal || 0);
       routeMap[item.rute].count++;
     });
     const routes = Object.values(routeMap).map((r) => ({
       route_name: r.route_name,
-      unit: r.unit,
       postal_volume: r.postal_volume,
       non_postal_volume: r.non_postal_volume,
-      weekly_capacity: r.weekly_capacity_total,
-      daily_capacity: r.daily_capacity_total,
+      kapasitas: r.kapasitas_total,
       space_available: r.space_sum,
     }));
     let minDate = null,
