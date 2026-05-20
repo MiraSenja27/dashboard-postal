@@ -925,7 +925,7 @@
             align-items: center;
             height: 100vh;
             width: 100%;
-            background: #000 url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1920') no-repeat center center;
+            background: #000 url('login-bg.png') no-repeat center center;
             background-size: cover;
             position: fixed;
             top: 0;
@@ -1830,35 +1830,18 @@
                     fontSize: 32, bold: true, color: '1e3c72'
                 });
 
-                // Capture stats grid cards individually
-                const statCards = document.querySelectorAll('.stats-grid .stat-card');
-                if (statCards && statCards.length > 0) {
-                    const cardsCount = statCards.length;
-                    const spacingX = 0.15;
-                    const maxSlideWidth = 9.5; // Leaving 0.25 margin on each side for a 10-inch slide
-                    
-                    // Calculate dynamic width based on number of cards to fit in one row
-                    const cardWidth = (maxSlideWidth - (spacingX * (cardsCount - 1))) / cardsCount;
-                    const cardHeight = cardWidth * 0.6; // Maintain an aesthetic aspect ratio
-                    const startX = 0.25;
-                    const startY = 1.5;
-
-                    for (let i = 0; i < statCards.length; i++) {
-                        const card = statCards[i];
-                        const canvas = await html2canvas(card, {
-                            backgroundColor: null, // Transparent background for rounded corners
-                            scale: 2
-                        });
-                        const imgData = canvas.toDataURL('image/png');
-                        
-                        slide2.addImage({
-                            data: imgData,
-                            x: startX + (i * (cardWidth + spacingX)),
-                            y: startY,
-                            w: cardWidth,
-                            h: cardHeight
-                        });
-                    }
+                // Capture stats grid
+                const statsGrid = document.querySelector('.stats-grid');
+                if (statsGrid) {
+                    const canvas = await html2canvas(statsGrid, {
+                        backgroundColor: '#ffffff',
+                        scale: 2
+                    });
+                    const imgData = canvas.toDataURL('image/png');
+                    slide2.addImage({
+                        data: imgData,
+                        x: 0.5, y: 1.2, w: 9, h: 2.5
+                    });
                 }
 
                 // Slide 3: Top 5 Rankings - Screenshot
@@ -2747,39 +2730,22 @@
             const routesGrid = document.querySelector('.routes-grid');
             if (!routesGrid || routes.length === 0) return;
 
-            // Ekstrak prefix rute dari route_name, contoh:
-            // "Rute 4A: JAT - Surabaya" => "Rute 4A"
-            // "Rute 1: JAT - Yogyakarta" => "Rute 1"
-            // Semua rute 4A (apapun arahnya) digabung dalam 1 group
-            function getGroupKey(route) {
-                const name = (route.route_name || '').trim();
-                // Cek apakah mengandung 4A (case-insensitive)
-                if (name.toUpperCase().includes('4A')) {
-                    return 'RUTE_4A_GROUP';
-                }
-                // Ambil prefix sebelum tanda ':' sebagai kunci grup
-                const colonIdx = name.indexOf(':');
-                if (colonIdx > 0) {
-                    return name.substring(0, colonIdx).trim();
-                }
-                return name;
-            }
-
+            // Group routes by route_number
             const groupedRoutes = {};
             routes.forEach(route => {
-                const key = getGroupKey(route);
-                if (!groupedRoutes[key]) {
-                    groupedRoutes[key] = [];
+                if (!groupedRoutes[route.route_number]) {
+                    groupedRoutes[route.route_number] = [];
                 }
-                groupedRoutes[key].push(route);
+                groupedRoutes[route.route_number].push(route);
             });
 
-            // Generate HTML untuk route cards (tampilkan maks 4 grup)
+            // Generate HTML for route cards (show first 4 routes)
             let html = '';
             let count = 0;
-            for (const key in groupedRoutes) {
+            for (const routeNumber in groupedRoutes) {
                 if (count >= 4) break;
-                html += generateRouteCard(groupedRoutes[key]);
+                const routeGroup = groupedRoutes[routeNumber];
+                html += generateRouteCard(routeGroup);
                 count++;
             }
 
@@ -2787,10 +2753,8 @@
         }
 
         function generateRouteCard(routeGroup) {
-            // Data dari API tidak memiliki field direction, gunakan urutan array:
-            // routeGroup[0] = outbound (pertama), routeGroup[1] = inbound (jika ada)
-            const outbound = routeGroup[0];
-            const inbound = routeGroup.length > 1 ? routeGroup[1] : null;
+            const outbound = routeGroup.find(r => r.direction.includes('-')) || routeGroup[0];
+            const inbound = routeGroup.find(r => r.direction && !r.direction.includes(outbound.direction)) || routeGroup[1];
 
             // Calculate percentages using actual kapasitas from Excel data
             function calcBarPercents(route) {
@@ -3794,7 +3758,7 @@
             'Rute 2A JAT-PG Fuso', 'Rute 2A PG-JAT Fuso',
             'Rute 2B Sumatera PG - PBR', 'Rute 2B Sumatera PBR - PG',
             'Rute 3 JAT-PG express', 'Rute 3 PG-JAT express',
-            'Rute 4A',
+            'Rute 4A Kcu Purwokerto - Kcu Cirebon',
             'RUTE B1 (15) JAT-Solo', 'RUTE B1 (15) Solo-JAT',
             'EXTRA KCU SOLO - SPP YOGYAKARTA - SPP SURABAYA',
             'EXTRA SPP YOGYA - KCU SOLO - SPP JAT',
@@ -3977,7 +3941,7 @@
                 if (route2) {
                     const match2 = route2.name.match(/^(Rute \d+[A-Z]?|RUTE B\d+|EXTRA.*?)\s/i);
                     const routeKey2 = match2 ? match2[1] : route2.name;
-                    isSamePair = (routeKey1.toUpperCase() === routeKey2.toUpperCase());
+                    isSamePair = (routeKey1 === routeKey2);
                 }
 
                 const slaDataMap = {
@@ -3990,7 +3954,6 @@
                     'Rute 4 JAT-PWT': [{ t: '02:30', l: 'JAT (OUT)' }, { t: '08:30', l: 'CN (IN)' }, { t: '09:00', l: 'CN (OUT)' }, { t: '10:30', l: 'TG (IN)' }, { t: '11:00', l: 'TG (OUT)' }, { t: '14:00', l: 'PWT (IN)' }],
                     'Rute 4 PWT-JAT': [{ t: '21:30', l: 'PWT (OUT)' }, { t: '00:30', l: 'TG (IN)' }, { t: '01:00', l: 'TG (OUT)' }, { t: '02:30', l: 'CN (IN)' }, { t: '03:30', l: 'CN (OUT)' }, { t: '09:30', l: 'JAT (IN)' }],
                     'RUTE 4A CIREBON - PURWOKERTO': [{ t: '03:00', l: 'CN (OUT)' }, { t: '07:00', l: 'PWT (IN)' }],
-                    'Rute 4A Kcu Cirebon - Kcu Purwokerto': [{ t: '03:00', l: 'CN (OUT)' }, { t: '07:00', l: 'PWT (IN)' }],
                     'Rute 4A Kcu Purwokerto - Kcu Cirebon': [{ t: '22:00', l: 'PWT (OUT)' }, { t: '02:00', l: 'CN (IN)' }],
                     'Rute 5 JAT-SLO': [{ t: '03:30', l: 'JAT (OUT)' }, { t: '08:30', l: 'CN (IN)' }, { t: '09:00', l: 'CN (OUT)' }, { t: '11:00', l: 'TG (IN)' }, { t: '11:30', l: 'TG (OUT)' }, { t: '13:30', l: 'PK (IN)' }, { t: '14:00', l: 'PK (OUT)' }, { t: '16:00', l: 'SM (IN)' }, { t: '16:30', l: 'SM (OUT)' }, { t: '19:30', l: 'YK (IN)' }, { t: '20:00', l: 'YK (OUT)' }, { t: '23:00', l: 'SLO (IN)' }],
                     'Rute 5 SLO-JAT': [{ t: '00:30', l: 'SLO (OUT)' }, { t: '03:00', l: 'YK (IN)' }, { t: '04:00', l: 'YK (OUT)' }, { t: '07:00', l: 'SM (IN)' }, { t: '08:00', l: 'SM (OUT)' }, { t: '10:00', l: 'PK (IN)' }, { t: '10:30', l: 'PK (OUT)' }, { t: '12:30', l: 'TG (IN)' }, { t: '13:00', l: 'TG (OUT)' }, { t: '15:00', l: 'CN (IN)' }, { t: '15:30', l: 'CN (OUT)' }, { t: '20:45', l: 'JAT (IN)' }],
