@@ -3806,9 +3806,20 @@
             return [...data].sort((a, b) => {
                 const nameA = a.name || a.route_name || a.rute || '';
                 const nameB = b.name || b.route_name || b.rute || '';
+                
+                const matchA = nameA.match(/^(Rute \d+[A-Z]?|RUTE B\d+|EXTRA.*?)\s/i);
+                const keyA = matchA ? matchA[1].toUpperCase() : nameA.toUpperCase();
+                
+                const matchB = nameB.match(/^(Rute \d+[A-Z]?|RUTE B\d+|EXTRA.*?)\s/i);
+                const keyB = matchB ? matchB[1].toUpperCase() : nameB.toUpperCase();
+
+                if (keyA === keyB) {
+                    return nameA.localeCompare(nameB);
+                }
+
                 const idxA = ROUTE_ORDER.findIndex(r => nameA.toLowerCase().includes(r.toLowerCase()) || r.toLowerCase().includes(nameA.toLowerCase()));
                 const idxB = ROUTE_ORDER.findIndex(r => nameB.toLowerCase().includes(r.toLowerCase()) || r.toLowerCase().includes(nameB.toLowerCase()));
-                if (idxA === -1 && idxB === -1) return nameA.localeCompare(nameB);
+                if (idxA === -1 && idxB === -1) return keyA.localeCompare(keyB);
                 if (idxA === -1) return 1;
                 if (idxB === -1) return -1;
                 return idxA - idxB;
