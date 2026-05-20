@@ -4032,7 +4032,12 @@
                 const getFullRoutePath = (rName) => {
                     const points = slaDataMap[rName] || window._slaDataMap[rName];
                     if (!points || points.length === 0) {
-                        return rName.replace(/Rute\s*[A-Za-z0-9]+[:\-]?\s*/gi, '').replace(/Primer\s*Sumatera\s*/gi, '').trim();
+                        return rName
+                            .replace(/Rute\s*[A-Za-z0-9]+[:\-]?\s*/gi, '')
+                            .replace(/Primer\s*Sumatera\s*/gi, '')
+                            .replace(/EXTRA\s*/gi, '')
+                            .replace(/Exstra\s*/gi, '')
+                            .trim();
                     }
                     
                     const nodes = [];
@@ -4115,8 +4120,9 @@
 
                 // Track card index for edit/delete
                 const cardIdx1 = i;
+                const displayName = routeKey1.replace(/^EXTRA\s+/i, '').replace(/^Exstra\s+/i, '').trim();
                 html += `<div class="route-card"><div class="route-header" style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
-                    <div class="route-name" style="flex:1; min-width:0;">${routeKey1}</div>
+                    <div class="route-name" style="flex:1; min-width:0;">${displayName}</div>
                     <span class="sla-status status-ontime" style="display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold;">✓ On-Time</span>
                     ${isAdmin() ? `
                     <button onclick="openEditRouteModal(${cardIdx1})" title="Edit Rute" style="background:linear-gradient(135deg,#f59e0b,#d97706); color:white; border:none; border-radius:8px; padding:6px 12px; cursor:pointer; font-size:13px; font-weight:700;">✏️ Edit</button>
