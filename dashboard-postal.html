@@ -3253,7 +3253,7 @@
 
                                             // Auto-fill UNIT ke semua baris yang sedang tampil (terfilter)
                                             if (col === 'unit' && newVal !== '') {
-                                                autoFillUnitForVisibleRows(rowIdx, newVal, _volumeData);
+                                                await autoFillUnitForVisibleRows(rowIdx, newVal, _volumeData);
                                             }
 
                                             renderVolumeTable(_volumeData);
@@ -4950,7 +4950,7 @@
         }
 
         // =================== AUTO-FILL UNIT ===================
-        function autoFillUnitForVisibleRows(changedRowIdx, newUnitValue, volumeDataArr) {
+        async function autoFillUnitForVisibleRows(changedRowIdx, newUnitValue, volumeDataArr) {
             const table = document.querySelector('#volume-view .data-table');
             if (!table) return;
             
@@ -4962,6 +4962,7 @@
             
             if (visibleRows.length === 0) return;
             
+            const savePromises = [];
             let autoFillCount = 0;
             
             visibleRows.forEach(row => {
@@ -4969,38 +4970,46 @@
                 if (rowIdx === changedRowIdx) return; // skip baris yang sudah diubah user
                 
                 const record = volumeDataArr[rowIdx];
-                if (!record) return;
+                if (!record || !record.rute) return;
                 
-                // Update data in memory
+                // Update data in memory dulu
                 record.unit = newUnitValue;
                 
-                // Update tampilan sel (hanya jika tidak sedang di mode edit)
+                // Update tampilan sel langsung (visual feedback cepat)
                 const unitCell = row.querySelector('[data-col="unit"]');
                 if (unitCell && !unitCell.querySelector('input')) {
                     unitCell.textContent = newUnitValue;
-                    // Flash hijau sebagai visual feedback
                     unitCell.style.transition = 'background-color 0.2s ease';
                     unitCell.style.backgroundColor = '#bbf7d0';
                     setTimeout(() => { unitCell.style.backgroundColor = ''; }, 1200);
                 }
                 
-                // Kirim ke server (silent background)
-                if (record.rute) {
-                    fetch(`${API_URL}/volume`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            id: record.id,
-                            rute: record.rute,
-                            tanggal: record.tanggal,
-                            unit: newUnitValue
-                        })
-                    }).catch(err => console.warn('Auto-fill unit save error row', rowIdx, err));
-                    autoFillCount++;
-                }
+                // Kumpulkan semua promise save ke server
+                const promise = fetch(`${API_URL}/volume`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: record.id,
+                        rute: record.rute,
+                        tanggal: record.tanggal,
+                        unit: newUnitValue
+                    })
+                })
+                .then(res => res.json())
+                .then(result => {
+                    if (!result.success) {
+                        console.warn(`Gagal simpan unit baris ${rowIdx}:`, result.message);
+                    }
+                })
+                .catch(err => console.warn('Auto-fill unit save error row', rowIdx, err));
+                
+                savePromises.push(promise);
+                autoFillCount++;
             });
             
-            if (autoFillCount > 0) {
+            // Tunggu SEMUA request selesai sebelum lanjut (baru setelah ini tabel di-render ulang)
+            if (savePromises.length > 0) {
+                await Promise.all(savePromises);
                 showAutoFillToast(newUnitValue, autoFillCount);
             }
         }
