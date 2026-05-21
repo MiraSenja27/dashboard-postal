@@ -3241,11 +3241,6 @@
                                     const id = _volumeData[rowIdx].id;
 
                                     try {
-                                        // Ambil context filter aktif agar update hanya kena data yang tampil
-                                        const activeWeekKey = document.getElementById('weekFilter')?.value || '';
-                                        const activeStartDate = document.getElementById('startDate')?.value || '';
-                                        const activeEndDate = document.getElementById('endDate')?.value || '';
-
                                         const response = await fetch(`${API_URL}/volume`, {
                                             method: 'PUT',
                                             headers: { 'Content-Type': 'application/json' },
@@ -3253,10 +3248,6 @@
                                                 id: id,
                                                 rute: ruteName, 
                                                 tanggal: tanggal,
-                                                weekKey: activeWeekKey,
-                                                startDate: activeStartDate,
-                                                endDate: activeEndDate,
-                                                category: currentMenu,
                                                 [col]: newVal 
                                             })
                                         });
@@ -3269,9 +3260,13 @@
                                             const rd = routesData.find(r => r.name === ruteName);
                                             if (rd) { rd[col === 'nonPostal' ? 'nonPostal' : col] = newVal; renderRoutes(); }
 
-                                            // Auto-fill UNIT ke semua baris yang sedang tampil (terfilter)
+                                            // Auto-fill UNIT ke baris lain — HANYA jika filter kapasitas sedang aktif
                                             if (col === 'unit' && newVal !== '') {
-                                                await autoFillUnitForVisibleRows(rowIdx, newVal, _volumeData);
+                                                const kapFilterVal = document.getElementById('kapasitasFilter')?.value?.trim();
+                                                const isKapasitasFilterActive = kapFilterVal !== '' && kapFilterVal != null;
+                                                if (isKapasitasFilterActive) {
+                                                    await autoFillUnitForVisibleRows(rowIdx, newVal, _volumeData);
+                                                }
                                             }
 
                                             renderVolumeTable(_volumeData);
@@ -4968,31 +4963,39 @@
         }
 
         // =================== AUTO-FILL UNIT ===================
+        // Hanya dipanggil ketika filter Kapasitas/Minggu sedang aktif.
+        // Mengisi unit ke semua baris yang TAMPIL (lolos filter kapasitas),
+        // kecuali baris yang baru saja diubah user (changedRowIdx).
         async function autoFillUnitForVisibleRows(changedRowIdx, newUnitValue, volumeDataArr) {
             const table = document.querySelector('#volume-view .data-table');
             if (!table) return;
-            
+
+            // Pastikan filter kapasitas memang aktif — double-check agar aman
+            const kapFilterVal = document.getElementById('kapasitasFilter')?.value?.trim();
+            if (!kapFilterVal) return; // tidak ada filter → batalkan
+
             const tbody = table.querySelector('tbody');
             if (!tbody) return;
-            
+
             const rows = Array.from(tbody.querySelectorAll('tr'));
+            // Hanya baris yang TIDAK disembunyikan oleh filterByKapasitas()
             const visibleRows = rows.filter(row => row.style.display !== 'none');
-            
+
             if (visibleRows.length === 0) return;
-            
+
             const savePromises = [];
             let autoFillCount = 0;
-            
+
             visibleRows.forEach(row => {
                 const rowIdx = rows.indexOf(row);
                 if (rowIdx === changedRowIdx) return; // skip baris yang sudah diubah user
-                
+
                 const record = volumeDataArr[rowIdx];
                 if (!record || !record.rute) return;
-                
+
                 // Update data in memory dulu
                 record.unit = newUnitValue;
-                
+
                 // Update tampilan sel langsung (visual feedback cepat)
                 const unitCell = row.querySelector('[data-col="unit"]');
                 if (unitCell && !unitCell.querySelector('input')) {
@@ -5001,8 +5004,9 @@
                     unitCell.style.backgroundColor = '#bbf7d0';
                     setTimeout(() => { unitCell.style.backgroundColor = ''; }, 1200);
                 }
-                
-                // Kumpulkan semua promise save ke server
+
+                // Kirim ke server dengan context filter agar updateMany di backend
+                // hanya menyentuh data dalam rentang yang sedang tampil
                 const promise = fetch(`${API_URL}/volume`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
@@ -5024,12 +5028,11 @@
                     }
                 })
                 .catch(err => console.warn('Auto-fill unit save error row', rowIdx, err));
-                
+
                 savePromises.push(promise);
                 autoFillCount++;
             });
-            
-            // Tunggu SEMUA request ke server selesai dulu, baru tabel di-render ulang
+
             if (savePromises.length > 0) {
                 await Promise.all(savePromises);
                 showAutoFillToast(newUnitValue, autoFillCount);
