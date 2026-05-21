@@ -2165,6 +2165,15 @@
             document.getElementById('routeFilter').value = '';
             document.getElementById('weekFilter').value = '';
 
+            // Reset filter Kapasitas/minggu & tampilkan kembali semua baris tersembunyi
+            const kapFilter = document.getElementById('kapasitasFilter');
+            if (kapFilter) {
+                kapFilter.value = '';
+                document.querySelectorAll('#volume-view tbody tr').forEach(row => {
+                    row.style.display = '';
+                });
+            }
+
             // Global sync reset
             ['dashboard', 'sla', 'volume'].forEach(view => {
                 viewFilters[view] = {
@@ -5007,7 +5016,7 @@
                 autoFillCount++;
             });
             
-            // Tunggu SEMUA request selesai sebelum lanjut (baru setelah ini tabel di-render ulang)
+            // Tunggu SEMUA request ke server selesai dulu, baru tabel di-render ulang
             if (savePromises.length > 0) {
                 await Promise.all(savePromises);
                 showAutoFillToast(newUnitValue, autoFillCount);
