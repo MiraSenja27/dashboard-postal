@@ -22,7 +22,7 @@ const volumeSchema = new mongoose.Schema({
   postal: { type: Number, default: 0 },
   nonPostal: { type: Number, default: 0 },
   kapasitas: { type: Number, default: 0 },
-  sisa: { type: Number, default: 0 },
+  unit: { type: String, default: "" },
   category: { type: String, default: "primer" },
   weekStart: { type: String },
   weekEnd: { type: String },
@@ -324,7 +324,7 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
       postal: -1,
       poslog: -1,
       kapasitas: -1,
-      space: -1,
+      unit: -1,
     };
 
     for (let i = 0; i < Math.min(allRows.length, 20); i++) {
@@ -348,6 +348,7 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
         colMap.postal = p;
         colMap.poslog = findCol(["poslog", "non postal", "non_postal"]);
         colMap.kapasitas = findCol(["kapasit", "kapasitas", "capacity"]);
+        colMap.unit = findCol(["unit", "satuan"]);
         colMap.space = findCol(["space", "sisa"]);
         break;
       }
@@ -413,6 +414,7 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
           colMap.poslog !== -1 ? parseIndoNumber(row[colMap.poslog]) : 0;
         const kapasitas =
           colMap.kapasitas !== -1 ? parseIndoNumber(row[colMap.kapasitas]) : 0;
+        const unitValue = colMap.unit !== -1 ? String(row[colMap.unit] || "").trim() : "";
 
         let spaceAvailable = 0;
         if (colMap.space !== -1 && row[colMap.space] != null) {
@@ -438,7 +440,7 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
           weekStart: weekRange.startDate,
           weekEnd: weekRange.endDate,
           weekKey: weekRange.weekKey,
-          uploadTime: new Date().toISOString(),
+          unit: unitValue,
         });
         successCount++;
       } catch (err) {
