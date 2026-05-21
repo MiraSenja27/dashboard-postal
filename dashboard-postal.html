@@ -3241,6 +3241,11 @@
                                     const id = _volumeData[rowIdx].id;
 
                                     try {
+                                        // Ambil context filter aktif agar update hanya kena data yang tampil
+                                        const activeWeekKey = document.getElementById('weekFilter')?.value || '';
+                                        const activeStartDate = document.getElementById('startDate')?.value || '';
+                                        const activeEndDate = document.getElementById('endDate')?.value || '';
+
                                         const response = await fetch(`${API_URL}/volume`, {
                                             method: 'PUT',
                                             headers: { 'Content-Type': 'application/json' },
@@ -3248,6 +3253,10 @@
                                                 id: id,
                                                 rute: ruteName, 
                                                 tanggal: tanggal,
+                                                weekKey: activeWeekKey,
+                                                startDate: activeStartDate,
+                                                endDate: activeEndDate,
+                                                category: currentMenu,
                                                 [col]: newVal 
                                             })
                                         });
@@ -5001,6 +5010,10 @@
                         id: record.id,
                         rute: record.rute,
                         tanggal: record.tanggal,
+                        weekKey: document.getElementById('weekFilter')?.value || '',
+                        startDate: document.getElementById('startDate')?.value || '',
+                        endDate: document.getElementById('endDate')?.value || '',
+                        category: currentMenu,
                         unit: newUnitValue
                     })
                 })
