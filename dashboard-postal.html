@@ -3251,6 +3251,11 @@
                                             const rd = routesData.find(r => r.name === ruteName);
                                             if (rd) { rd[col === 'nonPostal' ? 'nonPostal' : col] = newVal; renderRoutes(); }
 
+                                            // Auto-fill UNIT ke semua baris yang sedang tampil (terfilter)
+                                            if (col === 'unit' && newVal !== '') {
+                                                autoFillUnitForVisibleRows(rowIdx, newVal, _volumeData);
+                                            }
+
                                             renderVolumeTable(_volumeData);
                                             // Silently update dashboard in background
                                             loadDashboardData().catch(e => console.error(e));
@@ -3347,7 +3352,12 @@
                             <th style="width: 110px; white-space: nowrap;">Postal (kg)</th>
                             <th style="width: 110px; white-space: nowrap;">Poslog (kg)</th>
                             <th style="width: 90px; white-space: nowrap;">Unit</th>
-                            <th style="width: 160px; white-space: nowrap;">Kapasitas/minggu</th>
+                            <th style="width: 160px; white-space: nowrap; padding: 0; vertical-align: top;">
+                                <div style="padding: 12px 14px 4px; font-weight:700; text-transform:uppercase; font-size:12px; letter-spacing:0.5px;">Kapasitas/minggu</div>
+                                <div style="padding: 0 6px 8px;">
+                                    <input type="number" id="kapasitasFilter" placeholder="🔍 Filter nilai..." onkeyup="filterByKapasitas()" onchange="filterByKapasitas()" style="width:100%; padding:4px 7px; border:1.5px solid #c0c9d4; border-radius:5px; font-size:11px; font-weight:400; outline:none; background:#f8fafc; color:#334155; text-transform:none; letter-spacing:0;">
+                                </div>
+                            </th>
                             <th style="width: 130px; white-space: nowrap;">Kapasitas/hari</th>
                             <th style="width: 120px; white-space: nowrap;">Sisa/minggu</th>
                             <th style="width: 120px; white-space: nowrap;">Sisa/hari</th>
@@ -3523,7 +3533,12 @@
                             <th style="width: 110px; white-space: nowrap;">Postal (kg)</th>
                             <th style="width: 110px; white-space: nowrap;">Poslog (kg)</th>
                             <th style="width: 90px; white-space: nowrap;">Unit</th>
-                            <th style="width: 160px; white-space: nowrap;">Kapasitas/minggu</th>
+                            <th style="width: 160px; white-space: nowrap; padding: 0; vertical-align: top;">
+                                <div style="padding: 12px 14px 4px; font-weight:700; text-transform:uppercase; font-size:12px; letter-spacing:0.5px;">Kapasitas/minggu</div>
+                                <div style="padding: 0 6px 8px;">
+                                    <input type="number" id="kapasitasFilter" placeholder="🔍 Filter nilai..." onkeyup="filterByKapasitas()" onchange="filterByKapasitas()" style="width:100%; padding:4px 7px; border:1.5px solid #c0c9d4; border-radius:5px; font-size:11px; font-weight:400; outline:none; background:#f8fafc; color:#334155; text-transform:none; letter-spacing:0;">
+                                </div>
+                            </th>
                             <th style="width: 130px; white-space: nowrap;">Kapasitas/hari</th>
                             <th style="width: 120px; white-space: nowrap;">Sisa/minggu</th>
                             <th style="width: 120px; white-space: nowrap;">Sisa/hari</th>
@@ -4888,6 +4903,156 @@
             volumeCheckboxes.forEach(checkbox => {
                 checkbox.checked = selectAllCheckbox.checked;
             });
+        }
+
+        // =================== FILTER KAPASITAS/MINGGU ===================
+        function filterByKapasitas() {
+            const filterInput = document.getElementById('kapasitasFilter');
+            if (!filterInput) return;
+            
+            const filterValue = filterInput.value.trim();
+            const table = filterInput.closest('table');
+            if (!table) return;
+            
+            const tbody = table.querySelector('tbody');
+            if (!tbody) return;
+            
+            const rows = tbody.querySelectorAll('tr');
+            
+            rows.forEach(row => {
+                if (filterValue === '') {
+                    row.style.display = '';
+                    return;
+                }
+                
+                const numFilter = parseFloat(filterValue);
+                const cells = row.querySelectorAll('td');
+                if (cells.length === 0) return;
+                
+                // Admin: No(0), CB(1), Tanggal(2), Rute(3), Postal(4), Poslog(5), Unit(6), Kap/minggu(7)
+                // Viewer: No(0), Tanggal(1), Rute(2), Postal(3), Poslog(4), Unit(5), Kap/minggu(6)
+                const hasCheckbox = !!row.querySelector('input[type="checkbox"]');
+                const kapIdx = hasCheckbox ? 7 : 6;
+                
+                if (cells[kapIdx]) {
+                    const rawText = cells[kapIdx].textContent.trim()
+                        .replace(/\./g, '')   // hapus separator ribuan (id-ID pakai titik)
+                        .replace(',', '.');   // ganti koma desimal ke titik
+                    const cellValue = parseFloat(rawText);
+                    
+                    if (!isNaN(cellValue) && !isNaN(numFilter)) {
+                        row.style.display = (cellValue === numFilter) ? '' : 'none';
+                    } else {
+                        row.style.display = '';
+                    }
+                }
+            });
+        }
+
+        // =================== AUTO-FILL UNIT ===================
+        function autoFillUnitForVisibleRows(changedRowIdx, newUnitValue, volumeDataArr) {
+            const table = document.querySelector('#volume-view .data-table');
+            if (!table) return;
+            
+            const tbody = table.querySelector('tbody');
+            if (!tbody) return;
+            
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const visibleRows = rows.filter(row => row.style.display !== 'none');
+            
+            if (visibleRows.length === 0) return;
+            
+            let autoFillCount = 0;
+            
+            visibleRows.forEach(row => {
+                const rowIdx = rows.indexOf(row);
+                if (rowIdx === changedRowIdx) return; // skip baris yang sudah diubah user
+                
+                const record = volumeDataArr[rowIdx];
+                if (!record) return;
+                
+                // Update data in memory
+                record.unit = newUnitValue;
+                
+                // Update tampilan sel (hanya jika tidak sedang di mode edit)
+                const unitCell = row.querySelector('[data-col="unit"]');
+                if (unitCell && !unitCell.querySelector('input')) {
+                    unitCell.textContent = newUnitValue;
+                    // Flash hijau sebagai visual feedback
+                    unitCell.style.transition = 'background-color 0.2s ease';
+                    unitCell.style.backgroundColor = '#bbf7d0';
+                    setTimeout(() => { unitCell.style.backgroundColor = ''; }, 1200);
+                }
+                
+                // Kirim ke server (silent background)
+                if (record.rute) {
+                    fetch(`${API_URL}/volume`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            id: record.id,
+                            rute: record.rute,
+                            tanggal: record.tanggal,
+                            unit: newUnitValue
+                        })
+                    }).catch(err => console.warn('Auto-fill unit save error row', rowIdx, err));
+                    autoFillCount++;
+                }
+            });
+            
+            if (autoFillCount > 0) {
+                showAutoFillToast(newUnitValue, autoFillCount);
+            }
+        }
+
+        function showAutoFillToast(unitValue, count) {
+            const oldToast = document.getElementById('autoFillToast');
+            if (oldToast) oldToast.remove();
+            
+            if (!document.getElementById('toastStyle')) {
+                const style = document.createElement('style');
+                style.id = 'toastStyle';
+                style.textContent = `
+                    @keyframes slideInToast {
+                        from { transform: translateX(120%); opacity: 0; }
+                        to   { transform: translateX(0);    opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            const toast = document.createElement('div');
+            toast.id = 'autoFillToast';
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 24px;
+                right: 24px;
+                background: linear-gradient(135deg, #1e3c72, #2a5298);
+                color: white;
+                padding: 12px 20px;
+                border-radius: 10px;
+                font-size: 14px;
+                font-weight: 600;
+                box-shadow: 0 8px 24px rgba(30,60,114,0.35);
+                z-index: 99999;
+                animation: slideInToast 0.3s ease;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            `;
+            toast.innerHTML = `
+                <span style="font-size:18px;">✅</span>
+                <span>Auto-fill <b>"${unitValue}"</b> ke <b>${count}</b> baris yang tampil</span>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.transition = 'all 0.3s ease';
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(120%)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
     </script>
 </body>
