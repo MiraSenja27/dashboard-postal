@@ -3253,12 +3253,8 @@
                                             method: 'PUT',
                                             headers: { 'Content-Type': 'application/json' },
                                             body: JSON.stringify({ 
-                                                id: id,
                                                 rute: ruteName, 
                                                 tanggal: tanggal,
-                                                weekKey: activeWeekKey,
-                                                startDate: activeStartDate,
-                                                endDate: activeEndDate,
                                                 category: currentMenu,
                                                 [col]: newVal 
                                             })
@@ -5014,12 +5010,8 @@
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        id: record.id,
                         rute: record.rute,
                         tanggal: record.tanggal,
-                        weekKey: document.getElementById('weekFilter')?.value || '',
-                        startDate: document.getElementById('startDate')?.value || '',
-                        endDate: document.getElementById('endDate')?.value || '',
                         category: currentMenu,
                         unit: newUnitValue
                     })
