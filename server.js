@@ -297,7 +297,6 @@ app.post("/api/login", async (req, res) => {
     res.status(500).json({ success: false, message: err.message });
   }
 });
-
 // Upload Volume Excel
 app.post("/api/upload", upload.single("file"), async (req, res) => {
   try {
@@ -348,7 +347,19 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
         colMap.postal = p;
         colMap.poslog = findCol(["poslog", "non postal", "non_postal"]);
         colMap.kapasitas = findCol(["kapasit", "kapasitas", "capacity"]);
-        colMap.unit = findCol(["unit", "satuan"]);
+        // Detect column indices including more variations for Unit
+        colMap.unit = findCol(["unit", "satuan", "unit (kg)", "unit (kg.)", "unit (kg)", "unit (Kg)", "unit-kg", "unit_kg", "unitkg", "unitkg."]);
+        // Fallback: if still not found, look for any header containing the word "unit" ignoring case and extra characters
+        if (colMap.unit === -1 && headerRowIdx !== -1) {
+          const headerRow = allRows[headerRowIdx];
+          for (let idx = 0; idx < headerRow.length; idx++) {
+            const cell = headerRow[idx];
+            if (cell && String(cell).toLowerCase().includes('unit')) {
+              colMap.unit = idx;
+              break;
+            }
+          }
+        }
         colMap.space = findCol(["space", "sisa"]);
         break;
       }
