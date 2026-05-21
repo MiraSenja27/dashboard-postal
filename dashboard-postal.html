@@ -3253,6 +3253,7 @@
                                             method: 'PUT',
                                             headers: { 'Content-Type': 'application/json' },
                                             body: JSON.stringify({ 
+                                                id: id,
                                                 rute: ruteName, 
                                                 tanggal: tanggal,
                                                 category: currentMenu,
@@ -5010,6 +5011,7 @@
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
+                        id: record.id,
                         rute: record.rute,
                         tanggal: record.tanggal,
                         category: currentMenu,
