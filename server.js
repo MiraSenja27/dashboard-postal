@@ -22,7 +22,7 @@ const volumeSchema = new mongoose.Schema({
   postal: { type: Number, default: 0 },
   nonPostal: { type: Number, default: 0 },
   kapasitas: { type: Number, default: 0 },
-  unit: { type: String, default: "" },
+  unit: [{ type: String }],
   category: { type: String, default: "primer" },
   weekStart: { type: String },
   weekEnd: { type: String },
@@ -63,10 +63,23 @@ const SlaData = mongoose.models.SlaData || mongoose.model("SlaData", slaSchema);
 const User = mongoose.models.User || mongoose.model("User", userSchema);
 // ─── Connect to MongoDB ───────────────────────────────────────────────────────
 
+// Migration: convert existing unit strings to arrays (run once on startup)
+async function migrateUnitField() {
+  const docs = await VolumeData.find({ unit: { $type: 'string' } });
+  for (const doc of docs) {
+    if (typeof doc.unit === 'string' && doc.unit.trim() !== '') {
+      const arr = doc.unit.split(',').map(u => u.trim()).filter(u => u);
+      await VolumeData.updateOne({ _id: doc._id }, { $set: { unit: arr } });
+    }
+  }
+  console.log('✅ Unit field migration completed');
+}
+
 async function connectDB() {
   try {
     await mongoose.connect(process.env.MONGO_URI);
     console.log("✅ Database terhubung ke MongoDB");
+    await migrateUnitField();
     await seedDefaults();
   } catch (err) {
     console.error("❌ Gagal konek ke MongoDB:", err.message);
@@ -451,7 +464,7 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
           weekStart: weekRange.startDate,
           weekEnd: weekRange.endDate,
           weekKey: weekRange.weekKey,
-          unit: unitValue,
+          unit: unitValue ? [unitValue] : [],
         });
         successCount++;
       } catch (err) {
@@ -1002,17 +1015,21 @@ app.delete("/api/volume", async (req, res) => {
 // Update Volume data
 app.put("/api/volume", async (req, res) => {
   try {
-    const { rute, postal, nonPostal, kapasitas, tanggal, id } = req.body;
+    const { rute, postal, nonPostal, kapasitas, tanggal, id, unit } = req.body;
     if (!rute && !id)
       return res
         .status(400)
         .json({ success: false, message: "Rute or ID is required" });
+
+    // Jika id tersedia, update HANYA record itu saja (updateOne).
+    // Jika tidak ada id, fallback ke updateMany berdasarkan rute+tanggal.
     const filter = id ? { _id: id } : { rute, ...(tanggal ? { tanggal } : {}) };
     const doc = await VolumeData.findOne(filter);
     if (!doc)
       return res
         .status(404)
         .json({ success: false, message: "Data volume tidak ditemukan" });
+
     const newPostal = postal !== undefined ? parseFloat(postal) : doc.postal;
     const newNonPostal =
       nonPostal !== undefined ? parseFloat(nonPostal) : doc.nonPostal;
@@ -1022,14 +1039,27 @@ app.put("/api/volume", async (req, res) => {
       newKapasitas > 0
         ? 1 - (newPostal + newNonPostal) / newKapasitas
         : doc.sisa;
-    await VolumeData.updateMany(filter, {
+
+    const updatePayload = {
       $set: {
         postal: newPostal,
         nonPostal: newNonPostal,
         kapasitas: newKapasitas,
         sisa: newSisa,
+        // Update unit jika dikirim dalam request body
+        ...(unit !== undefined
+          ? { unit: Array.isArray(unit) ? unit : (unit === '' ? [] : [unit]) }
+          : {}),
       },
-    });
+    };
+
+    // Gunakan updateOne jika ada id agar tidak menimpa semua baris rute yang sama
+    if (id) {
+      await VolumeData.updateOne(filter, updatePayload);
+    } else {
+      await VolumeData.updateMany(filter, updatePayload);
+    }
+
     res.json({ success: true, message: "Data volume berhasil diperbarui" });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
