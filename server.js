@@ -874,8 +874,24 @@ app.get("/api/routes", async (req, res) => {
           kapasitas_total: 0,
           space_sum: 0,
           count: 0,
+          base_kapasitas: item.kapasitas || 0,
+          units: new Set()
         };
+        
       const dailyCapacity = (item.kapasitas || 0) / 7;
+      
+      if (item.kapasitas > routeMap[item.rute].base_kapasitas) {
+        routeMap[item.rute].base_kapasitas = item.kapasitas;
+      }
+      
+      if (Array.isArray(item.unit)) {
+        item.unit.forEach(u => {
+          if (u) routeMap[item.rute].units.add(u);
+        });
+      } else if (item.unit && typeof item.unit === 'string') {
+        routeMap[item.rute].units.add(item.unit);
+      }
+
       routeMap[item.rute].postal_volume += item.postal || 0;
       routeMap[item.rute].non_postal_volume += item.nonPostal || 0;
       routeMap[item.rute].kapasitas_total += dailyCapacity;
@@ -889,6 +905,8 @@ app.get("/api/routes", async (req, res) => {
       non_postal_volume: r.non_postal_volume,
       kapasitas: r.kapasitas_total,
       space_available: r.space_sum,
+      base_kapasitas: r.base_kapasitas,
+      units: Array.from(r.units).join(', ')
     }));
     let minDate = null,
       maxDate = null;
