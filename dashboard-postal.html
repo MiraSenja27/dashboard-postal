@@ -3227,7 +3227,8 @@
                                 if (col === 'unit') {
                                     input.type = 'text';
                                     input.setAttribute('list', 'unitOptions');
-                                    input.value = original === '-' ? '' : original;
+                                    // original bisa dari array yang sudah di-join, cukup tampilkan apa adanya
+                                    input.value = (original === '-' || original === '') ? '' : original;
                                 } else {
                                     input.type = 'number';
                                     input.value = parseFloat(original.replace(/\./g, '').replace(',', '.')) || 0;
@@ -3263,7 +3264,14 @@
 
                                         const result = await response.json();
                                         if (result.success) {
-                                            if (_volumeData[rowIdx]) _volumeData[rowIdx][col] = newVal;
+                                            // unit di DB adalah Array, simpan konsisten sebagai array
+                                            if (_volumeData[rowIdx]) {
+                                                if (col === 'unit') {
+                                                    _volumeData[rowIdx][col] = newVal ? [newVal] : [];
+                                                } else {
+                                                    _volumeData[rowIdx][col] = newVal;
+                                                }
+                                            }
                                             
                                             // Sync with routesData
                                             const rd = routesData.find(r => r.name === ruteName);
@@ -3477,7 +3485,13 @@
                 }
 
                 // Unit column (editable only for admin)
-                const unitValue = (record.unit != null && record.unit !== '') ? record.unit : '-';
+                // unit di MongoDB adalah Array, ambil elemen pertama atau join jika multiple
+                const rawUnit = record.unit;
+                const unitValue = (Array.isArray(rawUnit) && rawUnit.length > 0)
+                    ? rawUnit.join(', ')
+                    : (rawUnit != null && rawUnit !== '' && !Array.isArray(rawUnit))
+                        ? String(rawUnit)
+                        : '-';
                 if (isAdmin()) {
                     rowsHTML += `<td data-editable="true" data-row="${rowIdx}" data-col="unit" style="cursor:pointer; text-align: left;" title="Klik untuk edit">${unitValue}</td>`;
                 } else {
@@ -4997,7 +5011,8 @@
                 const record = volumeDataArr[rowIdx];
                 if (!record || !record.rute) return;
 
-                record.unit = newUnitValue;
+                // unit di DB adalah Array, update local state konsisten sebagai array
+                record.unit = newUnitValue ? [newUnitValue] : [];
 
                 const unitCell = row.querySelector('[data-col="unit"]');
                 if (unitCell && !unitCell.querySelector('input')) {
