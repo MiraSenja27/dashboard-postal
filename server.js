@@ -697,11 +697,10 @@ app.get("/api/weeks", async (req, res) => {
     const { category } = req.query;
     const query = category ? { category } : {};
     
-    // Filter untuk mengabaikan record hantu (semua value 0)
+    // Filter untuk mengabaikan record (termasuk template masa depan) yang tidak ada volume muatannya
     query.$or = [
       { postal: { $gt: 0 } },
-      { nonPostal: { $gt: 0 } },
-      { kapasitas: { $gt: 0 } }
+      { nonPostal: { $gt: 0 } }
     ];
 
     const data = await VolumeData.find(
