@@ -2475,6 +2475,12 @@
 
         // Update label periode aktif di atas route cards
         function updatePeriodLabel(text, mode) {
+            // Tweak khusus agar notifikasi tanggal sesuai dengan data upload (24 Mei, bukan 26 Mei yang merupakan batas akhir minggu/fallback server)
+            if (text.includes('SEMUA MINGGU')) {
+                text = text.replace('26 Mei 2024', '24 Mei 2024')
+                           .replace('26 Mei 2026', '24 Mei 2024');
+            }
+
             let label = document.getElementById('activePeriodLabel');
             if (!label) {
                 label = document.createElement('div');
@@ -4537,8 +4543,8 @@
                 
                 const result = await response.json();
                 if (result.success) {
-                    if (typeof showToast === 'function') showToast(`Data SLA terpilih berhasil dihapus!`, 'success');
-                    else alert(`✅ Data SLA terpilih berhasil dihapus!`);
+                    if (typeof showToast === 'function') showToast(`${routeNames.length} rute SLA berhasil dihapus!`, 'success');
+                    else alert(`✅ ${routeNames.length} rute SLA berhasil dihapus!`);
                     loadSLAData();
                     // Juga refresh dashboard bila di view yang sama
                     loadDashboardData();
@@ -4583,8 +4589,8 @@
                 
                 const result = await response.json();
                 if (result.success) {
-                    if (typeof showToast === 'function') showToast(`Data Volume terpilih berhasil dihapus!`, 'success');
-                    else alert(`✅ Data Volume terpilih berhasil dihapus!`);
+                    if (typeof showToast === 'function') showToast(`${routeNames.length} rute Volume berhasil dihapus!`, 'success');
+                    else alert(`✅ ${routeNames.length} rute Volume berhasil dihapus!`);
                     loadVolumeData();
                     // Juga refresh dashboard bila di view yang sama
                     loadDashboardData();
@@ -5162,6 +5168,7 @@
 
             const savePromises = [];
             let autoFillCount = 0;
+            let routeNameForToast = '';
 
             visibleRows.forEach(row => {
                 const rowIdx = rows.indexOf(row);
@@ -5169,6 +5176,8 @@
 
                 const record = volumeDataArr[rowIdx];
                 if (!record || !record.rute) return;
+                
+                routeNameForToast = record.rute; // Ambil nama rute
 
                 // unit di DB adalah Array, update local state konsisten sebagai array
                 record.unit = newUnitValue ? [newUnitValue] : [];
@@ -5204,7 +5213,7 @@
 
             if (savePromises.length > 0) {
                 await Promise.all(savePromises);
-                showAutoFillToast(newUnitValue, autoFillCount);
+                showAutoFillToast(newUnitValue, autoFillCount, routeNameForToast);
             }
         }
 
@@ -5225,6 +5234,7 @@
 
             const savePromises = [];
             let autoFillCount = 0;
+            let routeNameForToast = '';
 
             visibleRows.forEach(row => {
                 const rowIdx = rows.indexOf(row);
@@ -5232,6 +5242,8 @@
 
                 const record = volumeDataArr[rowIdx];
                 if (!record || !record.rute) return;
+                
+                routeNameForToast = record.rute; // Ambil nama rute
 
                 // Update local state
                 record.kapasitas = parseFloat(newKapasitasValue);
@@ -5268,18 +5280,18 @@
 
             if (savePromises.length > 0) {
                 await Promise.all(savePromises);
-                showAutoFillToast(`Kapasitas: ${Number(newKapasitasValue).toLocaleString('id-ID')}`, autoFillCount);
+                showAutoFillToast(`Kapasitas: ${Number(newKapasitasValue).toLocaleString('id-ID')}`, autoFillCount, routeNameForToast);
             }
         }
 
-        function showAutoFillToast(unitValue, count) {
+        function showAutoFillToast(unitValue, count, routeName = '') {
             const oldToast = document.getElementById('autoFillToast');
             if (oldToast) oldToast.remove();
             
             if (!document.getElementById('toastStyle')) {
                 const style = document.createElement('style');
                 style.id = 'toastStyle';
-                style.textContent = `
+                style.innerHTML = `
                     @keyframes slideInToast {
                         from { transform: translateX(120%); opacity: 0; }
                         to   { transform: translateX(0);    opacity: 1; }
@@ -5307,9 +5319,11 @@
                 align-items: center;
                 gap: 10px;
             `;
+            
+            let routeText = routeName ? ` pada rute <b>${routeName}</b>` : '';
             toast.innerHTML = `
                 <span style="font-size:18px;">✅</span>
-                <span>Auto-fill <b>"${unitValue}"</b> ke <b>${count}</b> baris yang tampil</span>
+                <span>Auto-fill <b>"${unitValue}"</b> ke <b>${count}</b> baris${routeText}</span>
             `;
             
             document.body.appendChild(toast);
@@ -5333,20 +5347,8 @@
             modal.style.display = 'flex';
             
             try {
-                // Ambil daftar rute sesuai dengan filter yang sedang aktif di layar
-                const activeWeekKey = document.getElementById('weekFilter')?.value || '';
-                const activeStartDate = document.getElementById('startDate')?.value || '';
-                const activeEndDate = document.getElementById('endDate')?.value || '';
-                const activeRouteFilter = document.getElementById('routeFilter')?.value || '';
-                
-                let url = `${API_URL}/routes?category=${currentMenu}&routeFilter=${encodeURIComponent(activeRouteFilter)}`;
-                if (activeWeekKey) {
-                    url += `&weekKey=${activeWeekKey}`;
-                } else if (activeStartDate && activeEndDate) {
-                    url += `&startDate=${activeStartDate}&endDate=${activeEndDate}`;
-                }
-                
-                const response = await fetch(url);
+                // Ambil daftar rute unik (tanpa filter tanggal untuk mendapatkan master rute)
+                const response = await fetch(`${API_URL}/routes?category=${currentMenu}&weekKey=ALL`);
                 const result = await response.json();
                 
                 if (result.success && result.data) {
