@@ -1141,6 +1141,39 @@ app.put("/api/volume", async (req, res) => {
   }
 });
 
+// Bulk update Kapasitas & Unit untuk rute
+app.put("/api/routes/settings", async (req, res) => {
+  try {
+    const { settings } = req.body;
+    if (!settings || !Array.isArray(settings)) {
+      return res.status(400).json({ success: false, message: "Invalid payload" });
+    }
+
+    const updatePromises = settings.map(async (setting) => {
+      const { rute, unit, kapasitas } = setting;
+      if (!rute) return;
+
+      const updatePayload = { $set: {} };
+      if (kapasitas !== undefined) {
+        updatePayload.$set.kapasitas = parseFloat(kapasitas);
+      }
+      if (unit !== undefined) {
+        updatePayload.$set.unit = Array.isArray(unit) ? unit : (unit === '' ? [] : [unit]);
+      }
+      
+      // Update semua row untuk rute ini
+      if (Object.keys(updatePayload.$set).length > 0) {
+        return VolumeData.updateMany({ rute }, updatePayload);
+      }
+    });
+
+    await Promise.all(updatePromises);
+    res.json({ success: true, message: "Pengaturan rute berhasil disimpan." });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // Update SLA data
 app.put("/api/sla", async (req, res) => {
   try {
