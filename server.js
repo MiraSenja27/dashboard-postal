@@ -916,11 +916,11 @@ app.get("/api/routes", async (req, res) => {
       query.rute = { $regex: new RegExp(`^${routeFilter}$`, "i") };
     }
 
-    const filtered = await VolumeData.find(query).lean();
+    const filtered = await VolumeData.find(query).sort({ tanggal: -1 }).lean();
     const routeMap = {};
     filtered.forEach((item) => {
       if (!item || !item.rute) return;
-      if (!routeMap[item.rute])
+      if (!routeMap[item.rute]) {
         routeMap[item.rute] = {
           route_name: item.rute,
           postal_volume: 0,
@@ -931,20 +931,16 @@ app.get("/api/routes", async (req, res) => {
           base_kapasitas: item.kapasitas || 0,
           units: new Set()
         };
+        if (Array.isArray(item.unit)) {
+          item.unit.forEach(u => {
+            if (u) routeMap[item.rute].units.add(u);
+          });
+        } else if (item.unit && typeof item.unit === 'string') {
+          routeMap[item.rute].units.add(item.unit);
+        }
+      }
         
       const dailyCapacity = (item.kapasitas || 0) / 7;
-      
-      if (item.kapasitas > routeMap[item.rute].base_kapasitas) {
-        routeMap[item.rute].base_kapasitas = item.kapasitas;
-      }
-      
-      if (Array.isArray(item.unit)) {
-        item.unit.forEach(u => {
-          if (u) routeMap[item.rute].units.add(u);
-        });
-      } else if (item.unit && typeof item.unit === 'string') {
-        routeMap[item.rute].units.add(item.unit);
-      }
 
       routeMap[item.rute].postal_volume += item.postal || 0;
       routeMap[item.rute].non_postal_volume += item.nonPostal || 0;
