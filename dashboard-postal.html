@@ -1149,6 +1149,10 @@
                 <button class="logout-btn" onclick="logout()">🚪 Logout</button>
             </div>
         </div>
+        <!-- New date range notification (top‑left) -->
+        <div id="week-range" style="position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.9); color: #1e3c72; padding: 5px 10px; border-radius: 6px; font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">
+            Semua Minggu: -
+        </div>
 
         <div class="submenu-container" style="background: white; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; padding: 0 30px; gap: 20px;">
             <div id="submenu-primer" class="submenu show" style="padding: 10px 0; border: none; flex: none;">
@@ -1157,6 +1161,7 @@
                     <button class="submenu-btn" onclick="showView('dashboard')">📊 Dashboard</button>
                     <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA Waktu</button>
                     <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
+<button class="submenu-btn" onclick="openSettingsModal()">⚙️ Pengaturan</button>
                 </div>
             </div>
 
@@ -4572,6 +4577,32 @@
                     {wch: 15}, {wch: 15}, {wch: 15}, {wch: 15}
                 ];
                 ws['!cols'] = wscols;
+
+                async function loadDashboardData(filterWeek = 'ALL') {
+                    try {
+                        const response = await fetch(`${API_URL}/volume?week=${filterWeek}`);
+                        const data = await response.json();
+                        _volumeData = data;
+                        renderVolumeTable(data);
+                        // Update week range notification after data is loaded
+                        updateWeekRange();
+                    } catch (err) {
+                        console.error('Error loading dashboard data', err);
+                    }
+                }
+
+                // Compute earliest and latest dates from _volumeData and update the notification
+                function updateWeekRange() {
+                    if (!_volumeData || _volumeData.length === 0) {
+                        document.getElementById('week-range').innerText = 'Semua Minggu: -';
+                        return;
+                    }
+                    const dates = _volumeData.map(item => new Date(item.tanggal));
+                    const minDate = new Date(Math.min(...dates));
+                    const maxDate = new Date(Math.max(...dates));
+                    const format = d => `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth()+1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+                    document.getElementById('week-range').innerText = `Semua Minggu: ${format(minDate)} - ${format(maxDate)}`;
+                }
 
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, "SLA Waktu");
