@@ -3285,6 +3285,14 @@
                                                 }
                                             }
 
+                                            // Auto-fill KAPASITAS ke baris lain — HANYA jika filter kapasitas sedang aktif
+                                            if (col === 'kapasitas' && newVal !== '' && newVal !== 0) {
+                                                const kapFilterVal = document.getElementById('kapasitasFilter')?.value?.trim();
+                                                if (kapFilterVal) {
+                                                    await autoFillKapasitasForVisibleRows(rowIdx, newVal, _volumeData);
+                                                }
+                                            }
+
                                             renderVolumeTable(_volumeData);
                                             // Silently update dashboard in background
                                             loadDashboardData().catch(e => console.error(e));
@@ -5063,6 +5071,70 @@
             if (savePromises.length > 0) {
                 await Promise.all(savePromises);
                 showAutoFillToast(newUnitValue, autoFillCount);
+            }
+        }
+
+        async function autoFillKapasitasForVisibleRows(changedRowIdx, newKapasitasValue, volumeDataArr) {
+            const table = document.querySelector('#volume-view .data-table');
+            if (!table) return;
+
+            // Pastikan filter kapasitas memang aktif
+            const kapFilterVal = document.getElementById('kapasitasFilter')?.value?.trim();
+            if (!kapFilterVal) return;
+
+            const tbody = table.querySelector('tbody');
+            if (!tbody) return;
+
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const visibleRows = rows.filter(row => row.style.display !== 'none');
+            if (visibleRows.length === 0) return;
+
+            const savePromises = [];
+            let autoFillCount = 0;
+
+            visibleRows.forEach(row => {
+                const rowIdx = rows.indexOf(row);
+                if (rowIdx === changedRowIdx) return;
+
+                const record = volumeDataArr[rowIdx];
+                if (!record || !record.rute) return;
+
+                // Update local state
+                record.kapasitas = parseFloat(newKapasitasValue);
+
+                // Update tampilan sel kapasitas
+                const kapCell = row.querySelector('[data-col="kapasitas"]');
+                if (kapCell && !kapCell.querySelector('input')) {
+                    kapCell.textContent = Number(newKapasitasValue).toLocaleString('id-ID');
+                    kapCell.style.transition = 'background-color 0.2s ease';
+                    kapCell.style.backgroundColor = '#bbf7d0';
+                    setTimeout(() => { kapCell.style.backgroundColor = ''; }, 1200);
+                }
+
+                const promise = fetch(`${API_URL}/volume`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        id: record.id,
+                        rute: record.rute,
+                        tanggal: record.tanggal,
+                        category: currentMenu,
+                        kapasitas: newKapasitasValue
+                    })
+                })
+                .then(res => res.json())
+                .then(result => {
+                    if (!result.success) console.warn(`Gagal simpan kapasitas baris ${rowIdx}:`, result.message);
+                })
+                .catch(err => console.warn('Auto-fill kapasitas save error row', rowIdx, err));
+
+                savePromises.push(promise);
+                autoFillCount++;
+            });
+
+            if (savePromises.length > 0) {
+                await Promise.all(savePromises);
+                showAutoFillToast(`Kapasitas: ${Number(newKapasitasValue).toLocaleString('id-ID')}`, autoFillCount);
             }
         }
 
