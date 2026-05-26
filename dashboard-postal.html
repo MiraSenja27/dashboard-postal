@@ -1274,11 +1274,12 @@
                 <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadSLAExcel()">Excel 📊</button>
             </div>
         </div>
+
+        <!-- Notif periode: tampil saat ada data, ikut sticky -->
+        <div id="activePeriodLabel" style="display:none; background:linear-gradient(90deg,#1e3c72,#2a5298); color:white; padding:6px 30px; font-size:13px; font-weight:600;"></div>
     </div>
 
     <div class="dashboard-container" style="padding-top: 10px;">
-            <div id="activePeriodLabel" style="margin-bottom: 10px; font-size: 13px; font-weight: 600; color: #475569;">
-            </div>
 
             <div id="dashboard-view">
                 <div class="stats-grid">
@@ -2538,34 +2539,27 @@
 
         // Update label periode aktif di atas route cards
         function updatePeriodLabel(text, mode) {
-            // Tweak khusus agar notifikasi tanggal sesuai dengan data upload (24 Mei, bukan 26 Mei yang merupakan batas akhir minggu/fallback server)
             if (text.includes('SEMUA MINGGU')) {
                 text = text.replace('26 Mei 2024', '24 Mei 2024')
                            .replace('26 Mei 2026', '24 Mei 2024');
             }
 
-            let label = document.getElementById('activePeriodLabel');
-            if (!label) {
-                label = document.createElement('div');
-                label.id = 'activePeriodLabel';
-                label.style.cssText = 'margin: 10px 0 15px; padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 14px; display: inline-block;';
-                const container = document.getElementById('routesContainer');
-                if (container && container.parentNode) {
-                    container.parentNode.insertBefore(label, container);
-                }
-            }
+            const label = document.getElementById('activePeriodLabel');
+            if (!label) return;
 
-            // Add Category and Route details to the label
-            const categoryTag = `[${currentMenu.toUpperCase()}]`;
+            const categoryTag = '[' + currentMenu.toUpperCase() + ']';
             const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
-            const routeTag = (routeFilter && routeFilter !== 'Semua Rute') ? ` | Rute: ${routeFilter}` : '';
-            
-            label.textContent = `${categoryTag} ${text}${routeTag}`;
-            
-            label.style.background = mode === 'weekly' 
-                ? 'linear-gradient(135deg, #1e3c72, #2a5298)'
-                : 'linear-gradient(135deg, #4CAF50, #388E3C)';
+            const routeTag = (routeFilter && routeFilter !== 'Semua Rute') ? ' | Rute: ' + routeFilter : '';
+
+            label.textContent = categoryTag + ' ' + text + routeTag;
+            label.style.display = 'block';
+            label.style.background = mode === 'weekly'
+                ? 'linear-gradient(90deg, #1e3c72, #2a5298)'
+                : 'linear-gradient(90deg, #4CAF50, #388E3C)';
             label.style.color = 'white';
+
+            // Update sticky height karena wrapper bisa jadi lebih tinggi
+            requestAnimationFrame(updateStickyHeaderTop);
         }
 
         function updateStatistics(stats) {
@@ -3367,7 +3361,14 @@
                             var tpl = data.reduce(function(s,r){return s+(parseFloat(r.nonPostal)||0);},0);
                             totalsBar.innerHTML = '<span style="color:#FF8C42;">' + tp.toLocaleString('id-ID') + '</span>&nbsp;|&nbsp;<span style="color:#008080;">' + tpl.toLocaleString('id-ID') + '</span>';
                         }
-                        requestAnimationFrame(function(){requestAnimationFrame(updateStickyHeaderTop);});
+                        requestAnimationFrame(function(){
+                            requestAnimationFrame(function(){
+                                updateStickyHeaderTop();
+                                // Langsung set inline juga untuk jaga-jaga
+                                var h = getStickyHeight();
+                                document.querySelectorAll('.data-table thead').forEach(function(t){ t.style.top = h+'px'; });
+                            });
+                        });
 
                         // Activate inline editing
                         document.getElementById('volume-view').querySelectorAll('[data-editable="true"]').forEach(td => {
@@ -3798,12 +3799,14 @@
         }
 
         // Initialize with current month date range
+        function getStickyHeight() {
+            var wrapper = document.querySelector('.sticky-header-wrapper');
+            return wrapper ? Math.ceil(wrapper.getBoundingClientRect().height) : 170;
+        }
+
         function updateStickyHeaderTop() {
-            const wrapper = document.querySelector('.sticky-header-wrapper');
-            if (!wrapper) return;
-            const h = Math.ceil(wrapper.getBoundingClientRect().height);
+            var h = getStickyHeight();
             document.documentElement.style.setProperty('--sticky-top', h + 'px');
-            // Langsung set inline style ke semua thead agar pasti berlaku
             document.querySelectorAll('.data-table thead').forEach(function(thead) {
                 thead.style.top = h + 'px';
             });
@@ -3811,7 +3814,6 @@
 
         window.addEventListener('resize', updateStickyHeaderTop);
 
-        // Auto-update jika tinggi wrapper berubah (responsive)
         if (window.ResizeObserver) {
             var _stickyObs = new ResizeObserver(function() { updateStickyHeaderTop(); });
             window.addEventListener('DOMContentLoaded', function() {
