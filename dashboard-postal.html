@@ -5333,8 +5333,20 @@
             modal.style.display = 'flex';
             
             try {
-                // Ambil daftar rute unik (tanpa filter tanggal untuk mendapatkan master rute)
-                const response = await fetch(`${API_URL}/routes?category=${currentMenu}&weekKey=ALL`);
+                // Ambil daftar rute sesuai dengan filter yang sedang aktif di layar
+                const activeWeekKey = document.getElementById('weekFilter')?.value || '';
+                const activeStartDate = document.getElementById('startDate')?.value || '';
+                const activeEndDate = document.getElementById('endDate')?.value || '';
+                const activeRouteFilter = document.getElementById('routeFilter')?.value || '';
+                
+                let url = `${API_URL}/routes?category=${currentMenu}&routeFilter=${encodeURIComponent(activeRouteFilter)}`;
+                if (activeWeekKey) {
+                    url += `&weekKey=${activeWeekKey}`;
+                } else if (activeStartDate && activeEndDate) {
+                    url += `&startDate=${activeStartDate}&endDate=${activeEndDate}`;
+                }
+                
+                const response = await fetch(url);
                 const result = await response.json();
                 
                 if (result.success && result.data) {
