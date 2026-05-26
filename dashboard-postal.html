@@ -1159,7 +1159,7 @@
                     <button class="submenu-btn" onclick="goToDashboardDefault()">📊 Dashboard</button>
                     <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA Waktu</button>
                     <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
-<button class="submenu-btn" onclick="openSettingsModal()">⚙️ Pengaturan</button>
+<button class="submenu-btn" onclick="openRouteSettings()">⚙️ Pengaturan</button>
                 </div>
             </div>
 
@@ -2270,12 +2270,16 @@
             }
         }
 
-        // Helper to format YYYY-MM-DD to DD-MM-YYYY
+        // Helper to format YYYY-MM-DD to DD-MM-YYYY / DD MMM YYYY
         function formatDateIndo(dateStr) {
             if (!dateStr || dateStr === '-') return '-';
-            const parts = String(dateStr).split('-');
+            const dateOnly = String(dateStr).split('T')[0];
+            const parts = dateOnly.split('-');
             if (parts.length === 3) {
-                return `${parts[2]}-${parts[1]}-${parts[0]}`;
+                const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+                const mIdx = parseInt(parts[1], 10) - 1;
+                const monthStr = months[mIdx] || parts[1];
+                return `${parseInt(parts[2], 10)} ${monthStr} ${parts[0]}`;
             }
             return dateStr;
         }
@@ -4029,7 +4033,11 @@
                     renderRoutes();
 
                     if (weekKey === "ALL") {
-                        updatePeriodLabel(`Menampilkan data: SEMUA MINGGU`, 'weekly');
+                        if (result.minDate && result.maxDate) {
+                            updatePeriodLabel(`Menampilkan data: ${formatDateIndo(result.minDate)} s/d ${formatDateIndo(result.maxDate)} (SEMUA MINGGU)`, 'weekly');
+                        } else {
+                            updatePeriodLabel(`Menampilkan data: SEMUA MINGGU`, 'weekly');
+                        }
                     } else if (weekKey && weekKey !== "ALL") {
                         const weekSelect = document.getElementById('weekFilter');
                         const selectedText = weekSelect.options[weekSelect.selectedIndex]?.text || "";
