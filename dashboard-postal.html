@@ -859,11 +859,12 @@
             font-weight: 600;
         }
 
-        /* Sticky thead sebagai satu kesatuan - tidak perlu sticky per-row */
+        /* Sticky thead sebagai satu kesatuan */
         .data-table thead {
             position: sticky;
-            top: var(--sticky-top, 130px);
+            top: var(--sticky-top, 170px);
             z-index: 100;
+            background: white;
         }
 
         .data-table thead tr.action-header th {
@@ -1114,13 +1115,7 @@
             width: 100%;
         }
 
-        /* Thead sticky bekerja karena scroll context-nya adalah page, bukan container */
-        .data-table thead {
-            position: sticky;
-            top: var(--sticky-top, 130px);
-            z-index: 100;
-            background: white;
-        }
+
     </style>
 </head>
 
@@ -3352,7 +3347,7 @@
                             }
                         }
                         // Recalculate sticky positions after table renders
-                        requestAnimationFrame(updateStickyHeaderTop);
+                        requestAnimationFrame(function(){requestAnimationFrame(updateStickyHeaderTop);});
 
                         // Activate inline editing
                         document.getElementById('volume-view').querySelectorAll('[data-editable="true"]').forEach(td => {
@@ -3817,12 +3812,24 @@
         function updateStickyHeaderTop() {
             const wrapper = document.querySelector('.sticky-header-wrapper');
             if (!wrapper) return;
-            const wrapperHeight = wrapper.offsetHeight;
-            // Seluruh thead (action-header + main-header) sticky sebagai satu unit
-            document.documentElement.style.setProperty('--sticky-top', wrapperHeight + 'px');
+            const h = Math.ceil(wrapper.getBoundingClientRect().height);
+            document.documentElement.style.setProperty('--sticky-top', h + 'px');
+            // Langsung set inline style ke semua thead agar pasti berlaku
+            document.querySelectorAll('.data-table thead').forEach(function(thead) {
+                thead.style.top = h + 'px';
+            });
         }
-        
+
         window.addEventListener('resize', updateStickyHeaderTop);
+
+        // Auto-update jika tinggi wrapper berubah (responsive)
+        if (window.ResizeObserver) {
+            var _stickyObs = new ResizeObserver(function() { updateStickyHeaderTop(); });
+            window.addEventListener('DOMContentLoaded', function() {
+                var w = document.querySelector('.sticky-header-wrapper');
+                if (w) _stickyObs.observe(w);
+            });
+        }
 
         window.onload = async function () {
             updateStickyHeaderTop(); // Calculate exact height on load
@@ -3864,6 +3871,7 @@
 
                     // Show dashboard
                     await showView('dashboard');
+                    requestAnimationFrame(() => requestAnimationFrame(updateStickyHeaderTop));
                 } catch (error) {
                     console.error('Error parsing saved user:', error);
                     sessionStorage.removeItem('currentUser');
