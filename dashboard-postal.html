@@ -852,11 +852,15 @@
         }
 
         .data-table th {
-            background: transparent;
+            background: #e9ecef; /* Changed from transparent so it blocks rows behind it */
             color: #1e3c72;
             padding: 15px;
             text-align: left;
             font-weight: 600;
+            position: sticky;
+            top: var(--sticky-top, 130px);
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Optional: add a tiny shadow below the sticky header */
         }
 
         .data-table thead tr.main-header th {
@@ -2048,6 +2052,7 @@
             if (activeViewElement) {
                 activeViewElement.style.display = 'block';
                 activeViewElement.classList.remove('hidden');
+                setTimeout(updateStickyHeaderTop, 50);
             }
 
             // Ensure main content is visible
@@ -3768,7 +3773,18 @@
         }
 
         // Initialize with current month date range
+        function updateStickyHeaderTop() {
+            const wrapper = document.querySelector('.sticky-header-wrapper');
+            if (wrapper) {
+                const height = wrapper.offsetHeight;
+                document.documentElement.style.setProperty('--sticky-top', height + 'px');
+            }
+        }
+        
+        window.addEventListener('resize', updateStickyHeaderTop);
+
         window.onload = async function () {
+            updateStickyHeaderTop(); // Calculate exact height on load
             // Initialize filter states for each view
             initDefaultDates();
 
