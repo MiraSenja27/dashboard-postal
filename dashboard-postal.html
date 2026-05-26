@@ -859,10 +859,14 @@
             font-weight: 600;
         }
 
-        .data-table thead tr.action-header th {
+        /* Sticky thead sebagai satu kesatuan - tidak perlu sticky per-row */
+        .data-table thead {
             position: sticky;
             top: var(--sticky-top, 130px);
-            z-index: 101;
+            z-index: 100;
+        }
+
+        .data-table thead tr.action-header th {
             background: white;
         }
 
@@ -876,9 +880,6 @@
             font-size: 12px;
             letter-spacing: 0.5px;
             white-space: nowrap;
-            position: sticky;
-            top: var(--sticky-main-header-top, 180px);
-            z-index: 100;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
@@ -1099,6 +1100,7 @@
         /* Fix for table overflow on mobile */
         #sla-view, #volume-view {
             overflow-x: auto;
+            overflow-y: visible;
             -webkit-overflow-scrolling: touch;
             background-color: #ffffff;
             width: 100%;
@@ -3788,23 +3790,9 @@
         function updateStickyHeaderTop() {
             const wrapper = document.querySelector('.sticky-header-wrapper');
             if (!wrapper) return;
-
             const wrapperHeight = wrapper.offsetHeight;
-
-            // action-header (baris Upload/Hapus/Excel) tepat di bawah sticky wrapper
+            // Seluruh thead (action-header + main-header) sticky sebagai satu unit
             document.documentElement.style.setProperty('--sticky-top', wrapperHeight + 'px');
-
-            // Coba ukur tinggi action-header secara langsung dari DOM
-            const actionHeaderTh = document.querySelector('.data-table thead tr.action-header th');
-            const actionHeaderHeight = actionHeaderTh
-                ? actionHeaderTh.closest('tr').offsetHeight
-                : 50; // fallback 50px
-
-            // main-header (NO, TANGGAL, dll) tepat di bawah action-header
-            document.documentElement.style.setProperty(
-                '--sticky-main-header-top',
-                (wrapperHeight + actionHeaderHeight) + 'px'
-            );
         }
         
         window.addEventListener('resize', updateStickyHeaderTop);
