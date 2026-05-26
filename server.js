@@ -6,6 +6,25 @@ const path = require("path");
 const fs = require("fs");
 const mongoose = require("mongoose");
 
+// Load environment variables manually if .env file exists
+if (fs.existsSync(path.join(__dirname, ".env"))) {
+  try {
+    const envContent = fs.readFileSync(path.join(__dirname, ".env"), "utf8");
+    envContent.split(/\r?\n/).forEach(line => {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith("#")) {
+        const [key, ...valueParts] = trimmed.split("=");
+        if (key) {
+          process.env[key.trim()] = valueParts.join("=").trim();
+        }
+      }
+    });
+    console.log("✅ Loaded environment variables from .env");
+  } catch (err) {
+    console.error("⚠️ Failed to load .env file:", err.message);
+  }
+}
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -75,16 +94,23 @@ async function migrateUnitField() {
   console.log('✅ Unit field migration completed');
 }
 
+let isConnected = false;
+
 async function connectDB() {
-  try {
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("✅ Database terhubung ke MongoDB");
-    await migrateUnitField();
-    await seedDefaults();
-  } catch (err) {
-    console.error("❌ Gagal konek ke MongoDB:", err.message);
-    process.exit(1);
+  if (isConnected && mongoose.connection.readyState === 1) return;
+
+  if (!process.env.MONGO_URI) {
+    throw new Error("MONGO_URI tidak ditemukan di Environment Variables atau file .env!");
   }
+
+  await mongoose.connect(process.env.MONGO_URI, {
+    serverSelectionTimeoutMS: 5000 // 5 seconds timeout
+  });
+
+  isConnected = true;
+  console.log("✅ Database terhubung ke MongoDB");
+  await migrateUnitField();
+  await seedDefaults();
 }
 
 async function seedDefaults() {
@@ -289,6 +315,21 @@ const upload = multer({ dest: "/tmp" });
 
 // ─── API Routes ───────────────────────────────────────────────────────────────
 
+// Middleware to ensure DB is connected for all API requests
+app.use("/api", async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error("❌ API DB connection error:", err.message);
+    res.status(500).json({
+      success: false,
+      message: "Gagal menghubungkan ke database MongoDB Atlas.",
+      error: err.message,
+    });
+  }
+});
+
 // Login
 app.post("/api/login", async (req, res) => {
   try {
@@ -430,7 +471,6 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
         if (!recordDate) recordDate = new Date().toISOString().split("T")[0];
 
         const weekRange = getWeekRange(recordDate);
-        if (!usedWeekRange) usedWeekRange = weekRange.weekKey;
 
         const postalVolume =
           colMap.postal !== -1 ? parseIndoNumber(row[colMap.postal]) : 0;
@@ -453,20 +493,27 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
           spaceAvailable = 1 - (postalVolume + nonPostalVolume) / kapasitas;
         }
 
-        records.push({
-          tanggal: recordDate,
-          rute: routeName,
-          postal: postalVolume,
-          nonPostal: nonPostalVolume,
-          kapasitas,
-          sisa: spaceAvailable,
-          category: category || "primer",
-          weekStart: weekRange.startDate,
-          weekEnd: weekRange.endDate,
-          weekKey: weekRange.weekKey,
-          unit: unitValue ? [unitValue] : [],
-        });
-        successCount++;
+        // Skip rows with no meaningful volume data
+        if (postalVolume === 0 && nonPostalVolume === 0 && kapasitas === 0) {
+          // Do not record this row
+        } else {
+          records.push({
+            tanggal: recordDate,
+            rute: routeName,
+            postal: postalVolume,
+            nonPostal: nonPostalVolume,
+            kapasitas,
+            sisa: spaceAvailable,
+            category: category || "primer",
+            weekStart: weekRange.startDate,
+            weekEnd: weekRange.endDate,
+            weekKey: weekRange.weekKey,
+            unit: unitValue ? [unitValue] : [],
+          });
+          successCount++;
+          usedWeekRange = weekRange.weekKey;
+        }
+
       } catch (err) {
         console.error("Error processing row:", err);
         errorCount++;
@@ -483,7 +530,7 @@ app.post("/api/upload", upload.single("file"), async (req, res) => {
       message: `Data berhasil diupload: ${successCount} rute berhasil`,
       successCount,
       errorCount,
-      weekRange: usedWeekRange,
+      weekRange: usedWeekRange || null,
     });
   } catch (error) {
     console.error("Upload error:", error);
@@ -649,6 +696,14 @@ app.get("/api/weeks", async (req, res) => {
   try {
     const { category } = req.query;
     const query = category ? { category } : {};
+    
+    // Filter untuk mengabaikan record hantu (semua value 0)
+    query.$or = [
+      { postal: { $gt: 0 } },
+      { nonPostal: { $gt: 0 } },
+      { kapasitas: { $gt: 0 } }
+    ];
+
     const data = await VolumeData.find(
       query,
       "weekKey weekStart weekEnd",
@@ -1127,7 +1182,9 @@ app.get("/dashboard-chartbar.html", (req, res) =>
 
 // ─── Start ────────────────────────────────────────────────────────────────────
 
-// Jalankan koneksi database
-connectDB();
+// Jalankan koneksi database saat startup (abaikan crash agar server tetap jalan)
+connectDB().catch(err => {
+  console.error("❌ Gagal konek ke MongoDB saat startup:", err.message);
+});
 // Baris ini SANGAT PENTING untuk Vercel
 module.exports = app;
