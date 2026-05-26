@@ -1131,7 +1131,7 @@
         <div class="sticky-header-wrapper">
             <div class="header">
             <div class="logo-container">
-                <h1 class="title" onclick="showView('dashboard'); window.scrollTo({top: 0, behavior: 'smooth'});" title="Kembali ke Dashboard Utama">Dashboard Postal</h1>
+                <h1 class="title" onclick="goToDashboardDefault();" title="Kembali ke Dashboard Utama">Dashboard Postal</h1>
                 <div class="tabs">
                     <div class="tab-item active" onclick="switchCategory('primer', this)">
                         <span class="tab-icon">📦</span> PRIMER
@@ -1156,7 +1156,7 @@
             <div id="submenu-primer" class="submenu show" style="padding: 10px 0; border: none; flex: none;">
                 <div class="submenu-left">
                     <button class="submenu-btn" onclick="showDownload('primer')">📥 Download PPT</button>
-                    <button class="submenu-btn" onclick="showView('dashboard')">📊 Dashboard</button>
+                    <button class="submenu-btn" onclick="goToDashboardDefault()">📊 Dashboard</button>
                     <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA Waktu</button>
                     <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
 <button class="submenu-btn" onclick="openSettingsModal()">⚙️ Pengaturan</button>
@@ -1166,7 +1166,7 @@
             <div id="submenu-sekunder" class="submenu" style="padding: 10px 0; border: none; flex: none;">
                 <div class="submenu-left">
                     <button class="submenu-btn" onclick="showDownload('sekunder')">📥 Download PPT</button>
-                    <button class="submenu-btn" onclick="showView('dashboard')">📊 Dashboard</button>
+                    <button class="submenu-btn" onclick="goToDashboardDefault()">📊 Dashboard</button>
                     <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA Waktu</button>
                     <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
                 </div>
@@ -1175,7 +1175,7 @@
             <div id="submenu-tersier" class="submenu" style="padding: 10px 0; border: none; flex: none;">
                 <div class="submenu-left">
                     <button class="submenu-btn" onclick="showDownload('tersier')">📥 Download PPT</button>
-                    <button class="submenu-btn" onclick="showView('dashboard')">📊 Dashboard</button>
+                    <button class="submenu-btn" onclick="goToDashboardDefault()">📊 Dashboard</button>
                     <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA Waktu</button>
                     <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
                 </div>
@@ -1687,7 +1687,8 @@
 
                     const result = await response.json();
                     if (result.success) {
-                        alert(`✅ Data SLA untuk ${routeName} berhasil diperbarui!`);
+                        if (typeof showToast === 'function') showToast(`Data SLA untuk ${routeName} berhasil diperbarui!`, 'success');
+                        else alert(`✅ Data SLA untuk ${routeName} berhasil diperbarui!`);
                         editDialog.remove();
                         await loadSLAData();
                         await loadDashboardData();
@@ -1757,7 +1758,8 @@
 
                     const result = await response.json();
                     if (result.success) {
-                        alert(`✅ Data Volume untuk ${routeName} berhasil diperbarui!`);
+                        if (typeof showToast === 'function') showToast(`Data Volume untuk ${routeName} berhasil diperbarui!`, 'success');
+                        else alert(`✅ Data Volume untuk ${routeName} berhasil diperbarui!`);
                         editDialog.remove();
                         await loadVolumeData();
                         await loadDashboardData();
@@ -2011,19 +2013,25 @@
 
         // Initialize default dates
         function initDefaultDates() {
-            const now = new Date();
-            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
-            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
-            
-            // Set defaults for all views initially
+            // Set defaults for all views initially to ALL
             ['dashboard', 'sla', 'volume'].forEach(view => {
-                viewFilters[view].startDate = firstDay;
-                viewFilters[view].endDate = lastDay;
+                viewFilters[view] = { startDate: '', endDate: '', weekKey: 'ALL', routeFilter: '' };
             });
             
-            // Set initial inputs
-            document.getElementById('startDate').value = firstDay;
-            document.getElementById('endDate').value = lastDay;
+            // Clear date inputs and set weekFilter to ALL
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            const weekFilter = document.getElementById('weekFilter');
+            if (weekFilter) {
+                weekFilter.value = 'ALL';
+            }
+        }
+
+        function goToDashboardDefault() {
+            showView('dashboard').then(() => {
+                resetFilter();
+                window.scrollTo({top: 0, behavior: 'smooth'});
+            });
         }
 
         async function showView(view) {
@@ -2162,11 +2170,11 @@
         }
 
         function resetFilter() {
-            setCurrentMonthFilter();
-            const startDate = document.getElementById('startDate').value;
-            const endDate = document.getElementById('endDate').value;
+            // Set ke SEMUA MINGGU
             document.getElementById('routeFilter').value = '';
-            document.getElementById('weekFilter').value = '';
+            document.getElementById('weekFilter').value = 'ALL';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
 
             // Reset filter Kapasitas/minggu & tampilkan kembali semua baris tersembunyi
             const kapFilter = document.getElementById('kapasitasFilter');
@@ -2180,9 +2188,9 @@
             // Global sync reset
             ['dashboard', 'sla', 'volume'].forEach(view => {
                 viewFilters[view] = {
-                    startDate: startDate,
-                    endDate: endDate,
-                    weekKey: '',
+                    startDate: '',
+                    endDate: '',
+                    weekKey: 'ALL',
                     routeFilter: ''
                 };
             });
@@ -2195,11 +2203,15 @@
 
             // Reload data based on current view
             if (currentView === 'dashboard') {
-                loadDashboardData();
+                loadDashboardData('ALL');
             } else if (currentView === 'sla') {
-                loadSLAData();
+                loadSLAData('ALL');
             } else if (currentView === 'volume') {
-                loadVolumeData();
+                loadVolumeData('ALL');
+            }
+            
+            if (typeof showToast === 'function') {
+                showToast("Tampilan dikembalikan ke SEMUA MINGGU (Akumulasi)", "info");
             }
         }
 
@@ -2266,6 +2278,76 @@
                 return `${parts[2]}-${parts[1]}-${parts[0]}`;
             }
             return dateStr;
+        }
+
+        // Toast Notification System
+        function showToast(message, type = 'success') {
+            let container = document.getElementById('toastContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toastContainer';
+                container.style.cssText = 'position:fixed; top:20px; right:20px; z-index:10000; display:flex; flex-direction:column; gap:10px;';
+                document.body.appendChild(container);
+                
+                // Add keyframes
+                const style = document.createElement('style');
+                style.textContent = `
+                    @keyframes slideInRightToast {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes fadeOutRightToast {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                    .toast-item {
+                        animation: slideInRightToast 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+                    }
+                    .toast-item.hiding {
+                        animation: fadeOutRightToast 0.4s ease forwards;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            const toast = document.createElement('div');
+            toast.className = 'toast-item';
+            
+            let bg = 'linear-gradient(135deg, #4CAF50, #45a049)';
+            let icon = '✅';
+            if (type === 'error') {
+                bg = 'linear-gradient(135deg, #f44336, #e53935)';
+                icon = '❌';
+            } else if (type === 'info') {
+                bg = 'linear-gradient(135deg, #2196F3, #1e88e5)';
+                icon = 'ℹ️';
+            }
+
+            toast.style.cssText = `
+                background: ${bg};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                font-family: 'Inter', sans-serif;
+                font-size: 14px;
+                font-weight: 600;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                min-width: 250px;
+            `;
+            
+            toast.innerHTML = `<span style="font-size:18px;">${icon}</span> <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.add('hiding');
+                setTimeout(() => {
+                    if(toast.parentElement) toast.remove();
+                }, 400);
+            }, 3000);
         }
 
         // Format date string for weekly dropdown
@@ -3365,6 +3447,7 @@
          * Validates: Requirements 4.2, 4.3, 4.5, 4.6
          */
         function buildVolumeTable(volumeData) {
+            // Updated: compute week range based on optional date filter inputs
             if (!volumeData || volumeData.length === 0) {
                 return `
                 <table class="data-table">
@@ -4446,7 +4529,8 @@
                 
                 const result = await response.json();
                 if (result.success) {
-                    alert(`✅ Data SLA terpilih berhasil dihapus!`);
+                    if (typeof showToast === 'function') showToast(`Data SLA terpilih berhasil dihapus!`, 'success');
+                    else alert(`✅ Data SLA terpilih berhasil dihapus!`);
                     loadSLAData();
                     // Juga refresh dashboard bila di view yang sama
                     loadDashboardData();
@@ -4491,7 +4575,8 @@
                 
                 const result = await response.json();
                 if (result.success) {
-                    alert(`✅ Data Volume terpilih berhasil dihapus!`);
+                    if (typeof showToast === 'function') showToast(`Data Volume terpilih berhasil dihapus!`, 'success');
+                    else alert(`✅ Data Volume terpilih berhasil dihapus!`);
                     loadVolumeData();
                     // Juga refresh dashboard bila di view yang sama
                     loadDashboardData();
@@ -4893,7 +4978,8 @@
             
             if (confirmation) {
                 dialogElement.remove();
-                alert(`✅ ${selectedItems.length} data Volume berhasil dihapus!`);
+                if (typeof showToast === 'function') showToast(`${selectedItems.length} data Volume berhasil dihapus!`, 'success');
+                else alert(`✅ ${selectedItems.length} data Volume berhasil dihapus!`);
                 loadVolumeData();
             }
         }
@@ -4910,7 +4996,8 @@
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    alert(`✅ Data SLA untuk "${routeName}" berhasil dihapus!`);
+                    if (typeof showToast === 'function') showToast(`Data SLA untuk "${routeName}" berhasil dihapus!`, 'success');
+                    else alert(`✅ Data SLA untuk "${routeName}" berhasil dihapus!`);
                     loadSLAData();
                     loadDashboardData();
                 } else {
@@ -4935,7 +5022,8 @@
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    alert(`✅ Data Volume untuk "${routeName}" berhasil dihapus!`);
+                    if (typeof showToast === 'function') showToast(`Data Volume untuk "${routeName}" berhasil dihapus!`, 'success');
+                    else alert(`✅ Data Volume untuk "${routeName}" berhasil dihapus!`);
                     loadVolumeData();
                     loadDashboardData();
                 } else {
@@ -5310,7 +5398,8 @@
 
                 const result = await response.json();
                 if (result.success) {
-                    alert('✅ Pengaturan rute berhasil disimpan ke semua data!');
+                    if (typeof showToast === 'function') showToast('Pengaturan rute berhasil disimpan ke semua data!', 'success');
+                    else alert('✅ Pengaturan rute berhasil disimpan ke semua data!');
                     closeRouteSettings();
                     // Refresh data
                     await loadVolumeData();
