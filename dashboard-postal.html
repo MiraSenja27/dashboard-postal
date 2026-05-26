@@ -859,7 +859,21 @@
             font-weight: 600;
         }
 
-        /* Sticky thead sebagai satu kesatuan */
+        /* Action bar (Upload/Hapus/Excel) di dalam sticky wrapper */
+        #table-action-bar {
+            display: none;
+            background: white;
+            padding: 8px 30px;
+            border-bottom: 1px solid #e2e8f0;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        #table-action-bar.visible {
+            display: flex;
+        }
+
+        /* Sticky thead - hanya main-header (NO, TANGGAL, dll) */
         .data-table thead {
             position: sticky;
             top: var(--sticky-top, 170px);
@@ -1245,6 +1259,21 @@
                 </div>
             </div>
         </div>
+
+        <!-- Action bar: tampil saat view volume atau SLA -->
+        <div id="table-action-bar">
+            <div id="volume-action-btns" style="display:none; gap:10px; align-items:center; flex-wrap:wrap;">
+                <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadVolume(currentMenu)">📤 Upload Volume</button>
+                <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedVolume()">🗑️ Hapus Terpilih</button>
+                <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadVolumeExcel()">Excel 📊</button>
+                <span id="volume-totals-bar" style="margin-left:16px; font-weight:800; font-size:15px;"></span>
+            </div>
+            <div id="sla-action-btns" style="display:none; gap:10px; align-items:center; flex-wrap:wrap;">
+                <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadSLA(currentMenu)">📤 Upload SLA</button>
+                <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedSLA()">🗑️ Hapus Terpilih</button>
+                <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadSLAExcel()">Excel 📊</button>
+            </div>
+        </div>
     </div>
 
     <div class="dashboard-container" style="padding-top: 10px;">
@@ -1347,16 +1376,7 @@
             <div id="sla-view" class="hidden" style="position: relative;">
                 <table class="data-table">
                     <thead>
-                        <tr class="action-header">
-                            <th colspan="8" style="text-align: left; padding: 10px; border-bottom: 1px solid #eee;">
-                                <div style="display: flex; gap: 10px;">
-                                    <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadSLA(currentMenu)">📤 Upload SLA</button>
-                                    <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedSLA()">🗑️ Hapus Terpilih</button>
-                                    <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadSLAExcel()">Excel 📊</button>
-                                </div>
-                            </th>
-                        </tr>
-                        <tr>
+                        <tr class="main-header">
                             <th>No</th>
                             <th><input type="checkbox" id="selectAllSLA" onchange="toggleAllSLA()" style="margin-right: 5px;"></th>
                             <th>Nama Rute</th>
@@ -2064,6 +2084,26 @@
             document.getElementById('dashboard-view').style.display = 'none';
             document.getElementById('sla-view').style.display = 'none';
             document.getElementById('volume-view').style.display = 'none';
+
+            // Toggle action bar berdasarkan view
+            var actionBar = document.getElementById('table-action-bar');
+            var volBtns = document.getElementById('volume-action-btns');
+            var slaBtns = document.getElementById('sla-action-btns');
+            if (actionBar && volBtns && slaBtns) {
+                if (view === 'volume') {
+                    actionBar.classList.add('visible');
+                    volBtns.style.display = 'flex';
+                    slaBtns.style.display = 'none';
+                } else if (view === 'sla') {
+                    actionBar.classList.add('visible');
+                    slaBtns.style.display = 'flex';
+                    volBtns.style.display = 'none';
+                } else {
+                    actionBar.classList.remove('visible');
+                    volBtns.style.display = 'none';
+                    slaBtns.style.display = 'none';
+                }
+            }
 
             // Show selected view immediately
             const activeViewElement = document.getElementById(view + '-view');
@@ -3128,15 +3168,6 @@
                 return `
                 <table class="data-table">
                     <thead>
-                        <tr class="action-header">
-                            <th colspan="11" style="text-align: left; padding: 10px; border-bottom: 1px solid #eee;">
-                                <div style="display: flex; gap: 10px;">
-                                    <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadSLA(currentMenu)">📤 Upload SLA</button>
-                                    <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedSLA()">🗑️ Hapus Terpilih</button>
-                                    <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadSLAExcel()">Excel 📊</button>
-                                </div>
-                            </th>
-                        </tr>
                         <tr class="main-header">
                             <th style="width: 120px;" class="nowrap">Tanggal</th>
                             <th>Nama Rute</th>
@@ -3166,15 +3197,6 @@
 
             // Build table header — N22 adalah patokan target waktu (tidak diubah)
             let headerHTML = `
-                <tr class="action-header">
-                    <th colspan="11" style="text-align: left; padding: 10px; border-bottom: 1px solid #eee;">
-                        <div style="display: flex; gap: 10px;">
-                            <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadSLA(currentMenu)">📤 Upload SLA</button>
-                            <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedSLA()">🗑️ Hapus Terpilih</button>
-                            <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadSLAExcel()">Excel 📊</button>
-                        </div>
-                    </th>
-                </tr>
                 <tr class="main-header">
                     <th style="width: 50px;">No</th>
                     <th style="width: 40px;"><input type="checkbox" id="selectAllSLA" onchange="toggleAllSLA()"></th>
@@ -3273,15 +3295,6 @@
                 <div class="table-scroll-wrapper">
                 <table class="data-table">
                     <thead>
-                        <tr>
-                            <th colspan="6" style="text-align: left; padding: 10px;">
-                                <div style="display: flex; gap: 10px;">
-                                    <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadSLA(currentMenu)">📤 Upload SLA</button>
-                                    <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedSLA()">🗑️ Hapus Terpilih</button>
-                                </div>
-                            </th>
-                            <th colspan="5"></th>
-                        </tr>
                         ${headerHTML}
                     </thead>
                     <tbody>${rowsHTML}</tbody>
@@ -3347,6 +3360,13 @@
                             }
                         }
                         // Recalculate sticky positions after table renders
+                        // Update totals di action bar
+                        var totalsBar = document.getElementById('volume-totals-bar');
+                        if (totalsBar && data && data.length > 0) {
+                            var tp = data.reduce(function(s,r){return s+(parseFloat(r.postal)||0);},0);
+                            var tpl = data.reduce(function(s,r){return s+(parseFloat(r.nonPostal)||0);},0);
+                            totalsBar.innerHTML = '<span style="color:#FF8C42;">' + tp.toLocaleString('id-ID') + '</span>&nbsp;|&nbsp;<span style="color:#008080;">' + tpl.toLocaleString('id-ID') + '</span>';
+                        }
                         requestAnimationFrame(function(){requestAnimationFrame(updateStickyHeaderTop);});
 
                         // Activate inline editing
@@ -3501,22 +3521,6 @@
                 return `
                 <table class="data-table">
                     <thead>
-                        <tr class="action-header">
-                            <th colspan="${isAdmin() ? '4' : '3'}" style="text-align: left; padding: 10px; border-bottom: 1px solid #eee;">
-                                ${isAdmin() ? `
-                                <div style="display: flex; gap: 10px;">
-                                    <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadVolume(currentMenu)">📤 Upload Volume</button>
-                                    <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedVolume()">🗑️ Hapus Terpilih</button>
-                                    <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadVolumeExcel()">Excel 📊</button>
-                                    <button style="padding: 8px 16px; background: #673AB7; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="openRouteSettings()">Pengaturan ⚙️</button>
-                                </div>
-                                ` : ''}
-                            </th>
-                            <th style="padding: 10px 0; border-bottom: 1px solid #eee; vertical-align: middle; text-align: center; font-size: 16px; font-weight: 800; color: #FF8C42;">0</th>
-                            <th style="padding: 10px 0; border-bottom: 1px solid #eee; vertical-align: middle; text-align: center; font-size: 16px; font-weight: 800; color: #008080;">0</th>
-                            <th style="padding: 10px 0; border-bottom: 1px solid #eee; vertical-align: middle; text-align: center; font-size: 16px; font-weight: 800; color: #607D8B;">0</th>
-                            <th colspan="5" style="border-bottom: 1px solid #eee;"></th>
-                        </tr>
                         <tr class="main-header">
                             <th style="width: 50px;">No</th>
                             ${isAdmin() ? '<th style="width: 40px;"><input type="checkbox" id="selectAllVolume" onchange="toggleAllVolume()"></th>' : ''}
@@ -3690,21 +3694,6 @@
                 <div class="table-scroll-wrapper">
                 <table class="data-table">
                     <thead>
-                        <tr class="action-header">
-                            <th colspan="${isAdmin() ? '4' : '3'}" style="text-align: left; padding: 10px; border-bottom: 1px solid #eee;">
-                                ${isAdmin() ? `
-                                <div style="display: flex; gap: 10px;">
-                                    <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadVolume(currentMenu)">📤 Upload Volume</button>
-                                    <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedVolume()">🗑️ Hapus Terpilih</button>
-                                    <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadVolumeExcel()">Excel 📊</button>
-                                </div>
-                                ` : ''}
-                            </th>
-                            <th style="padding: 10px 0; border-bottom: 1px solid #eee; vertical-align: middle; text-align: center; font-size: 16px; font-weight: 800; color: #FF8C42;">${totalPostal.toLocaleString('id-ID')}</th>
-                            <th style="padding: 10px 0; border-bottom: 1px solid #eee; vertical-align: middle; text-align: center; font-size: 16px; font-weight: 800; color: #008080;">${totalPoslog.toLocaleString('id-ID')}</th>
-                            <th style="padding: 10px 0; border-bottom: 1px solid #eee; vertical-align: middle; text-align: center; font-size: 16px; font-weight: 800; color: #607D8B;">-</th>
-                            <th colspan="5" style="border-bottom: 1px solid #eee;"></th>
-                        </tr>
                         <tr class="main-header">
                             <th style="width: 50px;">No</th>
                             ${isAdmin() ? '<th style="width: 40px;"><input type="checkbox" id="selectAllVolume" onchange="toggleAllVolume()"></th>' : ''}
