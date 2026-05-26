@@ -997,8 +997,11 @@ app.get("/api/stats", async (req, res) => {
     }
 
     const filtered = await VolumeData.find(query).lean();
+    
+    // Hanya hitung rute yang memiliki data muatan (postal > 0 atau poslog > 0)
+    const activeRecords = filtered.filter((r) => r && r.rute && (r.postal > 0 || r.nonPostal > 0));
     const uniqueRoutes = [
-      ...new Set(filtered.filter((r) => r && r.rute).map((r) => r.rute)),
+      ...new Set(activeRecords.map((r) => r.rute)),
     ];
     const postalVolume = filtered.reduce((sum, r) => sum + (r.postal || 0), 0);
     const poslogVolume = filtered.reduce(
