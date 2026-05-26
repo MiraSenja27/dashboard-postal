@@ -852,15 +852,18 @@
         }
 
         .data-table th {
-            background: #e9ecef; /* Changed from transparent so it blocks rows behind it */
+            background: transparent;
             color: #1e3c72;
             padding: 15px;
             text-align: left;
             font-weight: 600;
+        }
+
+        .data-table thead tr.action-header th {
             position: sticky;
             top: var(--sticky-top, 130px);
-            z-index: 100;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Optional: add a tiny shadow below the sticky header */
+            z-index: 101;
+            background: white;
         }
 
         .data-table thead tr.main-header th {
@@ -873,6 +876,10 @@
             font-size: 12px;
             letter-spacing: 0.5px;
             white-space: nowrap;
+            position: sticky;
+            top: var(--sticky-main-header-top, 180px);
+            z-index: 100;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
         .data-table thead tr.main-header th:last-child {
@@ -3074,6 +3081,9 @@
                         }
                     }
 
+                    // Recalculate sticky positions after SLA table renders
+                    requestAnimationFrame(updateStickyHeaderTop);
+
                     // Update period label
                     const currentWeekKeySLA = document.getElementById('weekFilter').value;
                     const curStartDateSLA = document.getElementById('startDate').value;
@@ -3314,6 +3324,8 @@
                         } else {
                             volumeView.insertAdjacentHTML('beforeend', tableHTML);
                         }
+                        // Recalculate sticky positions after table renders
+                        requestAnimationFrame(updateStickyHeaderTop);
 
                         // Activate inline editing
                         document.getElementById('volume-view').querySelectorAll('[data-editable="true"]').forEach(td => {
@@ -3775,10 +3787,24 @@
         // Initialize with current month date range
         function updateStickyHeaderTop() {
             const wrapper = document.querySelector('.sticky-header-wrapper');
-            if (wrapper) {
-                const height = wrapper.offsetHeight;
-                document.documentElement.style.setProperty('--sticky-top', height + 'px');
-            }
+            if (!wrapper) return;
+
+            const wrapperHeight = wrapper.offsetHeight;
+
+            // action-header (baris Upload/Hapus/Excel) tepat di bawah sticky wrapper
+            document.documentElement.style.setProperty('--sticky-top', wrapperHeight + 'px');
+
+            // Coba ukur tinggi action-header secara langsung dari DOM
+            const actionHeaderTh = document.querySelector('.data-table thead tr.action-header th');
+            const actionHeaderHeight = actionHeaderTh
+                ? actionHeaderTh.closest('tr').offsetHeight
+                : 50; // fallback 50px
+
+            // main-header (NO, TANGGAL, dll) tepat di bawah action-header
+            document.documentElement.style.setProperty(
+                '--sticky-main-header-top',
+                (wrapperHeight + actionHeaderHeight) + 'px'
+            );
         }
         
         window.addEventListener('resize', updateStickyHeaderTop);
