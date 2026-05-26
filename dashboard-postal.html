@@ -1097,15 +1097,29 @@
             }
         }
 
-        /* Fix for table overflow on mobile */
+        /* Fix for table overflow - JANGAN overflow pada sla-view/volume-view langsung
+           karena akan memblokir position:sticky pada thead */
         #sla-view, #volume-view {
-            overflow-x: auto;
-            overflow-y: visible;
-            -webkit-overflow-scrolling: touch;
+            overflow: visible;
             background-color: #ffffff;
             width: 100%;
             border-radius: 8px;
             padding-bottom: 15px;
+        }
+
+        /* Wrapper horizontal scroll di LUAR tabel, bukan di parent dari thead */
+        .table-scroll-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+        }
+
+        /* Thead sticky bekerja karena scroll context-nya adalah page, bukan container */
+        .data-table thead {
+            position: sticky;
+            top: var(--sticky-top, 130px);
+            z-index: 100;
+            background: white;
         }
     </style>
 </head>
@@ -3065,21 +3079,24 @@
                     // Find the #sla-view container and update only the table content
                     const slaViewEl = document.getElementById('sla-view');
                     if (slaViewEl) {
-                        // Update the entire view or just the table
-                        const tableElement = slaViewEl.querySelector('.data-table');
-                        if (tableElement) {
-                            tableElement.outerHTML = tableHTML;
+                        const wrapperEl = slaViewEl.querySelector('.table-scroll-wrapper');
+                        if (wrapperEl) {
+                            wrapperEl.outerHTML = tableHTML;
                         } else {
-                            // Restore missing else block for initial render
-                            slaViewEl.innerHTML = `
-                                <h2 style="margin-bottom: 20px; color: #333; display: flex; align-items: center; gap: 10px;">
-                                    📊 Database SLA Waktu
-                                    <span style="font-size: 14px; font-weight: normal; background: #e0e7ff; color: #1e3c72; padding: 4px 12px; border-radius: 20px;">
-                                        Total: ${finalData.length} Rute
-                                    </span>
-                                </h2>
-                                ${tableHTML}
-                            `;
+                            const tableElement = slaViewEl.querySelector('.data-table');
+                            if (tableElement) {
+                                tableElement.outerHTML = tableHTML;
+                            } else {
+                                slaViewEl.innerHTML = `
+                                    <h2 style="margin-bottom: 20px; color: #333; display: flex; align-items: center; gap: 10px;">
+                                        📊 Database SLA Waktu
+                                        <span style="font-size: 14px; font-weight: normal; background: #e0e7ff; color: #1e3c72; padding: 4px 12px; border-radius: 20px;">
+                                            Total: ${finalData.length} Rute
+                                        </span>
+                                    </h2>
+                                    ${tableHTML}
+                                `;
+                            }
                         }
                     }
 
@@ -3258,6 +3275,7 @@
             });
 
             return `
+                <div class="table-scroll-wrapper">
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -3273,6 +3291,7 @@
                     </thead>
                     <tbody>${rowsHTML}</tbody>
                 </table>
+                </div>
             `;
         }
 
@@ -3320,11 +3339,17 @@
                         const volumeView = document.getElementById('volume-view');
                         if (!volumeView) return;
 
-                        const tableElement = volumeView.querySelector('.data-table');
-                        if (tableElement) {
-                            tableElement.outerHTML = tableHTML;
+                        // Cari wrapper dulu, kalau tidak ada cari tabel langsung
+                        const wrapperEl = volumeView.querySelector('.table-scroll-wrapper');
+                        if (wrapperEl) {
+                            wrapperEl.outerHTML = tableHTML;
                         } else {
-                            volumeView.insertAdjacentHTML('beforeend', tableHTML);
+                            const tableElement = volumeView.querySelector('.data-table');
+                            if (tableElement) {
+                                tableElement.outerHTML = tableHTML;
+                            } else {
+                                volumeView.insertAdjacentHTML('beforeend', tableHTML);
+                            }
                         }
                         // Recalculate sticky positions after table renders
                         requestAnimationFrame(updateStickyHeaderTop);
@@ -3667,6 +3692,7 @@
             const totalPoslog = volumeData.reduce((sum, r) => sum + (parseFloat(r.nonPostal) || 0), 0);
 
             return `
+                <div class="table-scroll-wrapper">
                 <table class="data-table">
                     <thead>
                         <tr class="action-header">
@@ -3727,6 +3753,7 @@
                     <option value="CDD Long">
                     <option value="Fuso Long">
                 </datalist>
+                </div>
             `;
         }
 
