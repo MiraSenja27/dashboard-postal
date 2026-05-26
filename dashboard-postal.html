@@ -3365,6 +3365,7 @@
                                     <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadVolume(currentMenu)">📤 Upload Volume</button>
                                     <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedVolume()">🗑️ Hapus Terpilih</button>
                                     <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadVolumeExcel()">Excel 📊</button>
+                                    <button style="padding: 8px 16px; background: #673AB7; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="openRouteSettings()">Pengaturan ⚙️</button>
                                 </div>
                                 ` : ''}
                             </th>
@@ -5114,7 +5115,140 @@
                 setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
+
+        // ==========================================
+        // FITUR PENGATURAN MASTER RUTE
+        // ==========================================
+        
+        async function openRouteSettings() {
+            const modal = document.getElementById('routeSettingsModal');
+            const tbody = document.getElementById('routeSettingsBody');
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px;">⏳ Memuat data rute...</td></tr>';
+            modal.style.display = 'flex';
+            
+            try {
+                // Ambil daftar rute unik (tanpa filter tanggal untuk mendapatkan master rute)
+                const response = await fetch(`${API_URL}/routes?category=${currentMenu}&weekKey=ALL`);
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    tbody.innerHTML = '';
+                    
+                    // Sort rute sesuai order
+                    const sortedRoutes = sortRoutesByOrder(result.data.map(r => ({
+                        name: r.route_name,
+                        baseKapasitas: r.base_kapasitas || 0,
+                        unitInfo: r.units || []
+                    })));
+
+                    if (sortedRoutes.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px;">Belum ada data rute di sistem.</td></tr>';
+                        return;
+                    }
+
+                    sortedRoutes.forEach((route, index) => {
+                        const tr = document.createElement('tr');
+                        
+                        // Parse existing units (could be array or set depending on how it's returned)
+                        let unitValue = '';
+                        if (Array.isArray(route.unitInfo)) {
+                            unitValue = route.unitInfo.join(', ');
+                        } else if (typeof route.unitInfo === 'string' && route.unitInfo !== '-') {
+                            unitValue = route.unitInfo;
+                        }
+
+                        // Input kapasitas mingguan (baseKapasitas di backend sudah dihitung harian saat dirender, tapi kita minta user masukkan mingguan)
+                        // Wait, /api/routes mengembalikan item.kapasitas sebagai harian di table, tapi routeMap[item.rute].base_kapasitas menyimpan max(item.kapasitas).
+                        // Dan item.kapasitas di DB itu adalah kapasitas MINGGUAN!
+                        const kapasitasMingguan = route.baseKapasitas;
+
+                        tr.innerHTML = `
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: center;">${index + 1}</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: 500;">
+                                ${route.name}
+                                <input type="hidden" class="setting-route-name" value="${route.name}">
+                            </td>
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                                <input type="text" class="setting-unit" value="${unitValue}" placeholder="CDE, CDD" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            </td>
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                                <input type="number" class="setting-kapasitas" value="${kapasitasMingguan}" placeholder="0" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color: red;">Gagal memuat rute.</td></tr>';
+                }
+            } catch (error) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px; color: red;">Error: ${error.message}</td></tr>`;
+            }
+        }
+
+        function closeRouteSettings() {
+            document.getElementById('routeSettingsModal').style.display = 'none';
+        }
+
+        async function saveRouteSettings() {
+            const tbody = document.getElementById('routeSettingsBody');
+            const rows = tbody.querySelectorAll('tr');
+            
+            if (rows.length === 0 || tbody.innerHTML.includes('Memuat')) return;
+            
+            const btnText = document.getElementById('saveSettingsText');
+            btnText.textContent = '⏳ Menyimpan...';
+            
+            const settings = [];
+            rows.forEach(tr => {
+                const nameInput = tr.querySelector('.setting-route-name');
+                const unitInput = tr.querySelector('.setting-unit');
+                const kapasitasInput = tr.querySelector('.setting-kapasitas');
+                
+                if (nameInput && unitInput && kapasitasInput) {
+                    const ruteName = nameInput.value;
+                    const unitStr = unitInput.value.trim();
+                    const kapasitasVal = kapasitasInput.value.trim();
+                    
+                    // Split unit string by comma and clean up
+                    const unitArray = unitStr.split(',').map(s => s.trim()).filter(s => s !== '');
+                    
+                    settings.push({
+                        rute: ruteName,
+                        unit: unitArray.length > 0 ? unitArray : [],
+                        kapasitas: kapasitasVal !== '' ? parseFloat(kapasitasVal) : 0
+                    });
+                }
+            });
+
+            if (settings.length === 0) {
+                alert('Tidak ada pengaturan yang disimpan.');
+                btnText.textContent = '💾 Simpan Semua';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/routes/settings`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ settings })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('✅ Pengaturan rute berhasil disimpan ke semua data!');
+                    closeRouteSettings();
+                    // Refresh data
+                    await loadVolumeData();
+                    await loadDashboardData(document.getElementById('weekFilter').value !== 'ALL' ? document.getElementById('weekFilter').value : null);
+                } else {
+                    alert('❌ Gagal menyimpan pengaturan: ' + result.message);
+                }
+            } catch (error) {
+                alert('❌ Terjadi kesalahan: ' + error.message);
+            } finally {
+                btnText.textContent = '💾 Simpan Semua';
+            }
+        }
     </script>
 </body>
-
 </html>
