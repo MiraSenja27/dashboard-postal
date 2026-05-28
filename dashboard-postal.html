@@ -1114,7 +1114,7 @@
             }
         }
 
-        /* Volume/SLA view containers — overflow visible agar sticky thead bekerja */
+        /* Volume/SLA view containers */
         #sla-view, #volume-view {
             overflow: visible;
             background-color: #ffffff;
@@ -1123,17 +1123,19 @@
             padding-bottom: 15px;
         }
 
-        /* Wrapper horizontal scroll di LUAR tabel */
+        /* Wrapper scroll — horizontal DAN vertikal di sini agar sticky thead bekerja */
         .table-scroll-wrapper {
             overflow-x: auto;
+            overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             width: 100%;
+            max-height: calc(100vh - var(--sticky-top, 170px) - 20px);
         }
 
-        /* Sticky thead — header tabel tidak bergerak saat scroll vertikal */
+        /* Sticky thead — header tidak bergerak saat scroll vertikal di dalam wrapper */
         .data-table thead tr.main-header th {
             position: sticky;
-            top: var(--sticky-top, 0px);
+            top: 0;
             z-index: 10;
         }
 
@@ -3827,9 +3829,13 @@
         }
 
         function applyFixedHeader() {
-            // Gunakan CSS variable --sticky-top agar thead sticky bekerja dengan benar
+            // Hitung tinggi sticky wrapper + action bar untuk max-height tabel
             var h = getStickyH();
             document.documentElement.style.setProperty('--sticky-top', h + 'px');
+            // Update max-height pada semua table-scroll-wrapper yang aktif
+            document.querySelectorAll('.table-scroll-wrapper').forEach(function(w) {
+                w.style.maxHeight = 'calc(100vh - ' + h + 'px - 20px)';
+            });
         }
 
         function updateStickyHeaderTop() { applyFixedHeader(); }
