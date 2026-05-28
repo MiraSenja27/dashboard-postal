@@ -5545,6 +5545,18 @@
                         }
                         const kapasitasMingguan = route.baseKapasitas;
                         
+                        // Parse unitValue jadi array untuk multi-select
+                        const unitArr = unitValue ? unitValue.split(',').map(s=>s.trim()).filter(Boolean) : [];
+                        const defaultUnits = ['CDE','CDD','CDD Long','Fuso Long'];
+                        // Tambahkan unit custom yang tidak ada di default
+                        const allUnits = [...new Set([...defaultUnits, ...unitArr])];
+                        const checkboxesHTML = allUnits.map(u =>
+                            `<label style="display:inline-flex;align-items:center;gap:4px;margin-right:8px;font-size:12px;cursor:pointer;">
+                                <input type="checkbox" class="unit-checkbox" value="${u}" ${unitArr.includes(u)?'checked':''} style="cursor:pointer;">
+                                ${u}
+                            </label>`
+                        ).join('');
+
                         // Total Unit data (3 baris)
                         const totalUnits = route.totalUnits || [{jumlah: 0, jenis: ''}, {jumlah: 0, jenis: ''}, {jumlah: 0, jenis: ''}];
                         
@@ -5576,7 +5588,11 @@
                                 ${totalUnitHTML}
                             </td>
                             <td style="padding: 10px; border-bottom: 1px solid #ddd;">
-                                <input type="text" class="setting-unit" value="${unitValue}" placeholder="CDE, CDD" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                                <div class="unit-checkboxes" style="margin-bottom:6px;">${checkboxesHTML}</div>
+                                <div style="display:flex;gap:6px;align-items:center;">
+                                    <input type="text" class="unit-new-input" placeholder="Tambah unit baru..." style="padding:4px 8px;border:1px solid #ccc;border-radius:4px;font-size:12px;width:130px;">
+                                    <button type="button" onclick="addUnitOption(this)" style="padding:4px 10px;background:#1e3c72;color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;">+ Tambah</button>
+                                </div>
                             </td>
                             <td style="padding: 10px; border-bottom: 1px solid #ddd;">
                                 <input type="number" class="setting-kapasitas" value="${kapasitasMingguan}" placeholder="0" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
@@ -5635,11 +5651,12 @@
             const settings = [];
             rows.forEach(tr => {
                 const nameInput     = tr.querySelector('.setting-route-name');
-                const unitInput     = tr.querySelector('.setting-unit');
                 const kapasitasInput = tr.querySelector('.setting-kapasitas');
-                if (nameInput && unitInput && kapasitasInput) {
-                    const unitStr    = unitInput.value.trim();
-                    const unitArray  = unitStr.split(',').map(s => s.trim()).filter(s => s !== '');
+                if (nameInput && kapasitasInput) {
+                    // Ambil semua unit yang dicentang
+                    const checkedUnits = Array.from(tr.querySelectorAll('.unit-checkbox:checked'))
+                        .map(cb => cb.value.trim())
+                        .filter(Boolean);
                     
                     // Ambil data Total Unit (3 baris)
                     const totalUnits = [];
@@ -5659,7 +5676,7 @@
                     
                     settings.push({
                         rute:       nameInput.value,
-                        unit:       unitArray.length > 0 ? unitArray : [],
+                        unit:       checkedUnits,
                         totalUnits: totalUnits,
                         kapasitas:  kapasitasInput.value !== '' ? parseFloat(kapasitasInput.value) : 0
                     });
