@@ -1138,7 +1138,6 @@
             -webkit-overflow-scrolling: touch;
             width: 100%;
             max-height: calc(100vh - var(--sticky-top, 170px) - 20px);
-            min-height: 200px;
         }
 
         /* Sticky thead — header tidak bergerak saat scroll vertikal di dalam wrapper */
@@ -4712,52 +4711,35 @@
                 alert('Pilih setidaknya satu data Volume untuk dihapus.');
                 return;
             }
-
-            // Ambil filter aktif untuk scope hapus
-            const activeWeekKey   = document.getElementById('weekFilter')?.value || '';
-            const activeStartDate = document.getElementById('startDate')?.value || '';
-            const activeEndDate   = document.getElementById('endDate')?.value || '';
-
-            let scopeText = 'SEMUA minggu';
-            if (activeWeekKey && activeWeekKey !== 'ALL' && activeWeekKey !== '') {
-                const opt = document.getElementById('weekFilter').selectedOptions[0];
-                scopeText = `minggu: ${opt ? opt.textContent : activeWeekKey}`;
-            } else if (activeStartDate && activeEndDate) {
-                scopeText = `tanggal ${activeStartDate} s/d ${activeEndDate}`;
-            }
-
-            if (!confirm(`⚠️ Hapus ${checkboxes.length} data Volume yang terpilih?\nScope: ${scopeText}\n\nData di minggu/tanggal lain TIDAK akan terhapus.`)) {
+            
+            if (!confirm(`⚠️ Apakah Anda yakin ingin menghapus ${checkboxes.length} data Volume yang terpilih?`)) {
                 return;
             }
-
+            
             const routeNames = Array.from(checkboxes).map(cb => cb.value);
-
-            const payload = { routeNames, category: currentMenu };
-            if (activeWeekKey && activeWeekKey !== 'ALL' && activeWeekKey !== '') {
-                payload.weekKey = activeWeekKey;
-            } else if (activeStartDate) {
-                payload.startDate = activeStartDate;
-                if (activeEndDate) payload.endDate = activeEndDate;
-            }
-
+            
             try {
                 const response = await fetch(`${API_URL}/volume`, {
                     method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ routeNames: routeNames, category: currentMenu })
                 });
-
+                
                 const result = await response.json();
                 if (result.success) {
-                    if (typeof showToast === 'function') showToast(`Data Volume berhasil dihapus!`, 'success');
-                    else alert(`✅ Data Volume berhasil dihapus!`);
+                    if (typeof showToast === 'function') showToast(`${routeNames.length} rute Volume berhasil dihapus!`, 'success');
+                    else alert(`✅ ${routeNames.length} rute Volume berhasil dihapus!`);
                     loadVolumeData();
+                    // Juga refresh dashboard bila di view yang sama
                     loadDashboardData();
                 } else {
                     alert(`❌ Error: ${result.message}`);
                 }
             } catch (error) {
                 console.error('Error:', error);
+                // alert removed for silent workflow
             }
         }
 
@@ -4920,21 +4902,21 @@
             </div>
 
             <div style="overflow-x:auto; border:1px solid #e2e8f0; border-radius:10px;">
-                <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 15px;">
-                    <thead>
-                        <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
-                            <th style="padding: 14px; text-align: left; width: 60px; font-weight:700; color:#1e3c72;">No</th>
-                            <th style="padding: 14px; text-align: left; min-width:200px; font-weight:700; color:#1e3c72;">Nama Rute</th>
-                            <th style="padding: 14px; text-align: left; min-width:350px; font-weight:700; color:#1e3c72;">Total Unit (3 Baris)</th>
-                            <th style="padding: 14px; text-align: left; min-width:300px; font-weight:700; color:#1e3c72;">Unit Kendaraan (CDE, CDD, dll)</th>
-                            <th style="padding: 14px; text-align: left; min-width:220px; font-weight:700; color:#1e3c72;">Kapasitas/Minggu (Kg)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="routeSettingsBody">
-                        <!-- Data will be populated here -->
-                    </tbody>
-                </table>
-            </div>
+
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 15px;">
+                <thead>
+                    <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
+                        <th style="padding: 14px; text-align: left; width: 60px; font-weight:700; color:#1e3c72;">No</th>
+                        <th style="padding: 14px; text-align: left; min-width:200px; font-weight:700; color:#1e3c72;">Nama Rute</th>
+                        <th style="padding: 14px; text-align: left; min-width:350px; font-weight:700; color:#1e3c72;">Total Unit (3 Baris)</th>
+                        <th style="padding: 14px; text-align: left; min-width:300px; font-weight:700; color:#1e3c72;">Unit Kendaraan (CDE, CDD, dll)</th>
+                        <th style="padding: 14px; text-align: left; min-width:220px; font-weight:700; color:#1e3c72;">Kapasitas/Minggu (Kg)</th>
+                    </tr>
+                </thead>
+                <tbody id="routeSettingsBody">
+                    <!-- Data will be populated here -->
+                </tbody>
+            </table>
 
             <div style="display:flex; gap:10px; justify-content:flex-end; position: sticky; bottom: -10px; background: white; padding-top: 15px; border-top: 1px solid #eee;">
                 <button onclick="closeRouteSettings()" style="padding:12px 24px; border:1px solid #ddd; background:white; border-radius:8px; cursor:pointer; font-size:15px; font-weight:600;">Batal</button>
@@ -5517,7 +5499,7 @@
         async function openRouteSettings() {
             const modal = document.getElementById('routeSettingsModal');
             const tbody = document.getElementById('routeSettingsBody');
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">⏳ Memuat data rute...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px;">⏳ Memuat data rute...</td></tr>';
             modal.style.display = 'flex';
 
             // Populate week dropdown dari weekFilter utama
@@ -5535,40 +5517,8 @@
                 });
             }
 
-            // Tambah event listener untuk reload data saat filter berubah
-            const weekFilterEl = document.getElementById('settingsWeekFilter');
-            const startDateEl = document.getElementById('settingsStartDate');
-            const endDateEl = document.getElementById('settingsEndDate');
-
-            if (weekFilterEl) {
-                weekFilterEl.removeEventListener('change', reloadRouteSettingsData);
-                weekFilterEl.addEventListener('change', reloadRouteSettingsData);
-            }
-            if (startDateEl) {
-                startDateEl.removeEventListener('change', reloadRouteSettingsData);
-                startDateEl.addEventListener('change', reloadRouteSettingsData);
-            }
-            if (endDateEl) {
-                endDateEl.removeEventListener('change', reloadRouteSettingsData);
-                endDateEl.addEventListener('change', reloadRouteSettingsData);
-            }
-
-            await loadRouteSettingsData();
-        }
-
-        async function loadRouteSettingsData() {
-            const tbody = document.getElementById('routeSettingsBody');
-            const weekKey = document.getElementById('settingsWeekFilter')?.value || 'ALL';
-            const startDate = document.getElementById('settingsStartDate')?.value || '';
-            const endDate = document.getElementById('settingsEndDate')?.value || '';
-
             try {
-                // Build query params
-                let queryUrl = `${API_URL}/routes?category=${currentMenu}&weekKey=${weekKey}`;
-                if (startDate) queryUrl += `&startDate=${startDate}`;
-                if (endDate) queryUrl += `&endDate=${endDate}`;
-
-                const response = await fetch(queryUrl);
+                const response = await fetch(`${API_URL}/routes?category=${currentMenu}&weekKey=ALL`);
                 const result = await response.json();
 
                 if (result.success && result.data) {
@@ -5577,12 +5527,11 @@
                     const sortedRoutes = sortRoutesByOrder(result.data.map(r => ({
                         name: r.route_name,
                         baseKapasitas: r.base_kapasitas || 0,
-                        unitInfo: r.units || [],
-                        totalUnits: r.total_units || [{jumlah: 0, jenis: ''}, {jumlah: 0, jenis: ''}, {jumlah: 0, jenis: ''}]
+                        unitInfo: r.units || []
                     })));
 
                     if (sortedRoutes.length === 0) {
-                        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">Belum ada data rute di sistem.</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px;">Belum ada data rute di sistem.</td></tr>';
                         return;
                     }
 
@@ -5595,45 +5544,30 @@
                             unitValue = route.unitInfo;
                         }
                         const kapasitasMingguan = route.baseKapasitas;
-                        // Parse unitValue jadi array untuk multi-select
-                        const unitArr = unitValue ? unitValue.split(',').map(s=>s.trim()).filter(Boolean) : [];
-                        const defaultUnits = ['CDE','CDD','CDD Long','Fuso Long'];
-                        // Tambahkan unit custom yang tidak ada di default
-                        const allUnits = [...new Set([...defaultUnits, ...unitArr])];
-                        const checkboxesHTML = allUnits.map(u =>
-                            `<label style="display:inline-flex;align-items:center;gap:4px;margin-right:8px;font-size:12px;cursor:pointer;">
-                                <input type="checkbox" class="unit-checkbox" value="${u}" ${unitArr.includes(u)?'checked':''} style="cursor:pointer;">
-                                ${u}
-                            </label>`
-                        ).join('');
-
-                        // Inisialisasi totalUnits jika belum ada
-                        let totalUnits = route.totalUnits || [{jumlah: 0, jenis: ''}, {jumlah: 0, jenis: ''}, {jumlah: 0, jenis: ''}];
-                        if (!Array.isArray(totalUnits) || totalUnits.length < 3) {
-                            totalUnits = [{jumlah: 0, jenis: ''}, {jumlah: 0, jenis: ''}, {jumlah: 0, jenis: ''}];
-                        }
-
-                        // HTML untuk 3 baris Total Unit (Jumlah + Jenis)
+                        
+                        // Total Unit data (3 baris)
+                        const totalUnits = route.totalUnits || [{jumlah: 0, jenis: ''}, {jumlah: 0, jenis: ''}, {jumlah: 0, jenis: ''}];
+                        
                         const totalUnitHTML = `
-                            <div style="display:flex; flex-direction:column; gap:8px;">
+                            <div style="display:flex; flex-direction:column; gap:6px;">
                                 ${[0, 1, 2].map(i => `
-                                    <div style="display:flex; gap:8px; align-items:center;">
-                                        <input type="number" class="total-unit-jumlah" data-index="${i}" value="${totalUnits[i]?.jumlah || 0}" placeholder="Jumlah" style="width:80px; padding:8px; border:1px solid #ccc; border-radius:4px; font-size:13px;">
-                                        <select class="total-unit-jenis" data-index="${i}" style="flex:1; padding:8px; border:1px solid #ccc; border-radius:4px; font-size:13px;">
-                                            <option value="">-- Pilih Unit --</option>
+                                    <div style="display:flex; gap:6px; align-items:center;">
+                                        <input type="number" class="total-unit-jumlah" data-index="${i}" value="${totalUnits[i]?.jumlah || 0}" placeholder="0" style="width:60px; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;">
+                                        <select class="total-unit-jenis" data-index="${i}" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;">
+                                            <option value="">-- Pilih --</option>
                                             <option value="CDE" ${totalUnits[i]?.jenis === 'CDE' ? 'selected' : ''}>CDE</option>
                                             <option value="CDD" ${totalUnits[i]?.jenis === 'CDD' ? 'selected' : ''}>CDD</option>
                                             <option value="CDD Long" ${totalUnits[i]?.jenis === 'CDD Long' ? 'selected' : ''}>CDD Long</option>
                                             <option value="Fuso Long" ${totalUnits[i]?.jenis === 'Fuso Long' ? 'selected' : ''}>Fuso Long</option>
                                         </select>
-                                        <input type="text" class="total-unit-custom" data-index="${i}" placeholder="atau ketik..." style="width:100px; padding:8px; border:1px solid #ccc; border-radius:4px; font-size:13px;">
+                                        <input type="text" class="total-unit-custom" data-index="${i}" placeholder="ketik..." style="width:80px; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;">
                                     </div>
                                 `).join('')}
                             </div>
                         `;
-
+                        
                         tr.innerHTML = `
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: center; font-weight:600;">${index + 1}</td>
+                            <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: center;">${index + 1}</td>
                             <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: 500;">
                                 ${route.name}
                                 <input type="hidden" class="setting-route-name" value="${route.name}">
@@ -5642,11 +5576,7 @@
                                 ${totalUnitHTML}
                             </td>
                             <td style="padding: 10px; border-bottom: 1px solid #ddd;">
-                                <div class="unit-checkboxes" style="margin-bottom:6px;">${checkboxesHTML}</div>
-                                <div style="display:flex;gap:6px;align-items:center;">
-                                    <input type="text" class="unit-new-input" placeholder="Tambah unit baru..." style="padding:4px 8px;border:1px solid #ccc;border-radius:4px;font-size:12px;width:130px;">
-                                    <button type="button" onclick="addUnitOption(this)" style="padding:4px 10px;background:#1e3c72;color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;">+ Tambah</button>
-                                </div>
+                                <input type="text" class="setting-unit" value="${unitValue}" placeholder="CDE, CDD" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
                             </td>
                             <td style="padding: 10px; border-bottom: 1px solid #ddd;">
                                 <input type="number" class="setting-kapasitas" value="${kapasitasMingguan}" placeholder="0" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
@@ -5655,40 +5585,11 @@
                         tbody.appendChild(tr);
                     });
                 } else {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px; color: red;">Gagal memuat rute.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px; color: red;">Gagal memuat rute.</td></tr>';
                 }
             } catch (error) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color: red;">Error: ${error.message}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 20px; color: red;">Error: ${error.message}</td></tr>`;
             }
-        }
-
-        async function reloadRouteSettingsData() {
-            await loadRouteSettingsData();
-        }
-
-        function addUnitOption(btn) {
-            const td = btn.closest('td');
-            const input = td.querySelector('.unit-new-input');
-            const newUnit = input.value.trim();
-            if (!newUnit) return;
-
-            const checkboxesDiv = td.querySelector('.unit-checkboxes');
-
-            // Cek apakah sudah ada
-            const existing = Array.from(checkboxesDiv.querySelectorAll('.unit-checkbox'))
-                .find(cb => cb.value.toLowerCase() === newUnit.toLowerCase());
-            if (existing) {
-                existing.checked = true;
-                input.value = '';
-                return;
-            }
-
-            // Tambah checkbox baru dan langsung centang
-            const label = document.createElement('label');
-            label.style.cssText = 'display:inline-flex;align-items:center;gap:4px;margin-right:8px;font-size:12px;cursor:pointer;';
-            label.innerHTML = `<input type="checkbox" class="unit-checkbox" value="${newUnit}" checked style="cursor:pointer;"> ${newUnit}`;
-            checkboxesDiv.appendChild(label);
-            input.value = '';
         }
 
         function clearSettingsDateFilter() {
@@ -5726,7 +5627,7 @@
                 scopeText = `tanggal sampai ${endDate}`;
             }
 
-            if (!confirm(`Terapkan Unit, Total Unit & Kapasitas/Minggu ke ${scopeText}?\n\nData Postal dan Poslog tidak akan berubah.`)) return;
+            if (!confirm(`Terapkan Unit & Kapasitas/Minggu ke ${scopeText}?\n\nData Postal dan Poslog tidak akan berubah.`)) return;
 
             const btnText = document.getElementById('applySettingsText');
             btnText.textContent = '⏳ Menerapkan...';
@@ -5734,32 +5635,31 @@
             const settings = [];
             rows.forEach(tr => {
                 const nameInput     = tr.querySelector('.setting-route-name');
+                const unitInput     = tr.querySelector('.setting-unit');
                 const kapasitasInput = tr.querySelector('.setting-kapasitas');
-                if (nameInput && kapasitasInput) {
-                    // Ambil semua unit yang dicentang
-                    const checkedUnits = Array.from(tr.querySelectorAll('.unit-checkbox:checked'))
-                        .map(cb => cb.value.trim())
-                        .filter(Boolean);
-
+                if (nameInput && unitInput && kapasitasInput) {
+                    const unitStr    = unitInput.value.trim();
+                    const unitArray  = unitStr.split(',').map(s => s.trim()).filter(s => s !== '');
+                    
                     // Ambil data Total Unit (3 baris)
                     const totalUnits = [];
                     for (let i = 0; i < 3; i++) {
                         const jumlahInput = tr.querySelector(`.total-unit-jumlah[data-index="${i}"]`);
                         const jenisSelect = tr.querySelector(`.total-unit-jenis[data-index="${i}"]`);
                         const customInput = tr.querySelector(`.total-unit-custom[data-index="${i}"]`);
-
+                        
                         const jumlah = jumlahInput ? parseInt(jumlahInput.value) || 0 : 0;
                         const jenis = customInput?.value?.trim() || jenisSelect?.value || '';
-
+                        
                         totalUnits.push({
                             jumlah: jumlah,
                             jenis: jenis
                         });
                     }
-
+                    
                     settings.push({
                         rute:       nameInput.value,
-                        unit:       checkedUnits,
+                        unit:       unitArray.length > 0 ? unitArray : [],
                         totalUnits: totalUnits,
                         kapasitas:  kapasitasInput.value !== '' ? parseFloat(kapasitasInput.value) : 0
                     });
@@ -5776,29 +5676,6 @@
                 const payload = { settings };
                 if (weekKey && weekKey !== 'ALL') payload.weekKey = weekKey;
                 if (startDate) payload.startDate = startDate;
-                if (endDate) payload.endDate = endDate;
-
-                const response = await fetch(`${API_URL}/route-settings`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const result = await response.json();
-                if (result.success) {
-                    alert('✅ Pengaturan berhasil diterapkan!');
-                    closeRouteSettings();
-                    // Reload dashboard
-                    if (typeof loadDashboard === 'function') loadDashboard();
-                } else {
-                    alert(`❌ Gagal: ${result.message || 'Kesalahan tidak diketahui'}`);
-                }
-            } catch (error) {
-                alert(`❌ Error: ${error.message}`);
-            } finally {
-                btnText.textContent = '🔄 Terapkan ke Data';
-            }
-        }
                 if (endDate)   payload.endDate   = endDate;
 
                 const response = await fetch(`${API_URL}/routes/settings`, {
