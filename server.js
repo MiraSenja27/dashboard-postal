@@ -80,6 +80,21 @@ const userSchema = new mongoose.Schema({
 const VolumeData = mongoose.models.VolumeData || mongoose.model("VolumeData", volumeSchema);
 const SlaData = mongoose.models.SlaData || mongoose.model("SlaData", slaSchema);
 const User = mongoose.models.User || mongoose.model("User", userSchema);
+
+// Master settings per rute (unit & kapasitas)
+const routeSettingsSchema = new mongoose.Schema({
+  rute:       { type: String, unique: true },
+  unit:       [{ type: String }],
+  kapasitas:  { type: Number, default: 0 },
+  totalUnits: [{
+    jumlah: { type: Number, default: 0 },
+    jenis:  { type: String, default: '' }
+  }],
+  category:   { type: String, default: "primer" },
+  weekKey:    { type: String },
+  updatedAt:  { type: Date, default: Date.now }
+});
+const RouteSettings = mongoose.models.RouteSettings || mongoose.model("RouteSettings", routeSettingsSchema);
 // ─── Connect to MongoDB ───────────────────────────────────────────────────────
 
 // Migration: convert existing unit strings to arrays (run once on startup)
@@ -928,16 +943,23 @@ app.get("/api/routes", async (req, res) => {
           kapasitas_total: 0,
           space_sum: 0,
           count: 0,
-          base_kapasitas: item.kapasitas || 0,
+          base_kapasitas: 0,
           units: new Set()
         };
-        if (Array.isArray(item.unit)) {
-          item.unit.forEach(u => {
-            if (u) routeMap[item.rute].units.add(u);
-          });
-        } else if (item.unit && typeof item.unit === 'string') {
-          routeMap[item.rute].units.add(item.unit);
-        }
+      }
+
+      // Ambil kapasitas terbesar yang tidak nol dari semua record rute ini
+      if (item.kapasitas && item.kapasitas > routeMap[item.rute].base_kapasitas) {
+        routeMap[item.rute].base_kapasitas = item.kapasitas;
+      }
+
+      // Kumpulkan semua unit tidak kosong dari SEMUA record (bukan hanya record pertama)
+      if (Array.isArray(item.unit)) {
+        item.unit.forEach(u => {
+          if (u && u.trim()) routeMap[item.rute].units.add(u.trim());
+        });
+      } else if (item.unit && typeof item.unit === 'string' && item.unit.trim()) {
+        routeMap[item.rute].units.add(item.unit.trim());
       }
         
       const dailyCapacity = (item.kapasitas || 0) / 7;
@@ -958,6 +980,18 @@ app.get("/api/routes", async (req, res) => {
       base_kapasitas: r.base_kapasitas,
       units: Array.from(r.units).join(', ')
     }));
+    
+    // Tambah totalUnits dari RouteSettings
+    const routeSettingsMap = {};
+    const allSettings = await RouteSettings.find({}).lean();
+    allSettings.forEach(rs => {
+      routeSettingsMap[rs.rute] = rs.totalUnits || [];
+    });
+    
+    routes.forEach(route => {
+      route.totalUnits = routeSettingsMap[route.route_name] || [];
+    });
+    
     let minDate = null,
       maxDate = null;
     filtered.forEach((item) => {
@@ -1058,25 +1092,38 @@ app.delete("/api/sla", async (req, res) => {
   }
 });
 
-// Delete Volume data by route name
+// Delete Volume data by route name (dengan filter weekKey/tanggal opsional)
 app.delete("/api/volume", async (req, res) => {
   try {
-    const { routeName, routeNames } = req.body;
+    const { routeName, routeNames, weekKey, startDate, endDate, category } = req.body;
     if (!routeName && (!routeNames || !Array.isArray(routeNames))) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Route name(s) is required" });
+      return res.status(400).json({ success: false, message: "Route name(s) is required" });
     }
     const targets = routeNames || [routeName];
-    const result = await VolumeData.deleteMany({ rute: { $in: targets } });
+
+    // Build filter dengan scope waktu
+    const filter = { rute: { $in: targets } };
+    if (category) filter.category = category;
+
+    if (weekKey && weekKey !== 'ALL' && weekKey !== '' && weekKey !== 'undefined') {
+      filter.weekKey = weekKey;
+    } else if (startDate && endDate) {
+      filter.tanggal = { $gte: startDate, $lte: endDate };
+    } else if (startDate) {
+      filter.tanggal = { $gte: startDate };
+    } else if (endDate) {
+      filter.tanggal = { $lte: endDate };
+    }
+
+    const result = await VolumeData.deleteMany(filter);
     if (result.deletedCount === 0)
       return res.status(404).json({
         success: false,
-        message: "No Volume data found for this route",
+        message: "Data tidak ditemukan untuk filter yang dipilih",
       });
     res.json({
       success: true,
-      message: `Successfully deleted ${result.deletedCount} Volume records`,
+      message: `Berhasil menghapus ${result.deletedCount} data Volume`,
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -1146,20 +1193,36 @@ app.put("/api/routes/settings", async (req, res) => {
     }
 
     const updatePromises = settings.map(async (setting) => {
-      const { rute, unit, kapasitas } = setting;
+      const { rute, unit, totalUnits, kapasitas } = setting;
       if (!rute) return;
 
       const updatePayload = { $set: {} };
-      if (kapasitas !== undefined) {
-        updatePayload.$set.kapasitas = parseFloat(kapasitas);
-      }
-      if (unit !== undefined) {
-        updatePayload.$set.unit = Array.isArray(unit) ? unit : (unit === '' ? [] : [unit]);
-      }
+      if (kapasitas !== undefined) updatePayload.$set.kapasitas = parseFloat(kapasitas);
+      if (unit !== undefined) updatePayload.$set.unit = Array.isArray(unit) ? unit : (unit === '' ? [] : [unit]);
+      if (totalUnits !== undefined) updatePayload.$set.totalUnits = Array.isArray(totalUnits) ? totalUnits : [];
 
       if (Object.keys(updatePayload.$set).length === 0) return;
 
-      // Build filter: rute + scope waktu
+      // 1. Simpan ke master RouteSettings (upsert)
+      const routeSettingsUpdate = { 
+        unit: updatePayload.$set.unit ?? [], 
+        kapasitas: updatePayload.$set.kapasitas ?? 0,
+        totalUnits: updatePayload.$set.totalUnits ?? [],
+        updatedAt: new Date()
+      };
+      
+      // Jika ada weekKey atau date filter, simpan juga weekKey
+      if (weekKey && weekKey !== 'ALL') {
+        routeSettingsUpdate.weekKey = weekKey;
+      }
+      
+      await RouteSettings.findOneAndUpdate(
+        { rute },
+        { $set: routeSettingsUpdate },
+        { upsert: true }
+      );
+
+      // 2. Apply ke VolumeData sesuai filter waktu
       const filter = { rute };
       if (weekKey && weekKey !== 'ALL') {
         filter.weekKey = weekKey;
@@ -1170,7 +1233,6 @@ app.put("/api/routes/settings", async (req, res) => {
       } else if (endDate) {
         filter.tanggal = { $lte: endDate };
       }
-      // Jika weekKey === 'ALL' dan tidak ada tanggal → update semua record rute
 
       return VolumeData.updateMany(filter, updatePayload);
     });
