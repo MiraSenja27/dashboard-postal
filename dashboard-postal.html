@@ -1153,6 +1153,12 @@
 <body>
     <!-- Fixed table header -->
     <div id="fixed-table-header">
+        <!-- Baris total angka di atas header kolom -->
+        <div id="fixed-header-totals" style="display:none; padding:4px 12px; background:#f8fafc; border-bottom:1px solid #e2e8f0; font-size:13px; font-weight:700;">
+            <span id="total-postal-label" style="color:#FF8C42;"></span>
+            &nbsp;&nbsp;|&nbsp;&nbsp;
+            <span id="total-poslog-label" style="color:#008080;"></span>
+        </div>
         <table id="fixed-header-table">
             <thead id="fixed-header-thead"></thead>
         </table>
@@ -1290,7 +1296,7 @@
                 <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadVolume(currentMenu)">📤 Upload Volume</button>
                 <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedVolume()">🗑️ Hapus Terpilih</button>
                 <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadVolumeExcel()">Excel 📊</button>
-                <span id="volume-totals-bar" style="margin-left:16px; font-weight:800; font-size:15px;"></span>
+
             </div>
             <div id="sla-action-btns" style="display:none; gap:10px; align-items:center; flex-wrap:wrap;">
                 <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadSLA(currentMenu)">📤 Upload SLA</button>
@@ -2129,6 +2135,8 @@
                     slaBtns.style.display = 'none';
                     var fh2 = document.getElementById('fixed-table-header');
                     if (fh2) fh2.classList.remove('active');
+                    var totDiv = document.getElementById('fixed-header-totals');
+                    if (totDiv) totDiv.style.display = 'none';
                 }
             }
 
@@ -3380,12 +3388,16 @@
                             }
                         }
                         // Recalculate sticky positions after table renders
-                        // Update totals di action bar
-                        var totalsBar = document.getElementById('volume-totals-bar');
-                        if (totalsBar && data && data.length > 0) {
+                        // Update totals di fixed header
+                        if (data && data.length > 0) {
                             var tp = data.reduce(function(s,r){return s+(parseFloat(r.postal)||0);},0);
                             var tpl = data.reduce(function(s,r){return s+(parseFloat(r.nonPostal)||0);},0);
-                            totalsBar.innerHTML = '<span style="color:#FF8C42;">' + tp.toLocaleString('id-ID') + '</span>&nbsp;|&nbsp;<span style="color:#008080;">' + tpl.toLocaleString('id-ID') + '</span>';
+                            var tpEl = document.getElementById('total-postal-label');
+                            var tplEl = document.getElementById('total-poslog-label');
+                            var totDiv = document.getElementById('fixed-header-totals');
+                            if (tpEl) tpEl.textContent = 'POSTAL: ' + tp.toLocaleString('id-ID') + ' kg';
+                            if (tplEl) tplEl.textContent = 'POSLOG: ' + tpl.toLocaleString('id-ID') + ' kg';
+                            if (totDiv) totDiv.style.display = 'block';
                         }
                         requestAnimationFrame(function(){
                             requestAnimationFrame(function(){
@@ -3835,31 +3847,47 @@
             var fth = document.getElementById('fixed-header-thead');
             if (!fh || !fth) return;
 
-            var activeTable = document.querySelector('#volume-view .data-table, #sla-view .data-table');
+            // Cari tabel yang sedang tampil (volume atau sla)
+            var volumeView = document.getElementById('volume-view');
+            var slaView = document.getElementById('sla-view');
+            var activeTable = null;
+            if (volumeView && volumeView.style.display !== 'none' && volumeView.offsetParent !== null) {
+                activeTable = volumeView.querySelector('.data-table');
+            } else if (slaView && slaView.style.display !== 'none' && slaView.offsetParent !== null) {
+                activeTable = slaView.querySelector('.data-table');
+            }
+
             if (!activeTable) { fh.classList.remove('active'); return; }
 
             var origThead = activeTable.querySelector('thead');
             if (!origThead) { fh.classList.remove('active'); return; }
 
+            // Clone thead ke fixed header
             fth.innerHTML = origThead.innerHTML;
 
+            // Set posisi fixed header tepat di bawah sticky wrapper
             var h = getStickyHeight();
             fh.style.top = h + 'px';
 
+            // Sejajarkan dengan tabel asli
             var rect = activeTable.getBoundingClientRect();
             fh.style.left = rect.left + 'px';
-            fh.style.width = rect.width + 'px';
+            fh.style.width = (rect.width + 1) + 'px';
 
-            var origCols = origThead.querySelectorAll('th');
-            var fixedCols = fth.querySelectorAll('th');
+            // Samakan lebar tiap kolom
+            var origCols = Array.from(origThead.querySelectorAll('th'));
+            var fixedCols = Array.from(fth.querySelectorAll('th'));
             origCols.forEach(function(th, i) {
                 if (fixedCols[i]) {
                     var w = th.getBoundingClientRect().width;
                     fixedCols[i].style.width = w + 'px';
                     fixedCols[i].style.minWidth = w + 'px';
+                    fixedCols[i].style.maxWidth = w + 'px';
+                    fixedCols[i].style.overflow = 'hidden';
                 }
             });
 
+            // Thead asli jadi invisible placeholder (tetap ada untuk spacing)
             origThead.classList.add('original-thead');
             fh.classList.add('active');
         }
