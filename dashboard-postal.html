@@ -859,7 +859,7 @@
             font-weight: 600;
         }
 
-        /* Action bar (Upload/Hapus/Excel) di dalam sticky wrapper */
+        /* Action bar (Upload/Hapus/Excel) */
         #table-action-bar {
             display: none;
             background: white;
@@ -873,12 +873,14 @@
             display: flex;
         }
 
-        /* thead sticky - bekerja karena table-scroll-wrapper dihapus */
-        .data-table thead {
-            position: sticky;
-            top: var(--sticky-top, 170px);
-            z-index: 100;
-            background: #e9ecef;
+        /* Thead asli disembunyikan setelah clone siap — tidak dipakai lagi */
+        .data-table thead.is-cloned {
+            visibility: visible;
+        }
+
+        /* #fixed-table-header tidak dipakai lagi — diganti sticky thead */
+        #fixed-table-header {
+            display: none !important;
         }
 
         .data-table thead tr.action-header th {
@@ -1112,8 +1114,7 @@
             }
         }
 
-        /* Fix for table overflow - JANGAN overflow pada sla-view/volume-view langsung
-           karena akan memblokir position:sticky pada thead */
+        /* Volume/SLA view containers — overflow visible agar sticky thead bekerja */
         #sla-view, #volume-view {
             overflow: visible;
             background-color: #ffffff;
@@ -1122,14 +1123,28 @@
             padding-bottom: 15px;
         }
 
+        /* Wrapper horizontal scroll di LUAR tabel */
+        .table-scroll-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            width: 100%;
+        }
 
+        /* Sticky thead — header tabel tidak bergerak saat scroll vertikal */
+        .data-table thead tr.main-header th {
+            position: sticky;
+            top: var(--sticky-top, 0px);
+            z-index: 10;
+        }
 
 
     </style>
 </head>
 
 <body>
-
+    <div id="fixed-table-header">
+        <table id="fh-table"><thead id="fh-thead"></thead></table>
+    </div>
 
     <!-- Login Page -->
     <div id="login-page" class="login-container">
@@ -1263,7 +1278,7 @@
                 <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadVolume(currentMenu)">📤 Upload Volume</button>
                 <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedVolume()">🗑️ Hapus Terpilih</button>
                 <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadVolumeExcel()">Excel 📊</button>
-
+                <span id="volume-totals-bar" style="margin-left:16px; font-weight:800; font-size:15px;"></span>
             </div>
             <div id="sla-action-btns" style="display:none; gap:10px; align-items:center; flex-wrap:wrap;">
                 <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadSLA(currentMenu)">📤 Upload SLA</button>
@@ -1276,7 +1291,7 @@
         <div id="activePeriodLabel" style="display:none; background:linear-gradient(90deg,#1e3c72,#2a5298); color:white; padding:6px 30px; font-size:13px; font-weight:600;"></div>
     </div>
 
-    <div class="dashboard-container" style="padding-top: 10px; overflow-x: auto;">
+    <div class="dashboard-container" style="padding-top: 10px;">
 
             <div id="dashboard-view">
                 <div class="stats-grid">
@@ -2100,7 +2115,8 @@
                     actionBar.classList.remove('visible');
                     volBtns.style.display = 'none';
                     slaBtns.style.display = 'none';
-
+                    var fh = document.getElementById('fixed-table-header');
+                    if (fh) fh.classList.remove('active');
                 }
             }
 
@@ -2109,7 +2125,6 @@
             if (activeViewElement) {
                 activeViewElement.style.display = 'block';
                 activeViewElement.classList.remove('hidden');
-                updateStickyHeaderTop();
             }
 
             // Ensure main content is visible
@@ -2557,7 +2572,7 @@
             label.style.color = 'white';
 
             // Update sticky height karena wrapper bisa jadi lebih tinggi
-            updateStickyHeaderTop();
+            setTimeout(applyFixedHeader, 80);
         }
 
         function updateStatistics(stats) {
@@ -3106,24 +3121,29 @@
                     // Find the #sla-view container and update only the table content
                     const slaViewEl = document.getElementById('sla-view');
                     if (slaViewEl) {
-                        const tableElement = slaViewEl.querySelector('.data-table');
-                        if (tableElement) {
-                            tableElement.outerHTML = tableHTML;
+                        const wrapperEl = slaViewEl.querySelector('.table-scroll-wrapper');
+                        if (wrapperEl) {
+                            wrapperEl.outerHTML = tableHTML;
                         } else {
-                            slaViewEl.innerHTML = `
-                                <h2 style="margin-bottom: 20px; color: #333; display: flex; align-items: center; gap: 10px;">
-                                    📊 Database SLA Waktu
-                                    <span style="font-size: 14px; font-weight: normal; background: #e0e7ff; color: #1e3c72; padding: 4px 12px; border-radius: 20px;">
-                                        Total: ${finalData.length} Rute
-                                    </span>
-                                </h2>
-                                ${tableHTML}
-                            `;
+                            const tableElement = slaViewEl.querySelector('.data-table');
+                            if (tableElement) {
+                                tableElement.outerHTML = tableHTML;
+                            } else {
+                                slaViewEl.innerHTML = `
+                                    <h2 style="margin-bottom: 20px; color: #333; display: flex; align-items: center; gap: 10px;">
+                                        📊 Database SLA Waktu
+                                        <span style="font-size: 14px; font-weight: normal; background: #e0e7ff; color: #1e3c72; padding: 4px 12px; border-radius: 20px;">
+                                            Total: ${finalData.length} Rute
+                                        </span>
+                                    </h2>
+                                    ${tableHTML}
+                                `;
+                            }
                         }
                     }
 
                     // Recalculate sticky positions after SLA table renders
-                    updateStickyHeaderTop();
+                    setTimeout(applyFixedHeader, 80);
 
                     // Update period label
                     const currentWeekKeySLA = document.getElementById('weekFilter').value;
@@ -3279,12 +3299,14 @@
             });
 
             return `
+                <div class="table-scroll-wrapper">
                 <table class="data-table">
                     <thead>
                         ${headerHTML}
                     </thead>
                     <tbody>${rowsHTML}</tbody>
                 </table>
+                </div>
             `;
         }
 
@@ -3332,16 +3354,31 @@
                         const volumeView = document.getElementById('volume-view');
                         if (!volumeView) return;
 
-                        const tableElement = volumeView.querySelector('.data-table');
-                        if (tableElement) {
-                            tableElement.outerHTML = tableHTML;
+                        // Cari wrapper dulu, kalau tidak ada cari tabel langsung
+                        const wrapperEl = volumeView.querySelector('.table-scroll-wrapper');
+                        if (wrapperEl) {
+                            wrapperEl.outerHTML = tableHTML;
                         } else {
-                            volumeView.insertAdjacentHTML('beforeend', tableHTML);
+                            const tableElement = volumeView.querySelector('.data-table');
+                            if (tableElement) {
+                                tableElement.outerHTML = tableHTML;
+                            } else {
+                                volumeView.insertAdjacentHTML('beforeend', tableHTML);
+                            }
                         }
                         // Recalculate sticky positions after table renders
-
-                        // Update fixed header setelah tabel render
-                        updateStickyHeaderTop();
+                        // Update totals di action bar
+                        var totalsBar = document.getElementById('volume-totals-bar');
+                        if (totalsBar && data && data.length > 0) {
+                            var tp = data.reduce(function(s,r){return s+(parseFloat(r.postal)||0);},0);
+                            var tpl = data.reduce(function(s,r){return s+(parseFloat(r.nonPostal)||0);},0);
+                            totalsBar.innerHTML = '<span style="color:#FF8C42;">' + tp.toLocaleString('id-ID') + '</span>&nbsp;|&nbsp;<span style="color:#008080;">' + tpl.toLocaleString('id-ID') + '</span>';
+                        }
+                        requestAnimationFrame(function(){
+                            requestAnimationFrame(function(){
+                                updateStickyHeaderTop();
+                            });
+                        });
 
                         // Activate inline editing
                         document.getElementById('volume-view').querySelectorAll('[data-editable="true"]').forEach(td => {
@@ -3664,9 +3701,23 @@
             const totalPostal = volumeData.reduce((sum, r) => sum + (parseFloat(r.postal) || 0), 0);
             const totalPoslog = volumeData.reduce((sum, r) => sum + (parseFloat(r.nonPostal) || 0), 0);
 
+            const colsBefore = isAdmin() ? 4 : 3; // No + (checkbox) + Tanggal + Nama Rute
+            const colsAfter = isAdmin() ? 6 : 5;  // Unit + Kap/minggu + Kap/hari + Sisa/minggu + Sisa/hari + (Aksi jika admin)
+
             return `
+                <div class="table-scroll-wrapper">
                 <table class="data-table">
                     <thead>
+                        <tr class="action-header">
+                            <th colspan="${colsBefore}" style="background:white; border:none;"></th>
+                            <th style="background:#fff8f0; color:#FF8C42; font-weight:800; font-size:13px; text-align:center; border-bottom:2px solid #FF8C42; white-space:nowrap;">
+                                ${totalPostal.toLocaleString('id-ID')} kg
+                            </th>
+                            <th style="background:#f0fafa; color:#008080; font-weight:800; font-size:13px; text-align:center; border-bottom:2px solid #008080; white-space:nowrap;">
+                                ${totalPoslog.toLocaleString('id-ID')} kg
+                            </th>
+                            <th colspan="${colsAfter}" style="background:white; border:none;"></th>
+                        </tr>
                         <tr class="main-header">
                             <th style="width: 50px;">No</th>
                             ${isAdmin() ? '<th style="width: 40px;"><input type="checkbox" id="selectAllVolume" onchange="toggleAllVolume()"></th>' : ''}
@@ -3773,30 +3824,43 @@
         // Initialize with current month date range
         function getStickyHeight() {
             var wrapper = document.querySelector('.sticky-header-wrapper');
-            return wrapper ? Math.ceil(wrapper.getBoundingClientRect().height) : 170;
+            return wrapper ? Math.ceil(wrapper.getBoundingClientRect().height) : 0;
         }
 
-        function getStickyHeight() {
+        function getStickyH() {
+            // Ukur sticky-header-wrapper + table-action-bar (jika visible)
             var wrapper = document.querySelector('.sticky-header-wrapper');
-            return wrapper ? Math.ceil(wrapper.getBoundingClientRect().height) : 170;
+            var actionBar = document.getElementById('table-action-bar');
+            if (!wrapper) return 0;
+            var h = wrapper.getBoundingClientRect().bottom;
+            if (actionBar && actionBar.classList.contains('visible')) {
+                h = actionBar.getBoundingClientRect().bottom;
+            }
+            return Math.ceil(h);
         }
 
-        function updateStickyHeaderTop() {
-            var h = getStickyHeight();
+        function applyFixedHeader() {
+            // Gunakan CSS variable --sticky-top agar thead sticky bekerja dengan benar
+            var h = getStickyH();
             document.documentElement.style.setProperty('--sticky-top', h + 'px');
         }
 
-        window.addEventListener('resize', updateStickyHeaderTop);
+        function updateStickyHeaderTop() { applyFixedHeader(); }
+
+        window.addEventListener('scroll', applyFixedHeader, {passive:true});
+        window.addEventListener('resize', applyFixedHeader);
         if (window.ResizeObserver) {
-            var _stickyObs = new ResizeObserver(updateStickyHeaderTop);
+            var _ro = new ResizeObserver(applyFixedHeader);
             window.addEventListener('DOMContentLoaded', function() {
                 var w = document.querySelector('.sticky-header-wrapper');
-                if (w) _stickyObs.observe(w);
+                if (w) _ro.observe(w);
+                var ab = document.getElementById('table-action-bar');
+                if (ab) _ro.observe(ab);
             });
         }
 
         window.onload = async function () {
-            // Fixed header akan diupdate setelah data render
+            // applyFixedHeader dipanggil setelah data render
             // Initialize filter states for each view
             initDefaultDates();
 
@@ -3835,7 +3899,7 @@
 
                     // Show dashboard
                     await showView('dashboard');
-                    updateStickyHeaderTop();
+                    setTimeout(applyFixedHeader, 80);
                 } catch (error) {
                     console.error('Error parsing saved user:', error);
                     sessionStorage.removeItem('currentUser');
