@@ -1283,7 +1283,6 @@
                 <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadVolume(currentMenu)">📤 Upload Volume</button>
                 <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedVolume()">🗑️ Hapus Terpilih</button>
                 <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadVolumeExcel()">Excel 📊</button>
-                <span id="volume-totals-bar" style="margin-left:16px; font-weight:800; font-size:15px;"></span>
             </div>
             <div id="sla-action-btns" style="display:none; gap:10px; align-items:center; flex-wrap:wrap;">
                 <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadSLA(currentMenu)">📤 Upload SLA</button>
@@ -3703,10 +3702,25 @@
             const totalPostal = volumeData.reduce((sum, r) => sum + (parseFloat(r.postal) || 0), 0);
             const totalPoslog = volumeData.reduce((sum, r) => sum + (parseFloat(r.nonPostal) || 0), 0);
 
+            // Hitung colspan: kolom sebelum Postal = No + (checkbox) + Tanggal + Nama Rute
+            const colsBefore = isAdmin() ? 4 : 3;
+            // Kolom setelah Poslog = Unit + Kap/minggu + Kap/hari + Sisa/minggu + Sisa/hari + (Aksi)
+            const colsAfter = isAdmin() ? 6 : 5;
+
             return `
                 <div class="table-scroll-wrapper">
                 <table class="data-table">
                     <thead>
+                        <tr class="action-header">
+                            <th colspan="${colsBefore}" style="background:white; border:none; padding:4px;"></th>
+                            <th style="background:#fff8f0; color:#FF8C42; font-weight:800; font-size:13px; text-align:center; border-bottom:2px solid #FF8C42; white-space:nowrap; padding:6px 14px;">
+                                ${totalPostal.toLocaleString('id-ID')} kg
+                            </th>
+                            <th style="background:#f0fafa; color:#008080; font-weight:800; font-size:13px; text-align:center; border-bottom:2px solid #008080; white-space:nowrap; padding:6px 14px;">
+                                ${totalPoslog.toLocaleString('id-ID')} kg
+                            </th>
+                            <th colspan="${colsAfter}" style="background:white; border:none; padding:4px;"></th>
+                        </tr>
                         <tr class="main-header">
                             <th style="width: 50px;">No</th>
                             ${isAdmin() ? '<th style="width: 40px;"><input type="checkbox" id="selectAllVolume" onchange="toggleAllVolume()"></th>' : ''}
