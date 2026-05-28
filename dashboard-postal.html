@@ -873,24 +873,23 @@
             display: flex;
         }
 
-        /* thead asli jadi placeholder (invisible) setelah fixed header aktif */
+        /* thead asli tetap visible - sticky terhadap page */
         .data-table thead.original-thead {
-            visibility: hidden;
+            visibility: visible;
         }
 
-        /* Fixed header yang nempel di bawah sticky wrapper */
+        /* Fixed header clone - muncul saat scroll */
         #fixed-table-header {
             display: none;
             position: fixed;
             left: 0;
             right: 0;
             z-index: 500;
-            background: #e9ecef;
+            background: white;
             overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
         }
         #fixed-table-header table {
-            width: 100%;
             border-collapse: collapse;
             table-layout: fixed;
         }
@@ -2145,7 +2144,7 @@
             if (activeViewElement) {
                 activeViewElement.style.display = 'block';
                 activeViewElement.classList.remove('hidden');
-                setTimeout(updateFixedHeader, 300);
+                setTimeout(buildFixedHeader, 100);
             }
 
             // Ensure main content is visible
@@ -2593,7 +2592,7 @@
             label.style.color = 'white';
 
             // Update sticky height karena wrapper bisa jadi lebih tinggi
-            setTimeout(updateFixedHeader, 50);
+            setTimeout(buildFixedHeader, 100);
         }
 
         function updateStatistics(stats) {
@@ -3164,7 +3163,7 @@
                     }
 
                     // Recalculate sticky positions after SLA table renders
-                    setTimeout(updateFixedHeader, 50);
+                    setTimeout(buildFixedHeader, 100);
 
                     // Update period label
                     const currentWeekKeySLA = document.getElementById('weekFilter').value;
@@ -3400,7 +3399,7 @@
                             if (totDiv) totDiv.style.display = 'block';
                         }
                         // Update fixed header setelah tabel render
-                        setTimeout(updateFixedHeader, 50);
+                        setTimeout(buildFixedHeader, 100);
 
                         // Activate inline editing
                         document.getElementById('volume-view').querySelectorAll('[data-editable="true"]').forEach(td => {
@@ -3836,72 +3835,98 @@
             return wrapper ? Math.ceil(wrapper.getBoundingClientRect().height) : 170;
         }
 
-        function updateFixedHeader() {
-            var fh = document.getElementById('fixed-table-header');
-            var fth = document.getElementById('fixed-header-thead');
-            if (!fh || !fth) return;
+        // Simpan referensi tabel aktif
+        var _activeDataTable = null;
 
-            // Cari tabel aktif - cukup cek display style saja
-            var activeTable = null;
+        function getActiveTable() {
             var views = ['volume-view', 'sla-view'];
             for (var i = 0; i < views.length; i++) {
                 var el = document.getElementById(views[i]);
                 if (el && el.style.display !== 'none' && !el.classList.contains('hidden')) {
                     var tbl = el.querySelector('.data-table');
-                    if (tbl) { activeTable = tbl; break; }
+                    if (tbl) return tbl;
                 }
             }
+            return null;
+        }
 
-            if (!activeTable) { fh.classList.remove('active'); return; }
+        function buildFixedHeader() {
+            var fh = document.getElementById('fixed-table-header');
+            var fth = document.getElementById('fixed-header-thead');
+            if (!fh || !fth) return;
 
-            var origThead = activeTable.querySelector('thead');
+            _activeDataTable = getActiveTable();
+            if (!_activeDataTable) { fh.classList.remove('active'); return; }
+
+            var origThead = _activeDataTable.querySelector('thead');
             if (!origThead) { fh.classList.remove('active'); return; }
 
-            // Clone thead
+            // Clone thead ke fixed header
             fth.innerHTML = origThead.innerHTML;
 
             // Posisi tepat di bawah sticky wrapper
             var h = getStickyHeight();
             fh.style.top = h + 'px';
+            fh.style.display = 'none'; // mulai hidden, scroll akan show
 
-            // Lebar & posisi horizontal ikut tabel
-            var rect = activeTable.getBoundingClientRect();
+            var rect = _activeDataTable.getBoundingClientRect();
             fh.style.left = rect.left + 'px';
             fh.style.width = rect.width + 'px';
 
             // Samakan lebar tiap kolom
             var origCols = origThead.querySelectorAll('th');
             var fixedCols = fth.querySelectorAll('th');
-            origCols.forEach(function(th, idx) {
-                if (fixedCols[idx]) {
+            origCols.forEach(function(th, i) {
+                if (fixedCols[i]) {
                     var w = th.getBoundingClientRect().width;
-                    fixedCols[idx].style.width = w + 'px';
-                    fixedCols[idx].style.minWidth = w + 'px';
+                    fixedCols[i].style.width = w + 'px';
+                    fixedCols[i].style.minWidth = w + 'px';
                 }
             });
 
-            // Thead asli invisible sebagai spacer
-            origThead.classList.add('original-thead');
             fh.classList.add('active');
+            // Cek langsung apakah perlu tampil
+            checkFixedHeaderVisibility();
         }
 
-        function updateStickyHeaderTop() { updateFixedHeader(); }
-
-        document.addEventListener('scroll', function() {
+        function checkFixedHeaderVisibility() {
             var fh = document.getElementById('fixed-table-header');
             if (!fh || !fh.classList.contains('active')) return;
-            var activeTable = document.querySelector('#volume-view .data-table, #sla-view .data-table');
-            if (activeTable) {
-                var rect = activeTable.getBoundingClientRect();
+            if (!_activeDataTable) return;
+
+            var origThead = _activeDataTable.querySelector('thead');
+            if (!origThead) return;
+
+            var theadRect = origThead.getBoundingClientRect();
+            var stickyH = getStickyHeight();
+
+            // Tampil jika thead asli sudah naik ke atas (tidak terlihat lagi)
+            if (theadRect.bottom <= stickyH + 2) {
+                fh.style.display = 'block';
+            } else {
+                fh.style.display = 'none';
+            }
+        }
+
+        function updateFixedHeader() { buildFixedHeader(); }
+        function updateStickyHeaderTop() { buildFixedHeader(); }
+
+        // Scroll event: show/hide fixed header + update posisi horizontal
+        document.addEventListener('scroll', function() {
+            checkFixedHeaderVisibility();
+            var fh = document.getElementById('fixed-table-header');
+            if (!fh || fh.style.display === 'none') return;
+            if (_activeDataTable) {
+                var rect = _activeDataTable.getBoundingClientRect();
                 fh.style.left = rect.left + 'px';
                 fh.style.width = rect.width + 'px';
             }
         }, {passive: true});
 
-        window.addEventListener('resize', function() { updateFixedHeader(); });
+        window.addEventListener('resize', function() { buildFixedHeader(); });
 
         if (window.ResizeObserver) {
-            var _stickyObs = new ResizeObserver(function() { updateFixedHeader(); });
+            var _stickyObs = new ResizeObserver(function() { buildFixedHeader(); });
             window.addEventListener('DOMContentLoaded', function() {
                 var w = document.querySelector('.sticky-header-wrapper');
                 if (w) _stickyObs.observe(w);
@@ -3948,7 +3973,7 @@
 
                     // Show dashboard
                     await showView('dashboard');
-                    setTimeout(updateFixedHeader, 50);
+                    setTimeout(buildFixedHeader, 100);
                 } catch (error) {
                     console.error('Error parsing saved user:', error);
                     sessionStorage.removeItem('currentUser');
