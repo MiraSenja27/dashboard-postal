@@ -1138,6 +1138,7 @@
             -webkit-overflow-scrolling: touch;
             width: 100%;
             max-height: calc(100vh - var(--sticky-top, 170px) - 20px);
+            min-height: 200px;
         }
 
         /* Sticky thead — header tidak bergerak saat scroll vertikal di dalam wrapper */
@@ -4711,35 +4712,52 @@
                 alert('Pilih setidaknya satu data Volume untuk dihapus.');
                 return;
             }
-            
-            if (!confirm(`⚠️ Apakah Anda yakin ingin menghapus ${checkboxes.length} data Volume yang terpilih?`)) {
+
+            // Ambil filter aktif untuk scope hapus
+            const activeWeekKey   = document.getElementById('weekFilter')?.value || '';
+            const activeStartDate = document.getElementById('startDate')?.value || '';
+            const activeEndDate   = document.getElementById('endDate')?.value || '';
+
+            let scopeText = 'SEMUA minggu';
+            if (activeWeekKey && activeWeekKey !== 'ALL' && activeWeekKey !== '') {
+                const opt = document.getElementById('weekFilter').selectedOptions[0];
+                scopeText = `minggu: ${opt ? opt.textContent : activeWeekKey}`;
+            } else if (activeStartDate && activeEndDate) {
+                scopeText = `tanggal ${activeStartDate} s/d ${activeEndDate}`;
+            }
+
+            if (!confirm(`⚠️ Hapus ${checkboxes.length} data Volume yang terpilih?\nScope: ${scopeText}\n\nData di minggu/tanggal lain TIDAK akan terhapus.`)) {
                 return;
             }
-            
+
             const routeNames = Array.from(checkboxes).map(cb => cb.value);
-            
+
+            const payload = { routeNames, category: currentMenu };
+            if (activeWeekKey && activeWeekKey !== 'ALL' && activeWeekKey !== '') {
+                payload.weekKey = activeWeekKey;
+            } else if (activeStartDate) {
+                payload.startDate = activeStartDate;
+                if (activeEndDate) payload.endDate = activeEndDate;
+            }
+
             try {
                 const response = await fetch(`${API_URL}/volume`, {
                     method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ routeNames: routeNames, category: currentMenu })
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
                 });
-                
+
                 const result = await response.json();
                 if (result.success) {
-                    if (typeof showToast === 'function') showToast(`${routeNames.length} rute Volume berhasil dihapus!`, 'success');
-                    else alert(`✅ ${routeNames.length} rute Volume berhasil dihapus!`);
+                    if (typeof showToast === 'function') showToast(`Data Volume berhasil dihapus!`, 'success');
+                    else alert(`✅ Data Volume berhasil dihapus!`);
                     loadVolumeData();
-                    // Juga refresh dashboard bila di view yang sama
                     loadDashboardData();
                 } else {
                     alert(`❌ Error: ${result.message}`);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                // alert removed for silent workflow
             }
         }
 
