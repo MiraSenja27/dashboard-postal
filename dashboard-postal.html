@@ -3057,6 +3057,9 @@
             <div class="route-card">
                 <div class="route-header">
                     <div class="route-name">${outbound.route_name}</div>
+                    <div class="total-unit-display" style="display:${slaVisible ? 'flex' : 'none'}; gap:8px; align-items:center;">
+                        ${outbound.totalUnits ? outbound.totalUnits.map(tu => `<span style="background:#f0f0f0; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">${tu.jumlah} ${tu.jenis}</span>`).join('') : ''}
+                    </div>
                     ${slaStatusBadge}
                 </div>
                 
@@ -4536,7 +4539,12 @@
                 html += `
                 <div class="route-section">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 15px;">
-                        <h4 style="color: #1e3c72; margin: 0; font-size: 18px; font-weight: 800;">Arah: (${arahLabel1})</h4>
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <h4 style="color: #1e3c72; margin: 0; font-size: 18px; font-weight: 800;">Arah: (${arahLabel1})</h4>
+                            <div class="total-unit-display-arah" style="display:${slaVisible ? 'none' : 'flex'}; gap:8px; align-items:center;">
+                                ${route1.totalUnits ? route1.totalUnits.map(tu => `<span style="background:#f0f0f0; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">${tu.jumlah} ${tu.jenis}</span>`).join('') : ''}
+                            </div>
+                        </div>
                         <div style="display: flex; align-items: center; gap: 15px; font-size: 14px; color: #475569; font-weight: 600;">
                             <div style="background: #e0f2fe; border: 1px solid #bae6fd; padding: 4px 10px; border-radius: 8px;">Unit: <span style="color:#0369a1; font-weight:800; font-size: 15px; margin-left: 4px;">${route1.unitInfo || '-'}</span></div>
                             <div style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 8px;">Kap/Mgg: <span style="color:#0f172a; font-weight:800; font-size: 15px; margin-left: 4px;">${(route1.baseKapasitas || 0).toLocaleString()} kg</span></div>
@@ -4618,7 +4626,12 @@
                     html += `
                     <div class="route-section">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 15px;">
-                            <h4 style="color: #1e3c72; margin: 0; font-size: 18px; font-weight: 800;">Arah: (${arahLabel2})</h4>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <h4 style="color: #1e3c72; margin: 0; font-size: 18px; font-weight: 800;">Arah: (${arahLabel2})</h4>
+                                <div class="total-unit-display-arah" style="display:${slaVisible ? 'none' : 'flex'}; gap:8px; align-items:center;">
+                                    ${route2.totalUnits ? route2.totalUnits.map(tu => `<span style="background:#f0f0f0; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">${tu.jumlah} ${tu.jenis}</span>`).join('') : ''}
+                                </div>
+                            </div>
                             <div style="display: flex; align-items: center; gap: 15px; font-size: 14px; color: #475569; font-weight: 600;">
                                 <div style="background: #e0f2fe; border: 1px solid #bae6fd; padding: 4px 10px; border-radius: 8px;">Unit: <span style="color:#0369a1; font-weight:800; font-size: 15px; margin-left: 4px;">${route2.unitInfo || '-'}</span></div>
                                 <div style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 8px;">Kap/Mgg: <span style="color:#0f172a; font-weight:800; font-size: 15px; margin-left: 4px;">${(route2.baseKapasitas || 0).toLocaleString()} kg</span></div>
