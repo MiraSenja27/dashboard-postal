@@ -4883,10 +4883,23 @@
                 <h2 style="color:#1e3c72; font-size:20px;">⚙️ Pengaturan Rute & Kapasitas</h2>
                 <button onclick="closeRouteSettings()" style="background:none; border:none; font-size:24px; cursor:pointer; color:#999;">✕</button>
             </div>
-            
-            <p style="margin-bottom: 20px; color: #666; font-size: 14px;">
-                Atur jenis armada (Unit) dan kapasitas (Mingguan) untuk setiap rute. Kapasitas ini akan digunakan sebagai dasar perhitungan bar persentase pada tampilan utama.
+
+            <p style="margin-bottom: 16px; color: #666; font-size: 14px;">
+                Atur jenis armada (Unit) dan kapasitas mingguan untuk setiap rute. Gunakan filter untuk menentukan scope data yang akan diterapkan.
             </p>
+
+            <!-- Filter scope -->
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:14px 18px; margin-bottom:18px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                <span style="font-weight:700; color:#1e3c72; font-size:13px; white-space:nowrap;">🎯 Terapkan ke:</span>
+                <select id="settingsWeekFilter" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; height:34px; min-width:180px;">
+                    <option value="ALL">📅 SEMUA MINGGU</option>
+                </select>
+                <span style="color:#64748b; font-size:13px;">atau range tanggal:</span>
+                <input type="date" id="settingsStartDate" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; height:34px;">
+                <span style="color:#64748b; font-size:13px;">s/d</span>
+                <input type="date" id="settingsEndDate" style="padding:6px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:13px; height:34px;">
+                <button onclick="clearSettingsDateFilter()" style="padding:6px 12px; background:#64748b; color:white; border:none; border-radius:8px; cursor:pointer; font-size:12px; height:34px;">Reset</button>
+            </div>
 
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
                 <thead>
@@ -4894,7 +4907,7 @@
                         <th style="padding: 12px; text-align: left; width: 50px;">No</th>
                         <th style="padding: 12px; text-align: left;">Nama Rute</th>
                         <th style="padding: 12px; text-align: left; width: 250px;">Unit Kendaraan (CDE, CDD, dll)</th>
-                        <th style="padding: 12px; text-align: left; width: 200px;">Kapasitas (Kg)</th>
+                        <th style="padding: 12px; text-align: left; width: 200px;">Kapasitas/Minggu (Kg)</th>
                     </tr>
                 </thead>
                 <tbody id="routeSettingsBody">
@@ -4904,8 +4917,8 @@
 
             <div style="display:flex; gap:10px; justify-content:flex-end; position: sticky; bottom: -10px; background: white; padding-top: 15px; border-top: 1px solid #eee;">
                 <button onclick="closeRouteSettings()" style="padding:10px 20px; border:1px solid #ddd; background:white; border-radius:8px; cursor:pointer; font-size:14px;">Batal</button>
-                <button id="btnSaveRouteSettings" onclick="saveRouteSettings()" style="padding:10px 24px; background:linear-gradient(135deg,#1e3c72,#2a5298); color:white; border:none; border-radius:8px; cursor:pointer; font-size:14px; font-weight:700;">
-                    <span id="saveSettingsText">💾 Simpan Semua</span>
+                <button id="btnApplyRouteSettings" onclick="applyRouteSettings()" style="padding:10px 24px; background:linear-gradient(135deg,#FF8C42,#e67e22); color:white; border:none; border-radius:8px; cursor:pointer; font-size:14px; font-weight:700;">
+                    <span id="applySettingsText">🔄 Terapkan ke Data</span>
                 </button>
             </div>
         </div>
@@ -5485,16 +5498,29 @@
             const tbody = document.getElementById('routeSettingsBody');
             tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px;">⏳ Memuat data rute...</td></tr>';
             modal.style.display = 'flex';
-            
+
+            // Populate week dropdown dari weekFilter utama
+            const settingsWeekFilter = document.getElementById('settingsWeekFilter');
+            const mainWeekFilter = document.getElementById('weekFilter');
+            if (settingsWeekFilter && mainWeekFilter) {
+                settingsWeekFilter.innerHTML = '<option value="ALL">📅 SEMUA MINGGU</option>';
+                Array.from(mainWeekFilter.options).forEach(opt => {
+                    if (opt.value && opt.value !== 'ALL' && opt.value !== '') {
+                        const o = document.createElement('option');
+                        o.value = opt.value;
+                        o.textContent = opt.textContent;
+                        settingsWeekFilter.appendChild(o);
+                    }
+                });
+            }
+
             try {
-                // Ambil daftar rute unik (tanpa filter tanggal untuk mendapatkan master rute)
                 const response = await fetch(`${API_URL}/routes?category=${currentMenu}&weekKey=ALL`);
                 const result = await response.json();
-                
+
                 if (result.success && result.data) {
                     tbody.innerHTML = '';
-                    
-                    // Sort rute sesuai order
+
                     const sortedRoutes = sortRoutesByOrder(result.data.map(r => ({
                         name: r.route_name,
                         baseKapasitas: r.base_kapasitas || 0,
@@ -5508,20 +5534,13 @@
 
                     sortedRoutes.forEach((route, index) => {
                         const tr = document.createElement('tr');
-                        
-                        // Parse existing units (could be array or set depending on how it's returned)
                         let unitValue = '';
                         if (Array.isArray(route.unitInfo)) {
                             unitValue = route.unitInfo.join(', ');
                         } else if (typeof route.unitInfo === 'string' && route.unitInfo !== '-') {
                             unitValue = route.unitInfo;
                         }
-
-                        // Input kapasitas mingguan (baseKapasitas di backend sudah dihitung harian saat dirender, tapi kita minta user masukkan mingguan)
-                        // Wait, /api/routes mengembalikan item.kapasitas sebagai harian di table, tapi routeMap[item.rute].base_kapasitas menyimpan max(item.kapasitas).
-                        // Dan item.kapasitas di DB itu adalah kapasitas MINGGUAN!
                         const kapasitasMingguan = route.baseKapasitas;
-
                         tr.innerHTML = `
                             <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: center;">${index + 1}</td>
                             <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: 500;">
@@ -5545,71 +5564,98 @@
             }
         }
 
+        function clearSettingsDateFilter() {
+            const sw = document.getElementById('settingsWeekFilter');
+            const sd = document.getElementById('settingsStartDate');
+            const se = document.getElementById('settingsEndDate');
+            if (sw) sw.value = 'ALL';
+            if (sd) sd.value = '';
+            if (se) se.value = '';
+        }
+
         function closeRouteSettings() {
             document.getElementById('routeSettingsModal').style.display = 'none';
         }
 
-        async function saveRouteSettings() {
+        async function applyRouteSettings() {
             const tbody = document.getElementById('routeSettingsBody');
             const rows = tbody.querySelectorAll('tr');
-            
             if (rows.length === 0 || tbody.innerHTML.includes('Memuat')) return;
-            
-            const btnText = document.getElementById('saveSettingsText');
-            btnText.textContent = '⏳ Menyimpan...';
-            
+
+            const weekKey    = document.getElementById('settingsWeekFilter')?.value || 'ALL';
+            const startDate  = document.getElementById('settingsStartDate')?.value || '';
+            const endDate    = document.getElementById('settingsEndDate')?.value || '';
+
+            // Konfirmasi scope
+            let scopeText = 'SEMUA data';
+            if (weekKey && weekKey !== 'ALL') {
+                const opt = document.getElementById('settingsWeekFilter').selectedOptions[0];
+                scopeText = `minggu: ${opt ? opt.textContent : weekKey}`;
+            } else if (startDate && endDate) {
+                scopeText = `tanggal ${startDate} s/d ${endDate}`;
+            } else if (startDate) {
+                scopeText = `tanggal mulai ${startDate}`;
+            } else if (endDate) {
+                scopeText = `tanggal sampai ${endDate}`;
+            }
+
+            if (!confirm(`Terapkan Unit & Kapasitas/Minggu ke ${scopeText}?\n\nData Postal dan Poslog tidak akan berubah.`)) return;
+
+            const btnText = document.getElementById('applySettingsText');
+            btnText.textContent = '⏳ Menerapkan...';
+
             const settings = [];
             rows.forEach(tr => {
-                const nameInput = tr.querySelector('.setting-route-name');
-                const unitInput = tr.querySelector('.setting-unit');
+                const nameInput     = tr.querySelector('.setting-route-name');
+                const unitInput     = tr.querySelector('.setting-unit');
                 const kapasitasInput = tr.querySelector('.setting-kapasitas');
-                
                 if (nameInput && unitInput && kapasitasInput) {
-                    const ruteName = nameInput.value;
-                    const unitStr = unitInput.value.trim();
-                    const kapasitasVal = kapasitasInput.value.trim();
-                    
-                    // Split unit string by comma and clean up
-                    const unitArray = unitStr.split(',').map(s => s.trim()).filter(s => s !== '');
-                    
+                    const unitStr    = unitInput.value.trim();
+                    const unitArray  = unitStr.split(',').map(s => s.trim()).filter(s => s !== '');
                     settings.push({
-                        rute: ruteName,
-                        unit: unitArray.length > 0 ? unitArray : [],
-                        kapasitas: kapasitasVal !== '' ? parseFloat(kapasitasVal) : 0
+                        rute:      nameInput.value,
+                        unit:      unitArray.length > 0 ? unitArray : [],
+                        kapasitas: kapasitasInput.value !== '' ? parseFloat(kapasitasInput.value) : 0
                     });
                 }
             });
 
             if (settings.length === 0) {
-                alert('Tidak ada pengaturan yang disimpan.');
-                btnText.textContent = '💾 Simpan Semua';
+                alert('Tidak ada pengaturan yang ditemukan.');
+                btnText.textContent = '🔄 Terapkan ke Data';
                 return;
             }
 
             try {
+                const payload = { settings };
+                if (weekKey && weekKey !== 'ALL') payload.weekKey = weekKey;
+                if (startDate) payload.startDate = startDate;
+                if (endDate)   payload.endDate   = endDate;
+
                 const response = await fetch(`${API_URL}/routes/settings`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ settings })
+                    body: JSON.stringify(payload)
                 });
-
                 const result = await response.json();
                 if (result.success) {
-                    if (typeof showToast === 'function') showToast('Pengaturan rute berhasil disimpan ke semua data!', 'success');
-                    else alert('✅ Pengaturan rute berhasil disimpan ke semua data!');
+                    if (typeof showToast === 'function') showToast('Unit & Kapasitas berhasil diterapkan!', 'success');
+                    else alert('✅ Unit & Kapasitas berhasil diterapkan ke data!');
                     closeRouteSettings();
-                    // Refresh data
                     await loadVolumeData();
                     await loadDashboardData(document.getElementById('weekFilter').value !== 'ALL' ? document.getElementById('weekFilter').value : null);
                 } else {
-                    alert('❌ Gagal menyimpan pengaturan: ' + result.message);
+                    alert('❌ Gagal menerapkan: ' + result.message);
                 }
             } catch (error) {
                 alert('❌ Terjadi kesalahan: ' + error.message);
             } finally {
-                btnText.textContent = '💾 Simpan Semua';
+                btnText.textContent = '🔄 Terapkan ke Data';
             }
         }
+
+        // Alias untuk backward compatibility
+        async function saveRouteSettings() { await applyRouteSettings(); }
     </script>
 </body>
 </html>

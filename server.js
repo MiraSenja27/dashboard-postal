@@ -1137,10 +1137,10 @@ app.put("/api/volume", async (req, res) => {
   }
 });
 
-// Bulk update Kapasitas & Unit untuk rute
+// Bulk update Kapasitas & Unit untuk rute (dengan filter minggu/tanggal opsional)
 app.put("/api/routes/settings", async (req, res) => {
   try {
-    const { settings } = req.body;
+    const { settings, weekKey, startDate, endDate } = req.body;
     if (!settings || !Array.isArray(settings)) {
       return res.status(400).json({ success: false, message: "Invalid payload" });
     }
@@ -1156,15 +1156,27 @@ app.put("/api/routes/settings", async (req, res) => {
       if (unit !== undefined) {
         updatePayload.$set.unit = Array.isArray(unit) ? unit : (unit === '' ? [] : [unit]);
       }
-      
-      // Update semua row untuk rute ini
-      if (Object.keys(updatePayload.$set).length > 0) {
-        return VolumeData.updateMany({ rute }, updatePayload);
+
+      if (Object.keys(updatePayload.$set).length === 0) return;
+
+      // Build filter: rute + scope waktu
+      const filter = { rute };
+      if (weekKey && weekKey !== 'ALL') {
+        filter.weekKey = weekKey;
+      } else if (startDate && endDate) {
+        filter.tanggal = { $gte: startDate, $lte: endDate };
+      } else if (startDate) {
+        filter.tanggal = { $gte: startDate };
+      } else if (endDate) {
+        filter.tanggal = { $lte: endDate };
       }
+      // Jika weekKey === 'ALL' dan tidak ada tanggal → update semua record rute
+
+      return VolumeData.updateMany(filter, updatePayload);
     });
 
     await Promise.all(updatePromises);
-    res.json({ success: true, message: "Pengaturan rute berhasil disimpan." });
+    res.json({ success: true, message: "Pengaturan rute berhasil diterapkan." });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
