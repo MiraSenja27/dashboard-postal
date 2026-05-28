@@ -3385,8 +3385,8 @@
                             var tp = data.reduce(function(s,r){return s+(parseFloat(r.postal)||0);},0);
                             var tpl = data.reduce(function(s,r){return s+(parseFloat(r.nonPostal)||0);},0);
                             totalsBar.innerHTML =
-                                '<span id="total-postal-label" style="color:#FF8C42; display:inline-block; text-align:center;">' + tp.toLocaleString('id-ID') + '</span>' +
-                                '<span id="total-poslog-label" style="color:#008080; display:inline-block; text-align:center; margin-left:0;">' + tpl.toLocaleString('id-ID') + '</span>';
+                                '<span id="total-postal-label" style="color:#FF8C42; display:inline-block; text-align:center; font-size:16px; font-weight:900; letter-spacing:0.3px;">' + tp.toLocaleString('id-ID') + '</span>' +
+                                '<span id="total-poslog-label" style="color:#008080; display:inline-block; text-align:center; margin-left:0; font-size:16px; font-weight:900; letter-spacing:0.3px;">' + tpl.toLocaleString('id-ID') + '</span>';
                             // Posisikan setelah tabel render
                             requestAnimationFrame(function() {
                                 alignTotalsBar();
