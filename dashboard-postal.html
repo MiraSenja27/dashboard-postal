@@ -868,6 +868,7 @@
             gap: 10px;
             align-items: center;
             flex-wrap: wrap;
+            position: relative;
         }
         #table-action-bar.visible {
             display: flex;
@@ -1279,11 +1280,13 @@
 
         <!-- Action bar: tampil saat view volume atau SLA -->
         <div id="table-action-bar">
-            <div id="volume-action-btns" style="display:none; gap:10px; align-items:center; flex-wrap:wrap;">
-                <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadVolume(currentMenu)">📤 Upload Volume</button>
-                <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedVolume()">🗑️ Hapus Terpilih</button>
-                <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadVolumeExcel()">Excel 📊</button>
-                <span id="volume-totals-bar" style="margin-left:16px; font-weight:800; font-size:15px;"></span>
+            <div id="volume-action-btns" style="display:none; width:100%; align-items:center; flex-wrap:nowrap;">
+                <div style="display:flex; gap:10px; align-items:center; flex-shrink:0;">
+                    <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadVolume(currentMenu)">📤 Upload Volume</button>
+                    <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedVolume()">🗑️ Hapus Terpilih</button>
+                    <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadVolumeExcel()">Excel 📊</button>
+                </div>
+                <div id="volume-totals-bar" style="display:block; position:absolute; pointer-events:none; font-weight:800; font-size:13px; top:0; left:0; width:100%; height:100%;"></div>
             </div>
             <div id="sla-action-btns" style="display:none; gap:10px; align-items:center; flex-wrap:wrap;">
                 <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadSLA(currentMenu)">📤 Upload SLA</button>
@@ -3369,17 +3372,18 @@
                             }
                         }
                         // Recalculate sticky positions after table renders
-                        // Update totals di action bar
+                        // Update totals di action bar — posisikan tepat di atas kolom Postal & Poslog
                         var totalsBar = document.getElementById('volume-totals-bar');
                         if (totalsBar && data && data.length > 0) {
                             var tp = data.reduce(function(s,r){return s+(parseFloat(r.postal)||0);},0);
                             var tpl = data.reduce(function(s,r){return s+(parseFloat(r.nonPostal)||0);},0);
                             totalsBar.innerHTML =
-                                '<span style="color:#888; font-size:12px; font-weight:600;">POSTAL:</span> ' +
-                                '<span style="color:#FF8C42;">' + tp.toLocaleString('id-ID') + ' kg</span>' +
-                                '&nbsp;&nbsp;' +
-                                '<span style="color:#888; font-size:12px; font-weight:600;">POSLOG:</span> ' +
-                                '<span style="color:#008080;">' + tpl.toLocaleString('id-ID') + ' kg</span>';
+                                '<span id="total-postal-label" style="color:#FF8C42; display:inline-block; text-align:center;">' + tp.toLocaleString('id-ID') + '</span>' +
+                                '<span id="total-poslog-label" style="color:#008080; display:inline-block; text-align:center; margin-left:0;">' + tpl.toLocaleString('id-ID') + '</span>';
+                            // Posisikan setelah tabel render
+                            requestAnimationFrame(function() {
+                                alignTotalsBar();
+                            });
                         }
                         requestAnimationFrame(function(){
                             requestAnimationFrame(function(){
@@ -3833,6 +3837,43 @@
             return Math.ceil(h);
         }
 
+        function alignTotalsBar() {
+            var totalsBar = document.getElementById('volume-totals-bar');
+            var actionBar = document.getElementById('table-action-bar');
+            if (!totalsBar || !actionBar) return;
+
+            // Cari th kolom Postal dan Poslog di thead tabel
+            var ths = document.querySelectorAll('#volume-view .data-table thead tr.main-header th');
+            var postalTh = null, poslogTh = null;
+            ths.forEach(function(th) {
+                var txt = th.textContent.trim().toLowerCase();
+                if (txt.indexOf('postal') !== -1 && txt.indexOf('poslog') === -1) postalTh = th;
+                if (txt.indexOf('poslog') !== -1) poslogTh = th;
+            });
+            if (!postalTh || !poslogTh) return;
+
+            var postalRect = postalTh.getBoundingClientRect();
+            var poslogRect = poslogTh.getBoundingClientRect();
+            var barRect    = actionBar.getBoundingClientRect();
+
+            var spanPostal = document.getElementById('total-postal-label');
+            var spanPoslog = document.getElementById('total-poslog-label');
+            if (!spanPostal || !spanPoslog) return;
+
+            // Posisikan masing-masing span tepat di atas kolom terkait
+            spanPostal.style.position = 'absolute';
+            spanPostal.style.left     = (postalRect.left - barRect.left + postalRect.width / 2) + 'px';
+            spanPostal.style.transform = 'translateX(-50%)';
+            spanPostal.style.top      = '50%';
+            spanPostal.style.marginTop = '-0.5em';
+
+            spanPoslog.style.position = 'absolute';
+            spanPoslog.style.left     = (poslogRect.left - barRect.left + poslogRect.width / 2) + 'px';
+            spanPoslog.style.transform = 'translateX(-50%)';
+            spanPoslog.style.top      = '50%';
+            spanPoslog.style.marginTop = '-0.5em';
+        }
+
         function applyFixedHeader() {
             // Hitung tinggi sticky wrapper + action bar untuk max-height tabel
             var h = getStickyH();
@@ -3841,6 +3882,7 @@
             document.querySelectorAll('.table-scroll-wrapper').forEach(function(w) {
                 w.style.maxHeight = 'calc(100vh - ' + h + 'px - 20px)';
             });
+            alignTotalsBar();
         }
 
         function updateStickyHeaderTop() { applyFixedHeader(); }
