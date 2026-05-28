@@ -873,12 +873,29 @@
             display: flex;
         }
 
-        /* Sticky thead - hanya main-header (NO, TANGGAL, dll) */
-        .data-table thead {
-            position: sticky;
-            top: var(--sticky-top, 170px);
-            z-index: 100;
-            background: white;
+        /* thead asli jadi placeholder (invisible) setelah fixed header aktif */
+        .data-table thead.original-thead {
+            visibility: hidden;
+        }
+
+        /* Fixed header yang nempel di bawah sticky wrapper */
+        #fixed-table-header {
+            display: none;
+            position: fixed;
+            left: 0;
+            right: 0;
+            z-index: 500;
+            background: #e9ecef;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+        #fixed-table-header table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        #fixed-table-header.active {
+            display: block;
         }
 
         .data-table thead tr.action-header th {
@@ -1134,6 +1151,13 @@
 </head>
 
 <body>
+    <!-- Fixed table header -->
+    <div id="fixed-table-header">
+        <table id="fixed-header-table">
+            <thead id="fixed-header-thead"></thead>
+        </table>
+    </div>
+
     <!-- Login Page -->
     <div id="login-page" class="login-container">
         <div class="login-box">
@@ -2103,6 +2127,8 @@
                     actionBar.classList.remove('visible');
                     volBtns.style.display = 'none';
                     slaBtns.style.display = 'none';
+                    var fh2 = document.getElementById('fixed-table-header');
+                    if (fh2) fh2.classList.remove('active');
                 }
             }
 
@@ -2111,7 +2137,7 @@
             if (activeViewElement) {
                 activeViewElement.style.display = 'block';
                 activeViewElement.classList.remove('hidden');
-                setTimeout(updateStickyHeaderTop, 50);
+                setTimeout(updateFixedHeader, 150);
             }
 
             // Ensure main content is visible
@@ -2559,7 +2585,7 @@
             label.style.color = 'white';
 
             // Update sticky height karena wrapper bisa jadi lebih tinggi
-            requestAnimationFrame(updateStickyHeaderTop);
+            requestAnimationFrame(function(){ requestAnimationFrame(updateFixedHeader); });
         }
 
         function updateStatistics(stats) {
@@ -3130,7 +3156,7 @@
                     }
 
                     // Recalculate sticky positions after SLA table renders
-                    requestAnimationFrame(updateStickyHeaderTop);
+                    requestAnimationFrame(function(){ requestAnimationFrame(updateFixedHeader); });
 
                     // Update period label
                     const currentWeekKeySLA = document.getElementById('weekFilter').value;
@@ -3804,18 +3830,57 @@
             return wrapper ? Math.ceil(wrapper.getBoundingClientRect().height) : 170;
         }
 
-        function updateStickyHeaderTop() {
+        function updateFixedHeader() {
+            var fh = document.getElementById('fixed-table-header');
+            var fth = document.getElementById('fixed-header-thead');
+            if (!fh || !fth) return;
+
+            var activeTable = document.querySelector('#volume-view .data-table, #sla-view .data-table');
+            if (!activeTable) { fh.classList.remove('active'); return; }
+
+            var origThead = activeTable.querySelector('thead');
+            if (!origThead) { fh.classList.remove('active'); return; }
+
+            fth.innerHTML = origThead.innerHTML;
+
             var h = getStickyHeight();
-            document.documentElement.style.setProperty('--sticky-top', h + 'px');
-            document.querySelectorAll('.data-table thead').forEach(function(thead) {
-                thead.style.top = h + 'px';
+            fh.style.top = h + 'px';
+
+            var rect = activeTable.getBoundingClientRect();
+            fh.style.left = rect.left + 'px';
+            fh.style.width = rect.width + 'px';
+
+            var origCols = origThead.querySelectorAll('th');
+            var fixedCols = fth.querySelectorAll('th');
+            origCols.forEach(function(th, i) {
+                if (fixedCols[i]) {
+                    var w = th.getBoundingClientRect().width;
+                    fixedCols[i].style.width = w + 'px';
+                    fixedCols[i].style.minWidth = w + 'px';
+                }
             });
+
+            origThead.classList.add('original-thead');
+            fh.classList.add('active');
         }
 
-        window.addEventListener('resize', updateStickyHeaderTop);
+        function updateStickyHeaderTop() { updateFixedHeader(); }
+
+        document.addEventListener('scroll', function() {
+            var fh = document.getElementById('fixed-table-header');
+            if (!fh || !fh.classList.contains('active')) return;
+            var activeTable = document.querySelector('#volume-view .data-table, #sla-view .data-table');
+            if (activeTable) {
+                var rect = activeTable.getBoundingClientRect();
+                fh.style.left = rect.left + 'px';
+                fh.style.width = rect.width + 'px';
+            }
+        }, {passive: true});
+
+        window.addEventListener('resize', function() { updateFixedHeader(); });
 
         if (window.ResizeObserver) {
-            var _stickyObs = new ResizeObserver(function() { updateStickyHeaderTop(); });
+            var _stickyObs = new ResizeObserver(function() { updateFixedHeader(); });
             window.addEventListener('DOMContentLoaded', function() {
                 var w = document.querySelector('.sticky-header-wrapper');
                 if (w) _stickyObs.observe(w);
@@ -3823,7 +3888,7 @@
         }
 
         window.onload = async function () {
-            updateStickyHeaderTop(); // Calculate exact height on load
+            // Fixed header akan diupdate setelah data render
             // Initialize filter states for each view
             initDefaultDates();
 
@@ -3862,7 +3927,7 @@
 
                     // Show dashboard
                     await showView('dashboard');
-                    requestAnimationFrame(() => requestAnimationFrame(updateStickyHeaderTop));
+                    requestAnimationFrame(function(){ requestAnimationFrame(updateFixedHeader); });
                 } catch (error) {
                     console.error('Error parsing saved user:', error);
                     sessionStorage.removeItem('currentUser');
