@@ -3900,11 +3900,14 @@
             var theadRect = origThead.getBoundingClientRect();
             var stickyH = getStickyHeight();
 
-            // Tampil jika thead asli sudah naik ke atas (tidak terlihat lagi)
             if (theadRect.bottom <= stickyH + 2) {
+                // Thead asli sudah tidak kelihatan - tampilkan fixed clone
                 fh.style.display = 'block';
+                origThead.style.visibility = 'hidden'; // sembunyikan thead asli
             } else {
+                // Thead asli masih kelihatan - sembunyikan fixed clone
                 fh.style.display = 'none';
+                origThead.style.visibility = 'visible'; // tampilkan thead asli
             }
         }
 
