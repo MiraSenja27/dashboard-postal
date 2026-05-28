@@ -2145,7 +2145,7 @@
             if (activeViewElement) {
                 activeViewElement.style.display = 'block';
                 activeViewElement.classList.remove('hidden');
-                setTimeout(updateFixedHeader, 150);
+                setTimeout(updateFixedHeader, 300);
             }
 
             // Ensure main content is visible
@@ -2593,7 +2593,7 @@
             label.style.color = 'white';
 
             // Update sticky height karena wrapper bisa jadi lebih tinggi
-            requestAnimationFrame(function(){ requestAnimationFrame(updateFixedHeader); });
+            setTimeout(updateFixedHeader, 50);
         }
 
         function updateStatistics(stats) {
@@ -3164,7 +3164,7 @@
                     }
 
                     // Recalculate sticky positions after SLA table renders
-                    requestAnimationFrame(function(){ requestAnimationFrame(updateFixedHeader); });
+                    setTimeout(updateFixedHeader, 50);
 
                     // Update period label
                     const currentWeekKeySLA = document.getElementById('weekFilter').value;
@@ -3399,14 +3399,8 @@
                             if (tplEl) tplEl.textContent = 'POSLOG: ' + tpl.toLocaleString('id-ID') + ' kg';
                             if (totDiv) totDiv.style.display = 'block';
                         }
-                        requestAnimationFrame(function(){
-                            requestAnimationFrame(function(){
-                                updateStickyHeaderTop();
-                                // Langsung set inline juga untuk jaga-jaga
-                                var h = getStickyHeight();
-                                document.querySelectorAll('.data-table thead').forEach(function(t){ t.style.top = h+'px'; });
-                            });
-                        });
+                        // Update fixed header setelah tabel render
+                        setTimeout(updateFixedHeader, 50);
 
                         // Activate inline editing
                         document.getElementById('volume-view').querySelectorAll('[data-editable="true"]').forEach(td => {
@@ -3847,14 +3841,15 @@
             var fth = document.getElementById('fixed-header-thead');
             if (!fh || !fth) return;
 
-            // Cari tabel yang sedang tampil (volume atau sla)
-            var volumeView = document.getElementById('volume-view');
-            var slaView = document.getElementById('sla-view');
+            // Cari tabel aktif - cukup cek display style saja
             var activeTable = null;
-            if (volumeView && volumeView.style.display !== 'none' && volumeView.offsetParent !== null) {
-                activeTable = volumeView.querySelector('.data-table');
-            } else if (slaView && slaView.style.display !== 'none' && slaView.offsetParent !== null) {
-                activeTable = slaView.querySelector('.data-table');
+            var views = ['volume-view', 'sla-view'];
+            for (var i = 0; i < views.length; i++) {
+                var el = document.getElementById(views[i]);
+                if (el && el.style.display !== 'none' && !el.classList.contains('hidden')) {
+                    var tbl = el.querySelector('.data-table');
+                    if (tbl) { activeTable = tbl; break; }
+                }
             }
 
             if (!activeTable) { fh.classList.remove('active'); return; }
@@ -3862,32 +3857,30 @@
             var origThead = activeTable.querySelector('thead');
             if (!origThead) { fh.classList.remove('active'); return; }
 
-            // Clone thead ke fixed header
+            // Clone thead
             fth.innerHTML = origThead.innerHTML;
 
-            // Set posisi fixed header tepat di bawah sticky wrapper
+            // Posisi tepat di bawah sticky wrapper
             var h = getStickyHeight();
             fh.style.top = h + 'px';
 
-            // Sejajarkan dengan tabel asli
+            // Lebar & posisi horizontal ikut tabel
             var rect = activeTable.getBoundingClientRect();
             fh.style.left = rect.left + 'px';
-            fh.style.width = (rect.width + 1) + 'px';
+            fh.style.width = rect.width + 'px';
 
             // Samakan lebar tiap kolom
-            var origCols = Array.from(origThead.querySelectorAll('th'));
-            var fixedCols = Array.from(fth.querySelectorAll('th'));
-            origCols.forEach(function(th, i) {
-                if (fixedCols[i]) {
+            var origCols = origThead.querySelectorAll('th');
+            var fixedCols = fth.querySelectorAll('th');
+            origCols.forEach(function(th, idx) {
+                if (fixedCols[idx]) {
                     var w = th.getBoundingClientRect().width;
-                    fixedCols[i].style.width = w + 'px';
-                    fixedCols[i].style.minWidth = w + 'px';
-                    fixedCols[i].style.maxWidth = w + 'px';
-                    fixedCols[i].style.overflow = 'hidden';
+                    fixedCols[idx].style.width = w + 'px';
+                    fixedCols[idx].style.minWidth = w + 'px';
                 }
             });
 
-            // Thead asli jadi invisible placeholder (tetap ada untuk spacing)
+            // Thead asli invisible sebagai spacer
             origThead.classList.add('original-thead');
             fh.classList.add('active');
         }
@@ -3955,7 +3948,7 @@
 
                     // Show dashboard
                     await showView('dashboard');
-                    requestAnimationFrame(function(){ requestAnimationFrame(updateFixedHeader); });
+                    setTimeout(updateFixedHeader, 50);
                 } catch (error) {
                     console.error('Error parsing saved user:', error);
                     sessionStorage.removeItem('currentUser');
