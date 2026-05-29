@@ -4163,12 +4163,18 @@
                 if (result.success && result.data && result.data.length > 0) {
                     const rawData = result.data.map(record => ({
                         name: record.route_name,
+                        route_name: record.route_name,
                         postal: parseFloat(record.postal_volume || 0),
+                        postal_volume: parseFloat(record.postal_volume || 0),
                         nonPostal: parseFloat(record.non_postal_volume || 0),
+                        non_postal_volume: parseFloat(record.non_postal_volume || 0),
                         kapasitas: parseFloat(record.kapasitas || 0),
                         sisa: parseFloat(record.kapasitas || 0) - (parseFloat(record.postal_volume || 0) + parseFloat(record.non_postal_volume || 0)),
                         baseKapasitas: parseFloat(record.base_kapasitas || 0),
-                        unitInfo: record.units || '-'
+                        base_kapasitas: parseFloat(record.base_kapasitas || 0),
+                        unitInfo: record.units || '-',
+                        units: record.units || '-',
+                        totalUnits: record.totalUnits || []
                     }));
 
                     routesData = sortRoutesByOrder(rawData);
@@ -5702,11 +5708,15 @@
                 return;
             }
 
+            console.log("📤 Sending settings to backend:", { settings, weekKey, startDate, endDate });
+
             try {
                 const payload = { settings };
                 if (weekKey && weekKey !== 'ALL') payload.weekKey = weekKey;
                 if (startDate) payload.startDate = startDate;
                 if (endDate)   payload.endDate   = endDate;
+
+                console.log("📤 Full payload:", JSON.stringify(payload, null, 2));
 
                 const response = await fetch(`${API_URL}/routes/settings`, {
                     method: 'PUT',
@@ -5714,6 +5724,8 @@
                     body: JSON.stringify(payload)
                 });
                 const result = await response.json();
+                console.log("📥 Backend response:", result);
+                
                 if (result.success) {
                     if (typeof showToast === 'function') showToast('Unit & Kapasitas berhasil diterapkan!', 'success');
                     else alert('✅ Unit & Kapasitas berhasil diterapkan ke data!');
@@ -5724,6 +5736,7 @@
                     alert('❌ Gagal menerapkan: ' + result.message);
                 }
             } catch (error) {
+                console.error("❌ Error:", error);
                 alert('❌ Terjadi kesalahan: ' + error.message);
             } finally {
                 btnText.textContent = '🔄 Terapkan ke Data';
