@@ -4926,8 +4926,8 @@
 
     <!-- ===================== MODAL PENGATURAN RUTE ===================== -->
     <div id="routeSettingsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
-        <div style="background:white; border-radius:14px; padding:30px; width:98%; max-width:1400px; max-height:90vh; overflow-y:auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <div style="background:white; border-radius:14px; width:98%; max-width:1400px; max-height:90vh; overflow-y:auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); display:flex; flex-direction:column;">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:24px 30px 16px; position:sticky; top:0; background:white; z-index:10; border-bottom:2px solid #e2e8f0; border-radius:14px 14px 0 0;">
                 <h2 style="color:#1e3c72; font-size:28px; font-weight:800;">⚙️ Pengaturan Rute & Kapasitas</h2>
                 <div style="display:flex; gap:10px; align-items:center;">
                     <button onclick="closeRouteSettings()" style="padding:10px 22px; border:1px solid #ddd; background:white; border-radius:8px; cursor:pointer; font-size:15px; font-weight:600; color:#333;">Batal</button>
@@ -4938,6 +4938,7 @@
                 </div>
             </div>
 
+            <div style="padding:20px 30px 30px;">
             <p style="margin-bottom: 16px; color: #1e293b; font-size: 16px; font-weight:500;">
                 Atur jenis armada (Unit), total unit, dan kapasitas mingguan untuk setiap rute. Gunakan filter untuk menentukan scope data yang akan diterapkan.
             </p>
@@ -4971,10 +4972,9 @@
                     <!-- Data will be populated here -->
                 </tbody>
             </table>
-
-
-        </div>
-    </div>
+            </div><!-- end body padding -->
+        </div><!-- end modal inner -->
+    </div><!-- end modal outer -->
 
     <script>
         // =================== TOGGLE SLA ===================
