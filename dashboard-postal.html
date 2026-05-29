@@ -4928,37 +4928,37 @@
     <div id="routeSettingsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
         <div style="background:white; border-radius:14px; padding:30px; width:98%; max-width:1400px; max-height:90vh; overflow-y:auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                <h2 style="color:#1e3c72; font-size:24px; font-weight:700;">⚙️ Pengaturan Rute & Kapasitas</h2>
+                <h2 style="color:#1e3c72; font-size:28px; font-weight:800;">⚙️ Pengaturan Rute & Kapasitas</h2>
                 <button onclick="closeRouteSettings()" style="background:none; border:none; font-size:28px; cursor:pointer; color:#999;">✕</button>
             </div>
 
-            <p style="margin-bottom: 16px; color: #666; font-size: 15px;">
+            <p style="margin-bottom: 16px; color: #1e293b; font-size: 16px; font-weight:500;">
                 Atur jenis armada (Unit), total unit, dan kapasitas mingguan untuk setiap rute. Gunakan filter untuk menentukan scope data yang akan diterapkan.
             </p>
 
             <!-- Filter scope -->
             <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px 18px; margin-bottom:20px; display:flex; gap:10px; align-items:center; flex-wrap:nowrap; overflow-x:auto;">
-                <span style="font-weight:700; color:#1e3c72; font-size:14px; white-space:nowrap;">🎯 Terapkan ke:</span>
-                <select id="settingsWeekFilter" style="padding:8px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; height:36px; min-width:160px;">
+                <span style="font-weight:800; color:#1e3c72; font-size:16px; white-space:nowrap;">🎯 Terapkan ke:</span>
+                <select id="settingsWeekFilter" style="padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:15px; height:40px; min-width:180px; color:#1e293b; font-weight:600;">
                     <option value="ALL">📅 SEMUA MINGGU</option>
                 </select>
-                <span style="color:#64748b; font-size:14px; white-space:nowrap;">|</span>
-                <input type="date" id="settingsStartDate" style="padding:8px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; height:36px; width:150px;">
-                <span style="color:#64748b; font-size:14px; white-space:nowrap;">s/d</span>
-                <input type="date" id="settingsEndDate" style="padding:8px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:14px; height:36px; width:150px;">
-                <button onclick="clearSettingsDateFilter()" style="padding:8px 14px; background:#64748b; color:white; border:none; border-radius:8px; cursor:pointer; font-size:13px; height:36px; white-space:nowrap; flex-shrink:0; font-weight:600;">Reset</button>
+                <span style="color:#1e293b; font-size:16px; white-space:nowrap; font-weight:600;">|</span>
+                <input type="date" id="settingsStartDate" style="padding:9px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:15px; height:40px; width:165px; color:#1e293b; font-weight:600;">
+                <span style="color:#1e293b; font-size:16px; white-space:nowrap; font-weight:600;">s/d</span>
+                <input type="date" id="settingsEndDate" style="padding:9px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:15px; height:40px; width:165px; color:#1e293b; font-weight:600;">
+                <button onclick="clearSettingsDateFilter()" style="padding:9px 18px; background:#64748b; color:white; border:none; border-radius:8px; cursor:pointer; font-size:15px; height:40px; white-space:nowrap; flex-shrink:0; font-weight:700;">Reset</button>
             </div>
 
             <div style="overflow-x:auto; border:1px solid #e2e8f0; border-radius:10px;">
 
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 15px;">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 16px;">
                 <thead>
                     <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
-                        <th style="padding: 14px; text-align: left; width: 60px; font-weight:700; color:#1e3c72;">No</th>
-                        <th style="padding: 14px; text-align: left; min-width:200px; font-weight:700; color:#1e3c72;">Nama Rute</th>
-                        <th style="padding: 14px; text-align: left; min-width:350px; font-weight:700; color:#1e3c72;">Total Unit (3 Baris)</th>
-                        <th style="padding: 14px; text-align: left; min-width:300px; font-weight:700; color:#1e3c72;">Unit Kendaraan (CDE, CDD, dll)</th>
-                        <th style="padding: 14px; text-align: left; min-width:220px; font-weight:700; color:#1e3c72;">Kapasitas/Minggu (Kg)</th>
+                        <th style="padding: 16px 14px; text-align: left; width: 60px; font-weight:800; color:#1e3c72; font-size:16px;">No</th>
+                        <th style="padding: 16px 14px; text-align: left; min-width:200px; font-weight:800; color:#1e3c72; font-size:16px;">Nama Rute</th>
+                        <th style="padding: 16px 14px; text-align: left; min-width:350px; font-weight:800; color:#1e3c72; font-size:16px;">Total Unit (3 Baris)</th>
+                        <th style="padding: 16px 14px; text-align: left; min-width:300px; font-weight:800; color:#1e3c72; font-size:16px;">Unit Kendaraan (CDE, CDD, dll)</th>
+                        <th style="padding: 16px 14px; text-align: left; min-width:220px; font-weight:800; color:#1e3c72; font-size:16px;">Kapasitas/Minggu (Kg)</th>
                     </tr>
                 </thead>
                 <tbody id="routeSettingsBody">
@@ -5607,7 +5607,7 @@
                         // Tambahkan unit custom yang tidak ada di default
                         const allUnits = [...new Set([...defaultUnits, ...unitArr])];
                         const checkboxesHTML = allUnits.map(u =>
-                            `<label style="display:inline-flex;align-items:center;gap:4px;margin-right:8px;font-size:12px;cursor:pointer;">
+                            `<label style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;font-size:15px;cursor:pointer;font-weight:600;color:#1e293b;">
                                 <input type="checkbox" class="unit-checkbox" value="${u}" ${unitArr.includes(u)?'checked':''} style="cursor:pointer;">
                                 ${u}
                             </label>`
@@ -5620,38 +5620,38 @@
                             <div style="display:flex; flex-direction:column; gap:6px;">
                                 ${[0, 1, 2].map(i => `
                                     <div style="display:flex; gap:6px; align-items:center;">
-                                        <input type="number" class="total-unit-jumlah" data-index="${i}" value="${totalUnits[i]?.jumlah || 0}" placeholder="0" style="width:60px; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;">
-                                        <select class="total-unit-jenis" data-index="${i}" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;">
+                                        <input type="number" class="total-unit-jumlah" data-index="${i}" value="${totalUnits[i]?.jumlah || 0}" placeholder="0" style="width:65px; padding:8px; border:1px solid #ccc; border-radius:6px; font-size:15px; font-weight:700; color:#1e293b;">
+                                        <select class="total-unit-jenis" data-index="${i}" style="flex:1; padding:8px; border:1px solid #ccc; border-radius:6px; font-size:15px; font-weight:600; color:#1e293b;">
                                             <option value="">-- Pilih --</option>
                                             <option value="CDE" ${totalUnits[i]?.jenis === 'CDE' ? 'selected' : ''}>CDE</option>
                                             <option value="CDD" ${totalUnits[i]?.jenis === 'CDD' ? 'selected' : ''}>CDD</option>
                                             <option value="CDD Long" ${totalUnits[i]?.jenis === 'CDD Long' ? 'selected' : ''}>CDD Long</option>
                                             <option value="Fuso Long" ${totalUnits[i]?.jenis === 'Fuso Long' ? 'selected' : ''}>Fuso Long</option>
                                         </select>
-                                        <input type="text" class="total-unit-custom" data-index="${i}" placeholder="ketik..." style="width:80px; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;">
+                                        <input type="text" class="total-unit-custom" data-index="${i}" placeholder="ketik..." style="width:90px; padding:8px; border:1px solid #ccc; border-radius:6px; font-size:15px; color:#1e293b;">
                                     </div>
                                 `).join('')}
                             </div>
                         `;
                         
                         tr.innerHTML = `
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd; text-align: center;">${index + 1}</td>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd; font-weight: 500;">
+                            <td style="padding: 14px; border-bottom: 1px solid #ddd; text-align: center; font-size:16px; font-weight:700; color:#1e293b;">${index + 1}</td>
+                            <td style="padding: 14px; border-bottom: 1px solid #ddd; font-weight: 700; font-size:16px; color:#1e293b;">
                                 ${route.name}
                                 <input type="hidden" class="setting-route-name" value="${route.name}">
                             </td>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                            <td style="padding: 14px; border-bottom: 1px solid #ddd;">
                                 ${totalUnitHTML}
                             </td>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">
+                            <td style="padding: 14px; border-bottom: 1px solid #ddd;">
                                 <div class="unit-checkboxes" style="margin-bottom:6px;">${checkboxesHTML}</div>
                                 <div style="display:flex;gap:6px;align-items:center;">
-                                    <input type="text" class="unit-new-input" placeholder="Tambah unit baru..." style="padding:4px 8px;border:1px solid #ccc;border-radius:4px;font-size:12px;width:130px;">
-                                    <button type="button" onclick="addUnitOption(this)" style="padding:4px 10px;background:#1e3c72;color:white;border:none;border-radius:4px;cursor:pointer;font-size:12px;">+ Tambah</button>
+                                    <input type="text" class="unit-new-input" placeholder="Tambah unit baru..." style="padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:15px;width:150px;color:#1e293b;">
+                                    <button type="button" onclick="addUnitOption(this)" style="padding:7px 14px;background:#1e3c72;color:white;border:none;border-radius:6px;cursor:pointer;font-size:15px;font-weight:700;">+ Tambah</button>
                                 </div>
                             </td>
-                            <td style="padding: 10px; border-bottom: 1px solid #ddd;">
-                                <input type="number" class="setting-kapasitas" value="${kapasitasMingguan}" placeholder="0" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <td style="padding: 14px; border-bottom: 1px solid #ddd;">
+                                <input type="number" class="setting-kapasitas" value="${kapasitasMingguan}" placeholder="0" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size:16px; font-weight:700; color:#1e293b;">
                             </td>
                         `;
                         tbody.appendChild(tr);
