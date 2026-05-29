@@ -42,6 +42,10 @@ const volumeSchema = new mongoose.Schema({
   nonPostal: { type: Number, default: 0 },
   kapasitas: { type: Number, default: 0 },
   unit: [{ type: String }],
+  totalUnits: [{
+    jumlah: { type: Number, default: 0 },
+    jenis:  { type: String, default: '' }
+  }],
   category: { type: String, default: "primer" },
   weekStart: { type: String },
   weekEnd: { type: String },
@@ -1188,12 +1192,16 @@ app.put("/api/volume", async (req, res) => {
 app.put("/api/routes/settings", async (req, res) => {
   try {
     const { settings, weekKey, startDate, endDate } = req.body;
+    console.log("📝 /api/routes/settings received:", JSON.stringify({ settings, weekKey, startDate, endDate }, null, 2));
+    
     if (!settings || !Array.isArray(settings)) {
       return res.status(400).json({ success: false, message: "Invalid payload" });
     }
 
     const updatePromises = settings.map(async (setting) => {
       const { rute, unit, totalUnits, kapasitas } = setting;
+      console.log(`  Processing route: ${rute}`, { unit, totalUnits, kapasitas });
+      
       if (!rute) return;
 
       const updatePayload = { $set: {} };
@@ -1201,7 +1209,10 @@ app.put("/api/routes/settings", async (req, res) => {
       if (unit !== undefined) updatePayload.$set.unit = Array.isArray(unit) ? unit : (unit === '' ? [] : [unit]);
       if (totalUnits !== undefined) updatePayload.$set.totalUnits = Array.isArray(totalUnits) ? totalUnits : [];
 
-      if (Object.keys(updatePayload.$set).length === 0) return;
+      if (Object.keys(updatePayload.$set).length === 0) {
+        console.log(`  ⚠️ No fields to update for ${rute}`);
+        return;
+      }
 
       // 1. Simpan ke master RouteSettings (upsert)
       const routeSettingsUpdate = { 
@@ -1216,11 +1227,13 @@ app.put("/api/routes/settings", async (req, res) => {
         routeSettingsUpdate.weekKey = weekKey;
       }
       
-      await RouteSettings.findOneAndUpdate(
+      console.log(`  💾 Saving to RouteSettings:`, routeSettingsUpdate);
+      const rsResult = await RouteSettings.findOneAndUpdate(
         { rute },
         { $set: routeSettingsUpdate },
-        { upsert: true }
+        { upsert: true, new: true }
       );
+      console.log(`  ✅ RouteSettings saved:`, rsResult);
 
       // 2. Apply ke VolumeData sesuai filter waktu
       const filter = { rute };
@@ -1234,12 +1247,18 @@ app.put("/api/routes/settings", async (req, res) => {
         filter.tanggal = { $lte: endDate };
       }
 
-      return VolumeData.updateMany(filter, updatePayload);
+      console.log(`  📊 Applying to VolumeData with filter:`, filter);
+      const volResult = await VolumeData.updateMany(filter, updatePayload);
+      console.log(`  ✅ VolumeData updated:`, volResult);
+      
+      return volResult;
     });
 
     await Promise.all(updatePromises);
+    console.log("✅ All settings applied successfully");
     res.json({ success: true, message: "Pengaturan rute berhasil diterapkan." });
   } catch (err) {
+    console.error("❌ Error in /api/routes/settings:", err);
     res.status(500).json({ success: false, message: err.message });
   }
 });
