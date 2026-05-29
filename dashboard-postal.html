@@ -4480,7 +4480,7 @@
                 html += `<div class="route-card"><div class="route-header" style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
                     <div class="route-name" style="flex:1; min-width:0;">${displayName}</div>
                     <div class="total-unit-display" style="display:${slaVisible ? 'flex' : 'none'}; gap:8px; align-items:center;">
-                        ${route1.totalUnits ? route1.totalUnits.map(tu => `<span style="background:#f0f0f0; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">${tu.jumlah} ${tu.jenis}</span>`).join('') : ''}
+                        ${route1.totalUnits ? route1.totalUnits.filter(tu => tu.jumlah > 0).map(tu => `<span style="background:linear-gradient(135deg, #FF8C42, #e67e22); color:white; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:700; box-shadow:0 2px 8px rgba(255,140,66,0.3); display:inline-flex; align-items:center; gap:4px;">🚛 ${tu.jumlah} ${tu.jenis}</span>`).join('') : ''}
                     </div>
                     <span class="sla-status status-ontime" style="display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold;">✓ On-Time</span>
                     ${isAdmin() ? `
@@ -4554,7 +4554,7 @@
                         <div style="display: flex; align-items: center; gap: 15px;">
                             <h4 style="color: #1e3c72; margin: 0; font-size: 18px; font-weight: 800;">Arah: (${arahLabel1})</h4>
                             <div class="total-unit-display-arah" style="display:${slaVisible ? 'none' : 'flex'}; gap:8px; align-items:center;">
-                                ${route1.totalUnits ? route1.totalUnits.map(tu => `<span style="background:#f0f0f0; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">${tu.jumlah} ${tu.jenis}</span>`).join('') : ''}
+                                ${route1.totalUnits ? route1.totalUnits.filter(tu => tu.jumlah > 0).map(tu => `<span style="background:linear-gradient(135deg, #FF8C42, #e67e22); color:white; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:700; box-shadow:0 2px 8px rgba(255,140,66,0.3); display:inline-flex; align-items:center; gap:4px;">🚛 ${tu.jumlah} ${tu.jenis}</span>`).join('') : ''}
                             </div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 15px; font-size: 14px; color: #475569; font-weight: 600;">
@@ -4641,7 +4641,7 @@
                             <div style="display: flex; align-items: center; gap: 15px;">
                                 <h4 style="color: #1e3c72; margin: 0; font-size: 18px; font-weight: 800;">Arah: (${arahLabel2})</h4>
                                 <div class="total-unit-display-arah" style="display:${slaVisible ? 'none' : 'flex'}; gap:8px; align-items:center;">
-                                    ${route2.totalUnits ? route2.totalUnits.map(tu => `<span style="background:#f0f0f0; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">${tu.jumlah} ${tu.jenis}</span>`).join('') : ''}
+                                    ${route2.totalUnits ? route2.totalUnits.filter(tu => tu.jumlah > 0).map(tu => `<span style="background:linear-gradient(135deg, #FF8C42, #e67e22); color:white; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:700; box-shadow:0 2px 8px rgba(255,140,66,0.3); display:inline-flex; align-items:center; gap:4px;">🚛 ${tu.jumlah} ${tu.jenis}</span>`).join('') : ''}
                                 </div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 15px; font-size: 14px; color: #475569; font-weight: 600;">
