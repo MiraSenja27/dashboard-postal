@@ -2339,19 +2339,34 @@
                 // Panggil render rute mutakhir
                 await loadRoutesFromServer(weekKey);
                 
-                // Update period label
+                // Update period label - ambil min/max dari data volume aktual
                 const currentWeekKey = document.getElementById('weekFilter').value;
-                if (currentWeekKey === "ALL") {
-                    if (statsData.minDate && statsData.maxDate) {
-                        updatePeriodLabel(`Menampilkan data: ${formatDateIndo(statsData.minDate)} s/d ${formatDateIndo(statsData.maxDate)} (SEMUA MINGGU)`, 'weekly');
-                    } else {
-                        updatePeriodLabel(`Menampilkan data: SEMUA MINGGU`, 'weekly');
+                try {
+                    let volUrl = `${API_URL}/volume?category=${currentMenu}`;
+                    if (currentWeekKey && currentWeekKey !== 'ALL') {
+                        volUrl += `&weekKey=${currentWeekKey}`;
+                    } else if (startDate && endDate) {
+                        volUrl += `&startDate=${startDate}&endDate=${endDate}`;
                     }
-                } else if (currentWeekKey) {
-                    const weekSelect = document.getElementById('weekFilter');
-                    updatePeriodLabel(`Menampilkan data minggu: ${weekSelect.options[weekSelect.selectedIndex].text}`, 'weekly');
-                } else {
-                    updatePeriodLabel(`Menampilkan data: ${formatDateIndo(startDate)} s/d ${formatDateIndo(endDate)}`, 'daily');
+                    const volResp = await fetch(volUrl);
+                    const volResult = await volResp.json();
+                    const volDates = (volResult.success && volResult.data.length > 0)
+                        ? volResult.data.map(r => r.tanggal).filter(Boolean).sort()
+                        : [];
+
+                    if (currentWeekKey && currentWeekKey !== 'ALL') {
+                        const weekSelect = document.getElementById('weekFilter');
+                        updatePeriodLabel(`[${currentMenu.toUpperCase()}] Menampilkan data minggu: ${weekSelect.options[weekSelect.selectedIndex].text}`, 'weekly');
+                    } else if (volDates.length > 0) {
+                        const minD = new Date(volDates[0]);
+                        const maxD = new Date(volDates[volDates.length - 1]);
+                        const mo = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+                        updatePeriodLabel(`[${currentMenu.toUpperCase()}] Menampilkan data: ${minD.getDate()} ${mo[minD.getMonth()]} ${minD.getFullYear()} s/d ${maxD.getDate()} ${mo[maxD.getMonth()]} ${maxD.getFullYear()} (SEMUA MINGGU)`, 'weekly');
+                    } else {
+                        updatePeriodLabel(`[${currentMenu.toUpperCase()}] Menampilkan data: SEMUA MINGGU`, 'weekly');
+                    }
+                } catch(e) {
+                    updatePeriodLabel(`[${currentMenu.toUpperCase()}] Menampilkan data: SEMUA MINGGU`, 'weekly');
                 }
 
             } catch (error) {
