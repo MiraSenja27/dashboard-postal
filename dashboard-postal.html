@@ -4974,6 +4974,13 @@
                 });
             });
 
+            // Sembunyikan tombol On-Time / Edit / Hapus di setiap Arah (route-section)
+            document.querySelectorAll('.route-section').forEach(section => {
+                section.querySelectorAll('.sla-status, .delay-badge, button').forEach(el => {
+                    el.style.display = slaVisible ? '' : 'none';
+                });
+            });
+
             // Pastikan judul arah (h4) tetap muncul
             document.querySelectorAll('.route-section h4').forEach(el => {
                 el.style.display = ''; 
