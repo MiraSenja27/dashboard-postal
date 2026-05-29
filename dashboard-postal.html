@@ -4492,7 +4492,7 @@
                     }
                 });
                 const combinedUnitsBadges = Object.entries(combinedUnitsMap)
-                    .map(([jenis, jumlah]) => `<span style="background:#e2e8f0; color:#475569; padding:6px 14px; border-radius:20px; font-size:14px; font-weight:700; box-shadow:0 1px 4px rgba(0,0,0,0.08); display:inline-flex; align-items:center; gap:4px;">🚛 ${jumlah} ${jenis}</span>`)
+                    .map(([jenis, jumlah]) => `<span style="background:#e2e8f0; color:#1e293b; padding:6px 14px; border-radius:20px; font-size:14px; font-weight:800; box-shadow:0 1px 4px rgba(0,0,0,0.08); display:inline-flex; align-items:center; gap:4px; letter-spacing:0.2px;">${jumlah} ${jenis}</span>`)
                     .join('');
 
                 html += `<div class="route-card"><div class="route-header" style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
@@ -4578,7 +4578,7 @@
                         <div style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 8px;">Kap/Mgg: <span style="color:#0f172a; font-weight:800; font-size: 15px; margin-left: 4px;">${(route1.baseKapasitas || 0).toLocaleString()} kg</span></div>
                         <div style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 8px;">Kap/Hr: <span style="color:#0f172a; font-weight:800; font-size: 15px; margin-left: 4px;">${((route1.baseKapasitas || 0) / 7).toLocaleString(undefined, {maximumFractionDigits:2})} kg</span></div>
                         <div class="total-unit-display-arah" style="display:${slaVisible ? 'none' : 'flex'}; gap:8px; align-items:center;">
-                            ${route1.totalUnits ? route1.totalUnits.filter(tu => tu.jumlah > 0).map(tu => `<span style="background:#e2e8f0; color:#475569; padding:6px 14px; border-radius:20px; font-size:14px; font-weight:700; box-shadow:0 1px 4px rgba(0,0,0,0.08); display:inline-flex; align-items:center; gap:4px;">🚛 ${tu.jumlah} ${tu.jenis}</span>`).join('') : ''}
+                            ${route1.totalUnits ? route1.totalUnits.filter(tu => tu.jumlah > 0).map(tu => `<span style="background:#e2e8f0; color:#1e293b; padding:6px 14px; border-radius:20px; font-size:14px; font-weight:800; box-shadow:0 1px 4px rgba(0,0,0,0.08); display:inline-flex; align-items:center; gap:4px; letter-spacing:0.2px;">${tu.jumlah} ${tu.jenis}</span>`).join('') : ''}
                         </div>
                     </div>
                     <div class="route-visual" style="margin-bottom: 25px;">
@@ -4670,7 +4670,7 @@
                             <div style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 8px;">Kap/Mgg: <span style="color:#0f172a; font-weight:800; font-size: 15px; margin-left: 4px;">${(route2.baseKapasitas || 0).toLocaleString()} kg</span></div>
                             <div style="background: #f1f5f9; border: 1px solid #e2e8f0; padding: 4px 10px; border-radius: 8px;">Kap/Hr: <span style="color:#0f172a; font-weight:800; font-size: 15px; margin-left: 4px;">${((route2.baseKapasitas || 0) / 7).toLocaleString(undefined, {maximumFractionDigits:2})} kg</span></div>
                             <div class="total-unit-display-arah" style="display:${slaVisible ? 'none' : 'flex'}; gap:8px; align-items:center;">
-                                ${route2.totalUnits ? route2.totalUnits.filter(tu => tu.jumlah > 0).map(tu => `<span style="background:#e2e8f0; color:#475569; padding:6px 14px; border-radius:20px; font-size:14px; font-weight:700; box-shadow:0 1px 4px rgba(0,0,0,0.08); display:inline-flex; align-items:center; gap:4px;">🚛 ${tu.jumlah} ${tu.jenis}</span>`).join('') : ''}
+                                ${route2.totalUnits ? route2.totalUnits.filter(tu => tu.jumlah > 0).map(tu => `<span style="background:#e2e8f0; color:#1e293b; padding:6px 14px; border-radius:20px; font-size:14px; font-weight:800; box-shadow:0 1px 4px rgba(0,0,0,0.08); display:inline-flex; align-items:center; gap:4px; letter-spacing:0.2px;">${tu.jumlah} ${tu.jenis}</span>`).join('') : ''}
                             </div>
                         </div>
                         <div class="route-visual" style="margin-bottom: 25px;">
