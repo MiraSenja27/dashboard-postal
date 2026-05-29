@@ -4477,10 +4477,28 @@
                 if (/^(EXTRA|Ekstra|Exstra)/i.test(route1.name)) {
                     displayName = 'Extra';
                 }
+                // Gabungkan totalUnits dari route1 dan route2 (jika berpasangan)
+                // Deduplikasi: jika jenis sama, ambil jumlah terbesar
+                const combinedUnitsMap = {};
+                const allUnitsSource = [
+                    ...(route1.totalUnits || []),
+                    ...(isSamePair && route2 ? (route2.totalUnits || []) : [])
+                ];
+                allUnitsSource.forEach(tu => {
+                    if (tu.jumlah > 0 && tu.jenis) {
+                        if (!combinedUnitsMap[tu.jenis] || tu.jumlah > combinedUnitsMap[tu.jenis]) {
+                            combinedUnitsMap[tu.jenis] = tu.jumlah;
+                        }
+                    }
+                });
+                const combinedUnitsBadges = Object.entries(combinedUnitsMap)
+                    .map(([jenis, jumlah]) => `<span style="background:linear-gradient(135deg, #FF8C42, #e67e22); color:white; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:700; box-shadow:0 2px 8px rgba(255,140,66,0.3); display:inline-flex; align-items:center; gap:4px;">🚛 ${jumlah} ${jenis}</span>`)
+                    .join('');
+
                 html += `<div class="route-card"><div class="route-header" style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
                     <div class="route-name" style="flex:1; min-width:0;">${displayName}</div>
                     <div class="total-unit-display" style="display:${slaVisible ? 'flex' : 'none'}; gap:8px; align-items:center;">
-                        ${route1.totalUnits ? route1.totalUnits.filter(tu => tu.jumlah > 0).map(tu => `<span style="background:linear-gradient(135deg, #FF8C42, #e67e22); color:white; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:700; box-shadow:0 2px 8px rgba(255,140,66,0.3); display:inline-flex; align-items:center; gap:4px;">🚛 ${tu.jumlah} ${tu.jenis}</span>`).join('') : ''}
+                        ${combinedUnitsBadges}
                     </div>
                 </div>`;
 
