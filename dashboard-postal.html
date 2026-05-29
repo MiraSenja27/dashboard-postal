@@ -5546,7 +5546,8 @@
                     const sortedRoutes = sortRoutesByOrder(result.data.map(r => ({
                         name: r.route_name,
                         baseKapasitas: r.base_kapasitas || 0,
-                        unitInfo: r.units || []
+                        unitInfo: r.units || [],
+                        totalUnits: r.totalUnits || []
                     })));
 
                     if (sortedRoutes.length === 0) {
