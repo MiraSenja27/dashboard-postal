@@ -3503,6 +3503,25 @@
 
                     const _volumeData = sortedData;
                     renderVolumeTable(_volumeData);
+                    
+                    // Update notif tanggal berdasarkan data aktual (bukan filter input)
+                    if (sortedData && sortedData.length > 0) {
+                        const dates = sortedData.map(r => r.tanggal).filter(Boolean).sort();
+                        const minD = new Date(dates[0]);
+                        const maxD = new Date(dates[dates.length - 1]);
+                        const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+                        const weekFilter = document.getElementById('weekFilter');
+                        const weekKey = weekFilter ? weekFilter.value : 'ALL';
+                        if (weekKey && weekKey !== 'ALL') {
+                            const selectedOption = weekFilter.options[weekFilter.selectedIndex];
+                            updatePeriodLabel(`Menampilkan data minggu: ${selectedOption ? selectedOption.text : ''}`, 'weekly');
+                        } else {
+                            const label = minD.toDateString() === maxD.toDateString()
+                                ? `Menampilkan data harian: ${minD.getDate()} ${months[minD.getMonth()]} ${minD.getFullYear()}`
+                                : `[${currentMenu.toUpperCase()}] Menampilkan data: ${minD.getDate()} ${months[minD.getMonth()]} ${minD.getFullYear()} s/d ${maxD.getDate()} ${months[maxD.getMonth()]} ${maxD.getFullYear()}`;
+                            updatePeriodLabel(label, 'daily');
+                        }
+                    }
 
                     // Update period label
                     const currentWeekKeyVol = document.getElementById('weekFilter').value;
@@ -3642,7 +3661,7 @@
 
                 // Checkbox column
                 if (isAdmin()) {
-                    rowsHTML += `<td><input type="checkbox" class="volume-checkbox" value="${record.rute || ''}"></td>`;
+                    rowsHTML += `<td><input type="checkbox" class="volume-checkbox" value="${record.id || record._id || ''}" data-rute="${record.rute || ''}" data-tanggal="${record.tanggal || ''}"></td>`;
                 }
 
                 // Tanggal column
@@ -4764,7 +4783,8 @@
                 return;
             }
             
-            const routeNames = Array.from(checkboxes).map(cb => cb.value);
+            // Kirim ID spesifik agar hanya data yang terfilter yang terhapus
+            const ids = Array.from(checkboxes).map(cb => cb.value).filter(Boolean);
             
             try {
                 const response = await fetch(`${API_URL}/volume`, {
@@ -4772,13 +4792,13 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ routeNames: routeNames, category: currentMenu })
+                    body: JSON.stringify({ ids: ids, category: currentMenu })
                 });
                 
                 const result = await response.json();
                 if (result.success) {
-                    if (typeof showToast === 'function') showToast(`${routeNames.length} rute Volume berhasil dihapus!`, 'success');
-                    else alert(`✅ ${routeNames.length} rute Volume berhasil dihapus!`);
+                    if (typeof showToast === 'function') showToast(`${ids.length} data Volume berhasil dihapus!`, 'success');
+                    else alert(`✅ ${ids.length} data Volume berhasil dihapus!`);
                     loadVolumeData();
                     // Juga refresh dashboard bila di view yang sama
                     loadDashboardData();
