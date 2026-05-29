@@ -4482,11 +4482,6 @@
                     <div class="total-unit-display" style="display:${slaVisible ? 'flex' : 'none'}; gap:8px; align-items:center;">
                         ${route1.totalUnits ? route1.totalUnits.filter(tu => tu.jumlah > 0).map(tu => `<span style="background:linear-gradient(135deg, #FF8C42, #e67e22); color:white; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:700; box-shadow:0 2px 8px rgba(255,140,66,0.3); display:inline-flex; align-items:center; gap:4px;">🚛 ${tu.jumlah} ${tu.jenis}</span>`).join('') : ''}
                     </div>
-                    <span class="sla-status status-ontime" style="display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold;">✓ On-Time</span>
-                    ${isAdmin() ? `
-                    <button onclick="openEditRouteModal(${cardIdx1})" title="Edit Rute" style="background:linear-gradient(135deg,#f59e0b,#d97706); color:white; border:none; border-radius:8px; padding:6px 12px; cursor:pointer; font-size:13px; font-weight:700;">✏️ Edit</button>
-                    <button onclick="deleteRoute(${cardIdx1})" title="Hapus Rute" style="background:linear-gradient(135deg,#ef4444,#b91c1c); color:white; border:none; border-radius:8px; padding:6px 12px; cursor:pointer; font-size:13px; font-weight:700;">🗑️ Hapus</button>
-                    ` : ''}
                 </div>`;
 
                 // Perhitungan akurat berdasarkan data database (kapasitas dan volume)
@@ -4644,7 +4639,7 @@
                     <div class="route-section">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 15px;">
                             <h4 style="color: #1e3c72; margin: 0; font-size: 18px; font-weight: 800;">Arah: (${arahLabel2})</h4>
-                            <div style="display: ${slaVisible ? 'none' : 'flex'}; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                                 <span class="sla-status status-ontime" style="display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold;">✓ On-Time</span>
                                 ${isAdmin() ? `
                                 <button onclick="openEditRouteModal(${cardIdx1 + 1})" title="Edit Rute" style="background:linear-gradient(135deg,#f59e0b,#d97706); color:white; border:none; border-radius:8px; padding:6px 12px; cursor:pointer; font-size:13px; font-weight:700;">✏️ Edit</button>
