@@ -3035,6 +3035,9 @@
             // Get SLA cards for this route
             const slaCardsHTML = renderSLACards(slaData, outbound.route_name);
 
+            // Debug: log totalUnits data
+            console.log(`Route: ${outbound.route_name}, totalUnits:`, outbound.totalUnits);
+
             // Check if there's a delay (extract from data-has-delay attribute)
             const hasDelay = slaCardsHTML.includes('data-has-delay="true"');
 
@@ -4476,6 +4479,9 @@
                 }
                 html += `<div class="route-card"><div class="route-header" style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
                     <div class="route-name" style="flex:1; min-width:0;">${displayName}</div>
+                    <div class="total-unit-display" style="display:${slaVisible ? 'flex' : 'none'}; gap:8px; align-items:center;">
+                        ${route1.totalUnits ? route1.totalUnits.map(tu => `<span style="background:#f0f0f0; padding:4px 8px; border-radius:4px; font-size:12px; font-weight:600;">${tu.jumlah} ${tu.jenis}</span>`).join('') : ''}
+                    </div>
                     <span class="sla-status status-ontime" style="display: inline-block; padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: bold;">✓ On-Time</span>
                     ${isAdmin() ? `
                     <button onclick="openEditRouteModal(${cardIdx1})" title="Edit Rute" style="background:linear-gradient(135deg,#f59e0b,#d97706); color:white; border:none; border-radius:8px; padding:6px 12px; cursor:pointer; font-size:13px; font-weight:700;">✏️ Edit</button>
