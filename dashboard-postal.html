@@ -4929,7 +4929,13 @@
         <div style="background:white; border-radius:14px; padding:30px; width:98%; max-width:1400px; max-height:90vh; overflow-y:auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
                 <h2 style="color:#1e3c72; font-size:28px; font-weight:800;">⚙️ Pengaturan Rute & Kapasitas</h2>
-                <button onclick="closeRouteSettings()" style="background:none; border:none; font-size:28px; cursor:pointer; color:#999;">✕</button>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button onclick="closeRouteSettings()" style="padding:10px 22px; border:1px solid #ddd; background:white; border-radius:8px; cursor:pointer; font-size:15px; font-weight:600; color:#333;">Batal</button>
+                    <button id="btnApplyRouteSettings" onclick="applyRouteSettings()" style="padding:10px 24px; background:linear-gradient(135deg,#FF8C42,#e67e22); color:white; border:none; border-radius:8px; cursor:pointer; font-size:15px; font-weight:700;">
+                        <span id="applySettingsText">🔄 Terapkan ke Data</span>
+                    </button>
+                    <button onclick="closeRouteSettings()" style="background:none; border:none; font-size:28px; cursor:pointer; color:#999; line-height:1;">✕</button>
+                </div>
             </div>
 
             <p style="margin-bottom: 16px; color: #1e293b; font-size: 16px; font-weight:500;">
@@ -4966,12 +4972,7 @@
                 </tbody>
             </table>
 
-            <div style="display:flex; gap:10px; justify-content:flex-end; position: sticky; bottom: -10px; background: white; padding-top: 15px; border-top: 1px solid #eee;">
-                <button onclick="closeRouteSettings()" style="padding:12px 24px; border:1px solid #ddd; background:white; border-radius:8px; cursor:pointer; font-size:15px; font-weight:600;">Batal</button>
-                <button id="btnApplyRouteSettings" onclick="applyRouteSettings()" style="padding:12px 28px; background:linear-gradient(135deg,#FF8C42,#e67e22); color:white; border:none; border-radius:8px; cursor:pointer; font-size:15px; font-weight:700;">
-                    <span id="applySettingsText">🔄 Terapkan ke Data</span>
-                </button>
-            </div>
+
         </div>
     </div>
 
