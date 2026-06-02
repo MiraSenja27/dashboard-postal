@@ -5681,12 +5681,17 @@
                         const defaultUnits = ['CDE','CDD','CDD Long','Fuso Long'];
                         // Tambahkan unit custom yang tidak ada di default
                         const allUnits = [...new Set([...defaultUnits, ...unitArr])];
-                        const checkboxesHTML = allUnits.map(u =>
-                            `<label style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;font-size:15px;cursor:pointer;font-weight:600;color:#1e293b;">
+                        const checkboxesHTML = allUnits.map(u => {
+                            const isCustom = !defaultUnits.includes(u);
+                            const textPart = isCustom
+                                ? `<span class="unit-edit-text" title="Klik untuk edit" style="cursor:text; border-bottom:1px dashed #94a3b8;">${u}</span>
+                                   <span class="unit-remove" title="Hapus unit" style="cursor:pointer; color:#ef4444; font-weight:800; margin-left:2px;">×</span>`
+                                : `${u}`;
+                            return `<label class="unit-label${isCustom ? ' unit-custom' : ''}" style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;font-size:15px;cursor:pointer;font-weight:600;color:#1e293b;">
                                 <input type="checkbox" class="unit-checkbox" value="${u}" ${unitArr.includes(u)?'checked':''} style="cursor:pointer;">
-                                ${u}
-                            </label>`
-                        ).join('');
+                                ${textPart}
+                            </label>`;
+                        }).join('');
 
                         // Total Unit data (3 baris)
                         const totalUnits = route.totalUnits || [{jumlah: 0, jenis: ''}, {jumlah: 0, jenis: ''}, {jumlah: 0, jenis: ''}];
@@ -5803,14 +5808,67 @@
             }
 
             const label = document.createElement('label');
+            label.className = 'unit-label unit-custom';
             label.style.cssText = 'display:inline-flex;align-items:center;gap:5px;margin-right:10px;font-size:15px;cursor:pointer;font-weight:600;color:#1e293b;';
-            label.innerHTML = `<input type="checkbox" class="unit-checkbox" value="${val}" checked style="cursor:pointer;"> ${val}`;
+            label.innerHTML = `<input type="checkbox" class="unit-checkbox" value="${val}" checked style="cursor:pointer;">
+                <span class="unit-edit-text" title="Klik untuk edit" style="cursor:text; border-bottom:1px dashed #94a3b8;">${val}</span>
+                <span class="unit-remove" title="Hapus unit" style="cursor:pointer; color:#ef4444; font-weight:800; margin-left:2px;">×</span>`;
             box.appendChild(label);
             input.value = '';
             input.focus();
         }
 
-        // ── Header "Total Unit (3 Baris)": ketik + Enter → jadi opsi dropdown ──
+        // Edit inline nama unit custom: klik teks → jadi input → ketik → Enter (Esc batal)
+        function startEditUnit(span) {
+            if (span.querySelector('input')) return;
+            const label = span.closest('label');
+            const box = label?.parentElement;
+            const checkbox = label?.querySelector('.unit-checkbox');
+            if (!label || !box || !checkbox) return;
+            const oldVal = checkbox.value;
+
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.value = oldVal;
+            input.style.cssText = 'width:100px;padding:2px 6px;border:1px solid #2a5298;border-radius:4px;font-size:14px;font-weight:600;color:#1e293b;';
+            span.textContent = '';
+            span.appendChild(input);
+            input.focus();
+            input.select();
+
+            let done = false;
+            const finish = (commit) => {
+                if (done) return; done = true;
+                const newVal = (input.value || '').trim();
+                if (!commit || !newVal) { span.textContent = oldVal; return; }
+
+                // Jika nama baru bentrok dengan unit lain yang sudah ada → hapus label ini,
+                // pastikan unit yang sudah ada itu tercentang.
+                const dup = Array.from(box.querySelectorAll('.unit-checkbox'))
+                    .some(cb => cb !== checkbox && cb.value.toLowerCase() === newVal.toLowerCase());
+                if (dup) {
+                    Array.from(box.querySelectorAll('.unit-checkbox')).forEach(cb => {
+                        if (cb.value.toLowerCase() === newVal.toLowerCase()) cb.checked = true;
+                    });
+                    label.remove();
+                    return;
+                }
+                checkbox.value = newVal;
+                span.textContent = newVal;
+            };
+
+            input.addEventListener('keydown', (e) => {
+                e.stopPropagation();
+                if (e.key === 'Enter') { e.preventDefault(); finish(true); }
+                else if (e.key === 'Escape') { e.preventDefault(); finish(false); }
+            });
+            input.addEventListener('blur', () => finish(true));
+        }
+
+        // ── Header "Total Unit (3 Baris)": ketik + Enter ──
+        //   • Jika opsi CUSTOM sedang dipilih  → RENAME opsi itu (edit)
+        //   • Jika tidak (default/-- Pilih --)  → TAMBAH opsi baru
+        const TOTAL_UNIT_DEFAULTS = ['CDE', 'CDD', 'CDD Long', 'Fuso Long'];
         function commitTotalUnitCustom(customInput) {
             const val = (customInput.value || '').trim();
             if (!val) return;
@@ -5820,15 +5878,34 @@
             const select = row.querySelector(`.total-unit-jenis[data-index="${idx}"]`);
             if (!select) return;
 
-            // Tambah opsi jika belum ada, lalu pilih
-            let opt = Array.from(select.options).find(o => o.value.toLowerCase() === val.toLowerCase());
-            if (!opt) {
-                opt = document.createElement('option');
-                opt.value = val;
-                opt.textContent = val;
-                select.appendChild(opt);
+            const current = select.options[select.selectedIndex];
+            const currentVal = current ? current.value : '';
+            const isCustomSelected = currentVal && !TOTAL_UNIT_DEFAULTS.includes(currentVal);
+
+            if (isCustomSelected) {
+                // EDIT: ganti nama opsi custom yang sedang dipilih.
+                // Jika nama baru sudah ada sebagai opsi lain → pakai opsi itu, hapus yang lama.
+                const dup = Array.from(select.options)
+                    .find(o => o !== current && o.value.toLowerCase() === val.toLowerCase());
+                if (dup) {
+                    select.value = dup.value;
+                    current.remove();
+                } else {
+                    current.value = val;
+                    current.textContent = val;
+                    select.value = val;
+                }
+            } else {
+                // ADD: tambah opsi baru (atau pilih jika sudah ada)
+                let opt = Array.from(select.options).find(o => o.value.toLowerCase() === val.toLowerCase());
+                if (!opt) {
+                    opt = document.createElement('option');
+                    opt.value = val;
+                    opt.textContent = val;
+                    select.appendChild(opt);
+                }
+                select.value = opt.value;
             }
-            select.value = opt.value;
             customInput.value = '';
         }
 
@@ -5847,6 +5924,29 @@
                 } else if (e.target.classList.contains('total-unit-custom')) {
                     e.preventDefault();
                     commitTotalUnitCustom(e.target);
+                }
+            });
+            // Saat memilih opsi CUSTOM di dropdown jenis, isi otomatis kolom "ketik..."
+            // dengan nilainya agar mudah diubah ("pilih lalu ubah"). Opsi default → kosongkan.
+            modal.addEventListener('change', (e) => {
+                if (!e.target.classList.contains('total-unit-jenis')) return;
+                const sel = e.target;
+                const idx = sel.getAttribute('data-index');
+                const row = sel.closest('tr');
+                const customInput = row?.querySelector(`.total-unit-custom[data-index="${idx}"]`);
+                if (!customInput) return;
+                customInput.value = (sel.value && !TOTAL_UNIT_DEFAULTS.includes(sel.value)) ? sel.value : '';
+            });
+            // Klik teks unit custom → edit inline; klik "×" → hapus unit custom.
+            modal.addEventListener('click', (e) => {
+                if (e.target.classList.contains('unit-edit-text')) {
+                    e.preventDefault();   // cegah label men-toggle checkbox
+                    e.stopPropagation();
+                    startEditUnit(e.target);
+                } else if (e.target.classList.contains('unit-remove')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.target.closest('label')?.remove();
                 }
             });
             _settingsDelegationReady = true;
