@@ -5006,8 +5006,18 @@
                     <tr style="background: #f8fafc; border-bottom: 2px solid #e2e8f0;">
                         <th style="padding: 16px 14px; text-align: left; width: 60px; font-weight:800; color:#1e3c72; font-size:16px;">No</th>
                         <th style="padding: 16px 14px; text-align: left; min-width:200px; font-weight:800; color:#1e3c72; font-size:16px;">Nama Rute</th>
-                        <th style="padding: 16px 14px; text-align: left; min-width:350px; font-weight:800; color:#1e3c72; font-size:16px;">Total Unit (3 Baris)</th>
-                        <th style="padding: 16px 14px; text-align: left; min-width:300px; font-weight:800; color:#1e3c72; font-size:16px;">Unit Kendaraan (CDE, CDD, dll)</th>
+                        <th style="padding: 16px 14px; text-align: left; min-width:350px; font-weight:800; color:#1e3c72; font-size:16px;">
+                            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                                <span>Total Unit (3 Baris)</span>
+                                <button type="button" onclick="openUnitTypeManager()" style="padding:5px 12px; background:#1e3c72; color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:700;">⚙️ Kelola Jenis</button>
+                            </div>
+                        </th>
+                        <th style="padding: 16px 14px; text-align: left; min-width:300px; font-weight:800; color:#1e3c72; font-size:16px;">
+                            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                                <span>Unit Kendaraan (CDE, CDD, dll)</span>
+                                <button type="button" onclick="openUnitTypeManager()" style="padding:5px 12px; background:#1e3c72; color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:700;">⚙️ Kelola Jenis</button>
+                            </div>
+                        </th>
                         <th style="padding: 16px 14px; text-align: left; min-width:220px; font-weight:800; color:#1e3c72; font-size:16px;">Kapasitas/Minggu (Kg)</th>
                     </tr>
                 </thead>
@@ -5666,6 +5676,21 @@
                         return;
                     }
 
+                    // ── Hitung satu daftar MASTER jenis unit (dipakai semua rute) ──
+                    const defaultUnits = ['CDE','CDD','CDD Long','Fuso Long'];
+                    const typeSet = new Set(defaultUnits);
+                    sortedRoutes.forEach(route => {
+                        let uv = '';
+                        if (Array.isArray(route.unitInfo)) uv = route.unitInfo.join(', ');
+                        else if (typeof route.unitInfo === 'string' && route.unitInfo !== '-') uv = route.unitInfo;
+                        uv.split(',').map(s => s.trim()).filter(Boolean).forEach(u => typeSet.add(u));
+                        (route.totalUnits || []).forEach(tu => {
+                            const j = (tu?.jenis || '').trim();
+                            if (j) typeSet.add(j);
+                        });
+                    });
+                    masterUnitTypes = Array.from(typeSet);
+
                     sortedRoutes.forEach((route, index) => {
                         const tr = document.createElement('tr');
                         let unitValue = '';
@@ -5675,36 +5700,26 @@
                             unitValue = route.unitInfo;
                         }
                         const kapasitasMingguan = route.baseKapasitas;
-                        
-                        // Parse unitValue jadi array untuk multi-select
-                        const unitArr = unitValue ? unitValue.split(',').map(s=>s.trim()).filter(Boolean) : [];
-                        const defaultUnits = ['CDE','CDD','CDD Long','Fuso Long'];
-                        // Tambahkan unit custom yang tidak ada di default
-                        const allUnits = [...new Set([...defaultUnits, ...unitArr])];
-                        const checkboxesHTML = allUnits.map(u => {
-                            const isCustom = !defaultUnits.includes(u);
-                            const textPart = isCustom
-                                ? `<span class="unit-edit-text" title="Klik untuk edit" style="cursor:text; border-bottom:1px dashed #94a3b8;">${u}</span>
-                                   <span class="unit-remove" title="Hapus unit" style="cursor:pointer; color:#ef4444; font-weight:800; margin-left:2px;">×</span>`
-                                : `${u}`;
-                            return `<label class="unit-label${isCustom ? ' unit-custom' : ''}" style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;font-size:15px;cursor:pointer;font-weight:600;color:#1e293b;">
-                                <input type="checkbox" class="unit-checkbox" value="${u}" ${unitArr.includes(u)?'checked':''} style="cursor:pointer;">
-                                ${textPart}
-                            </label>`;
-                        }).join('');
 
-                        // Total Unit data (3 baris)
+                        // Checkbox untuk SETIAP jenis di daftar master (tercentang sesuai data rute)
+                        const unitArr = unitValue ? unitValue.split(',').map(s=>s.trim()).filter(Boolean) : [];
+                        const checkboxesHTML = masterUnitTypes.map(u =>
+                            `<label class="unit-label" style="display:inline-flex;align-items:center;gap:5px;margin-right:10px;font-size:15px;cursor:pointer;font-weight:600;color:#1e293b;">
+                                <input type="checkbox" class="unit-checkbox" value="${u}" ${unitArr.includes(u)?'checked':''} style="cursor:pointer;">
+                                ${u}
+                            </label>`
+                        ).join('');
+
+                        // Total Unit data (3 baris) — opsi dropdown dari daftar master
                         const totalUnits = route.totalUnits || [{jumlah: 0, jenis: ''}, {jumlah: 0, jenis: ''}, {jumlah: 0, jenis: ''}];
-                        const defaultJenis = ['CDE', 'CDD', 'CDD Long', 'Fuso Long'];
 
                         const totalUnitHTML = `
                             <div style="display:flex; flex-direction:column; gap:6px;">
                                 ${[0, 1, 2].map(i => {
                                     const savedJenis = (totalUnits[i]?.jenis || '').trim();
-                                    // Gabungkan opsi default dengan nilai custom yang tersimpan agar tetap muncul & terpilih
-                                    const optList = savedJenis && !defaultJenis.includes(savedJenis)
-                                        ? [...defaultJenis, savedJenis]
-                                        : defaultJenis;
+                                    const optList = savedJenis && !masterUnitTypes.includes(savedJenis)
+                                        ? [...masterUnitTypes, savedJenis]
+                                        : masterUnitTypes;
                                     const optionsHTML = optList.map(o =>
                                         `<option value="${o}" ${savedJenis === o ? 'selected' : ''}>${o}</option>`
                                     ).join('');
@@ -5715,13 +5730,12 @@
                                             <option value="" ${savedJenis === '' ? 'selected' : ''}>-- Pilih --</option>
                                             ${optionsHTML}
                                         </select>
-                                        <input type="text" class="total-unit-custom" data-index="${i}" placeholder="ketik..." style="width:90px; padding:8px; border:1px solid #ccc; border-radius:6px; font-size:15px; color:#1e293b;">
                                     </div>
                                 `;
                                 }).join('')}
                             </div>
                         `;
-                        
+
                         tr.innerHTML = `
                             <td style="padding: 14px; border-bottom: 1px solid #ddd; text-align: center; font-size:16px; font-weight:700; color:#1e293b;">${index + 1}</td>
                             <td style="padding: 14px; border-bottom: 1px solid #ddd; font-weight: 700; font-size:16px; color:#1e293b;">
@@ -5732,11 +5746,7 @@
                                 ${totalUnitHTML}
                             </td>
                             <td style="padding: 14px; border-bottom: 1px solid #ddd;">
-                                <div class="unit-checkboxes" style="margin-bottom:6px;">${checkboxesHTML}</div>
-                                <div style="display:flex;gap:6px;align-items:center;">
-                                    <input type="text" class="unit-new-input" placeholder="Tambah unit baru..." style="padding:7px 10px;border:1px solid #ccc;border-radius:6px;font-size:15px;width:150px;color:#1e293b;">
-                                    <button type="button" onclick="addUnitOption(this)" style="padding:7px 14px;background:#1e3c72;color:white;border:none;border-radius:6px;cursor:pointer;font-size:15px;font-weight:700;">+ Tambah</button>
-                                </div>
+                                <div class="unit-checkboxes" style="margin-bottom:2px;">${checkboxesHTML}</div>
                             </td>
                             <td style="padding: 14px; border-bottom: 1px solid #ddd;">
                                 <input type="number" inputmode="decimal" step="any" min="0" class="setting-kapasitas" value="${kapasitasMingguan}" placeholder="0" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size:16px; font-weight:700; color:#1e293b;">
@@ -5785,171 +5795,165 @@
             document.getElementById('routeSettingsModal').style.display = 'none';
         }
 
-        // ── Header "Unit Kendaraan": tambah unit baru ke daftar checkbox ──
-        function addUnitOption(btn) {
-            const td = btn.closest('td');
-            if (!td) return;
-            const input = td.querySelector('.unit-new-input');
-            const box = td.querySelector('.unit-checkboxes');
-            if (!input || !box) return;
-            const val = (input.value || '').trim();
-            if (!val) { input.focus(); return; }
+        // ====== PENGELOLA JENIS UNIT TERPUSAT (dipakai semua rute) ======
+        const UNIT_TYPE_DEFAULTS = ['CDE', 'CDD', 'CDD Long', 'Fuso Long'];
+        let masterUnitTypes = [...UNIT_TYPE_DEFAULTS];
 
-            // Cegah duplikat (case-insensitive)
-            const exists = Array.from(box.querySelectorAll('.unit-checkbox'))
-                .some(cb => cb.value.toLowerCase() === val.toLowerCase());
-            if (exists) {
-                // Jika sudah ada, cukup pastikan tercentang
-                Array.from(box.querySelectorAll('.unit-checkbox'))
-                    .forEach(cb => { if (cb.value.toLowerCase() === val.toLowerCase()) cb.checked = true; });
-                input.value = '';
-                input.focus();
+        // Stub: delegation per-baris sudah tidak dipakai (add/edit dipindah ke header).
+        function setupSettingsDelegation() {}
+
+        function _escAttr(s) {
+            return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function openUnitTypeManager() {
+            let overlay = document.getElementById('unitTypeManager');
+            if (!overlay) {
+                overlay = document.createElement('div');
+                overlay.id = 'unitTypeManager';
+                overlay.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:100000; display:flex; align-items:center; justify-content:center;';
+                overlay.innerHTML = `
+                    <div style="background:#fff; border-radius:12px; width:440px; max-width:92vw; max-height:82vh; overflow:auto; box-shadow:0 10px 40px rgba(0,0,0,0.3);">
+                      <div style="display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid #e2e8f0;">
+                        <h3 style="margin:0; color:#1e3c72; font-size:18px; font-weight:800;">⚙️ Kelola Jenis Unit</h3>
+                        <button type="button" onclick="closeUnitTypeManager()" style="background:none;border:none;font-size:24px;line-height:1;cursor:pointer;color:#64748b;">×</button>
+                      </div>
+                      <div style="padding:16px 20px;">
+                        <p style="margin:0 0 12px; font-size:13px; color:#64748b;">Daftar ini berlaku untuk <b>semua rute</b> (kolom Total Unit & Unit Kendaraan). Perubahan benar-benar tersimpan setelah klik <b>Terapkan ke Data</b>.</p>
+                        <div id="unitTypeList" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;"></div>
+                        <div style="display:flex; gap:8px;">
+                          <input type="text" id="unitTypeNewInput" placeholder="Jenis unit baru..." style="flex:1; padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:15px; color:#1e293b;">
+                          <button type="button" onclick="addUnitTypeGlobal()" style="padding:9px 16px; background:#16a34a; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700;">+ Tambah</button>
+                        </div>
+                      </div>
+                      <div style="padding:12px 20px; border-top:1px solid #e2e8f0; text-align:right;">
+                        <button type="button" onclick="closeUnitTypeManager()" style="padding:9px 22px; background:#1e3c72; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700;">Selesai</button>
+                      </div>
+                    </div>`;
+                document.body.appendChild(overlay);
+                overlay.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && e.target.id === 'unitTypeNewInput') { e.preventDefault(); addUnitTypeGlobal(); }
+                    else if (e.key === 'Escape') closeUnitTypeManager();
+                });
+                overlay.addEventListener('mousedown', (e) => { if (e.target === overlay) closeUnitTypeManager(); });
+                overlay.addEventListener('click', (e) => {
+                    const delName = e.target.getAttribute && e.target.getAttribute('data-del');
+                    if (delName !== null && delName !== undefined && e.target.hasAttribute('data-del')) {
+                        deleteUnitTypeGlobal(delName);
+                    }
+                });
+            }
+            overlay.style.display = 'flex';
+            renderUnitTypeManagerList();
+            const ni = document.getElementById('unitTypeNewInput');
+            if (ni) { ni.value = ''; setTimeout(() => ni.focus(), 50); }
+        }
+
+        function closeUnitTypeManager() {
+            const o = document.getElementById('unitTypeManager');
+            if (o) o.style.display = 'none';
+        }
+
+        function renderUnitTypeManagerList() {
+            const list = document.getElementById('unitTypeList');
+            if (!list) return;
+            if (!masterUnitTypes.length) {
+                list.innerHTML = '<div style="color:#94a3b8;font-size:14px;">Belum ada jenis unit.</div>';
                 return;
             }
-
-            const label = document.createElement('label');
-            label.className = 'unit-label unit-custom';
-            label.style.cssText = 'display:inline-flex;align-items:center;gap:5px;margin-right:10px;font-size:15px;cursor:pointer;font-weight:600;color:#1e293b;';
-            label.innerHTML = `<input type="checkbox" class="unit-checkbox" value="${val}" checked style="cursor:pointer;">
-                <span class="unit-edit-text" title="Klik untuk edit" style="cursor:text; border-bottom:1px dashed #94a3b8;">${val}</span>
-                <span class="unit-remove" title="Hapus unit" style="cursor:pointer; color:#ef4444; font-weight:800; margin-left:2px;">×</span>`;
-            box.appendChild(label);
-            input.value = '';
-            input.focus();
+            list.innerHTML = masterUnitTypes.map(u => {
+                const isDefault = UNIT_TYPE_DEFAULTS.includes(u);
+                const e = _escAttr(u);
+                return `<div style="display:flex; gap:8px; align-items:center;">
+                    <input type="text" value="${e}" data-old="${e}" ${isDefault ? 'readonly' : ''}
+                        onchange="renameUnitTypeGlobal(this)"
+                        style="flex:1; padding:8px 10px; border:1px solid ${isDefault ? '#e2e8f0' : '#cbd5e1'}; border-radius:6px; font-size:15px; color:#1e293b; ${isDefault ? 'background:#f8fafc;' : ''}">
+                    ${isDefault
+                        ? '<span style="font-size:11px;color:#94a3b8;width:64px;text-align:center;">standar</span>'
+                        : `<button type="button" data-del="${e}" style="padding:6px 12px; background:#ef4444; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:700;">Hapus</button>`}
+                </div>`;
+            }).join('');
         }
 
-        // Edit inline nama unit custom: klik teks → jadi input → ketik → Enter (Esc batal)
-        function startEditUnit(span) {
-            if (span.querySelector('input')) return;
-            const label = span.closest('label');
-            const box = label?.parentElement;
-            const checkbox = label?.querySelector('.unit-checkbox');
-            if (!label || !box || !checkbox) return;
-            const oldVal = checkbox.value;
-
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.value = oldVal;
-            input.style.cssText = 'width:100px;padding:2px 6px;border:1px solid #2a5298;border-radius:4px;font-size:14px;font-weight:600;color:#1e293b;';
-            span.textContent = '';
-            span.appendChild(input);
-            input.focus();
-            input.select();
-
-            let done = false;
-            const finish = (commit) => {
-                if (done) return; done = true;
-                const newVal = (input.value || '').trim();
-                if (!commit || !newVal) { span.textContent = oldVal; return; }
-
-                // Jika nama baru bentrok dengan unit lain yang sudah ada → hapus label ini,
-                // pastikan unit yang sudah ada itu tercentang.
-                const dup = Array.from(box.querySelectorAll('.unit-checkbox'))
-                    .some(cb => cb !== checkbox && cb.value.toLowerCase() === newVal.toLowerCase());
-                if (dup) {
-                    Array.from(box.querySelectorAll('.unit-checkbox')).forEach(cb => {
-                        if (cb.value.toLowerCase() === newVal.toLowerCase()) cb.checked = true;
-                    });
-                    label.remove();
-                    return;
-                }
-                checkbox.value = newVal;
-                span.textContent = newVal;
-            };
-
-            input.addEventListener('keydown', (e) => {
-                e.stopPropagation();
-                if (e.key === 'Enter') { e.preventDefault(); finish(true); }
-                else if (e.key === 'Escape') { e.preventDefault(); finish(false); }
-            });
-            input.addEventListener('blur', () => finish(true));
+        function _eachSettingsRow(fn) {
+            document.querySelectorAll('#routeSettingsBody tr').forEach(fn);
         }
 
-        // ── Header "Total Unit (3 Baris)": ketik + Enter ──
-        //   • Jika opsi CUSTOM sedang dipilih  → RENAME opsi itu (edit)
-        //   • Jika tidak (default/-- Pilih --)  → TAMBAH opsi baru
-        const TOTAL_UNIT_DEFAULTS = ['CDE', 'CDD', 'CDD Long', 'Fuso Long'];
-        function commitTotalUnitCustom(customInput) {
-            const val = (customInput.value || '').trim();
-            if (!val) return;
-            const idx = customInput.getAttribute('data-index');
-            const row = customInput.closest('tr');
-            if (!row) return;
-            const select = row.querySelector(`.total-unit-jenis[data-index="${idx}"]`);
-            if (!select) return;
-
-            const current = select.options[select.selectedIndex];
-            const currentVal = current ? current.value : '';
-            const isCustomSelected = currentVal && !TOTAL_UNIT_DEFAULTS.includes(currentVal);
-
-            if (isCustomSelected) {
-                // EDIT: ganti nama opsi custom yang sedang dipilih.
-                // Jika nama baru sudah ada sebagai opsi lain → pakai opsi itu, hapus yang lama.
-                const dup = Array.from(select.options)
-                    .find(o => o !== current && o.value.toLowerCase() === val.toLowerCase());
-                if (dup) {
-                    select.value = dup.value;
-                    current.remove();
-                } else {
-                    current.value = val;
-                    current.textContent = val;
-                    select.value = val;
-                }
-            } else {
-                // ADD: tambah opsi baru (atau pilih jika sudah ada)
-                let opt = Array.from(select.options).find(o => o.value.toLowerCase() === val.toLowerCase());
-                if (!opt) {
-                    opt = document.createElement('option');
-                    opt.value = val;
-                    opt.textContent = val;
-                    select.appendChild(opt);
-                }
-                select.value = opt.value;
+        function addUnitTypeGlobal() {
+            const input = document.getElementById('unitTypeNewInput');
+            const name = (input?.value || '').trim();
+            if (!name) { input?.focus(); return; }
+            if (masterUnitTypes.some(u => u.toLowerCase() === name.toLowerCase())) {
+                alert('Jenis unit "' + name + '" sudah ada.');
+                if (input) { input.value = ''; input.focus(); }
+                return;
             }
-            customInput.value = '';
+            masterUnitTypes.push(name);
+            _eachSettingsRow(tr => {
+                const box = tr.querySelector('.unit-checkboxes');
+                if (box) {
+                    const lbl = document.createElement('label');
+                    lbl.className = 'unit-label';
+                    lbl.style.cssText = 'display:inline-flex;align-items:center;gap:5px;margin-right:10px;font-size:15px;cursor:pointer;font-weight:600;color:#1e293b;';
+                    lbl.innerHTML = `<input type="checkbox" class="unit-checkbox" value="${_escAttr(name)}" style="cursor:pointer;"> ${name}`;
+                    box.appendChild(lbl);
+                }
+                tr.querySelectorAll('.total-unit-jenis').forEach(sel => {
+                    const opt = document.createElement('option');
+                    opt.value = name; opt.textContent = name;
+                    sel.appendChild(opt);
+                });
+            });
+            if (input) { input.value = ''; input.focus(); }
+            renderUnitTypeManagerList();
         }
 
-        // Pasang listener delegasi SEKALI saja untuk modal pengaturan
-        let _settingsDelegationReady = false;
-        function setupSettingsDelegation() {
-            if (_settingsDelegationReady) return;
-            const modal = document.getElementById('routeSettingsModal');
-            if (!modal) return;
-            modal.addEventListener('keydown', (e) => {
-                if (e.key !== 'Enter') return;
-                if (e.target.classList.contains('unit-new-input')) {
-                    e.preventDefault();
-                    const btn = e.target.closest('td')?.querySelector('button[onclick*="addUnitOption"]');
-                    if (btn) addUnitOption(btn);
-                } else if (e.target.classList.contains('total-unit-custom')) {
-                    e.preventDefault();
-                    commitTotalUnitCustom(e.target);
-                }
+        function renameUnitTypeGlobal(inputEl) {
+            const oldName = inputEl.getAttribute('data-old');
+            const newName = (inputEl.value || '').trim();
+            if (!newName) { inputEl.value = oldName; return; }
+            if (newName === oldName) return;
+            if (masterUnitTypes.some(u => u.toLowerCase() === newName.toLowerCase())) {
+                alert('Jenis unit "' + newName + '" sudah ada.');
+                inputEl.value = oldName;
+                return;
+            }
+            const idx = masterUnitTypes.indexOf(oldName);
+            if (idx === -1) return;
+            masterUnitTypes[idx] = newName;
+            inputEl.setAttribute('data-old', newName);
+            _eachSettingsRow(tr => {
+                tr.querySelectorAll('.unit-checkbox').forEach(cb => {
+                    if (cb.value === oldName) {
+                        const lbl = cb.closest('label');
+                        const was = cb.checked;
+                        if (lbl) lbl.innerHTML = `<input type="checkbox" class="unit-checkbox" value="${_escAttr(newName)}" ${was ? 'checked' : ''} style="cursor:pointer;"> ${newName}`;
+                    }
+                });
+                tr.querySelectorAll('.total-unit-jenis option').forEach(opt => {
+                    if (opt.value === oldName) { opt.value = newName; opt.textContent = newName; }
+                });
             });
-            // Saat memilih opsi CUSTOM di dropdown jenis, isi otomatis kolom "ketik..."
-            // dengan nilainya agar mudah diubah ("pilih lalu ubah"). Opsi default → kosongkan.
-            modal.addEventListener('change', (e) => {
-                if (!e.target.classList.contains('total-unit-jenis')) return;
-                const sel = e.target;
-                const idx = sel.getAttribute('data-index');
-                const row = sel.closest('tr');
-                const customInput = row?.querySelector(`.total-unit-custom[data-index="${idx}"]`);
-                if (!customInput) return;
-                customInput.value = (sel.value && !TOTAL_UNIT_DEFAULTS.includes(sel.value)) ? sel.value : '';
+        }
+
+        function deleteUnitTypeGlobal(name) {
+            if (!confirm(`Hapus jenis unit "${name}" dari semua rute?`)) return;
+            masterUnitTypes = masterUnitTypes.filter(u => u !== name);
+            _eachSettingsRow(tr => {
+                tr.querySelectorAll('.unit-checkbox').forEach(cb => {
+                    if (cb.value === name) cb.closest('label')?.remove();
+                });
+                tr.querySelectorAll('.total-unit-jenis').forEach(sel => {
+                    Array.from(sel.options).forEach(opt => {
+                        if (opt.value === name) {
+                            const wasSel = opt.selected;
+                            opt.remove();
+                            if (wasSel) sel.value = '';
+                        }
+                    });
+                });
             });
-            // Klik teks unit custom → edit inline; klik "×" → hapus unit custom.
-            modal.addEventListener('click', (e) => {
-                if (e.target.classList.contains('unit-edit-text')) {
-                    e.preventDefault();   // cegah label men-toggle checkbox
-                    e.stopPropagation();
-                    startEditUnit(e.target);
-                } else if (e.target.classList.contains('unit-remove')) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.target.closest('label')?.remove();
-                }
-            });
-            _settingsDelegationReady = true;
+            renderUnitTypeManagerList();
         }
 
         async function applyRouteSettings() {
@@ -5994,11 +5998,10 @@
                     for (let i = 0; i < 3; i++) {
                         const jumlahInput = tr.querySelector(`.total-unit-jumlah[data-index="${i}"]`);
                         const jenisSelect = tr.querySelector(`.total-unit-jenis[data-index="${i}"]`);
-                        const customInput = tr.querySelector(`.total-unit-custom[data-index="${i}"]`);
-                        
+
                         const jumlah = jumlahInput ? parseInt(jumlahInput.value) || 0 : 0;
-                        const jenis = customInput?.value?.trim() || jenisSelect?.value || '';
-                        
+                        const jenis = jenisSelect?.value || '';
+
                         totalUnits.push({
                             jumlah: jumlah,
                             jenis: jenis
