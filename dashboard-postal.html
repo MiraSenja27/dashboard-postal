@@ -5690,22 +5690,30 @@
 
                         // Total Unit data (3 baris)
                         const totalUnits = route.totalUnits || [{jumlah: 0, jenis: ''}, {jumlah: 0, jenis: ''}, {jumlah: 0, jenis: ''}];
-                        
+                        const defaultJenis = ['CDE', 'CDD', 'CDD Long', 'Fuso Long'];
+
                         const totalUnitHTML = `
                             <div style="display:flex; flex-direction:column; gap:6px;">
-                                ${[0, 1, 2].map(i => `
+                                ${[0, 1, 2].map(i => {
+                                    const savedJenis = (totalUnits[i]?.jenis || '').trim();
+                                    // Gabungkan opsi default dengan nilai custom yang tersimpan agar tetap muncul & terpilih
+                                    const optList = savedJenis && !defaultJenis.includes(savedJenis)
+                                        ? [...defaultJenis, savedJenis]
+                                        : defaultJenis;
+                                    const optionsHTML = optList.map(o =>
+                                        `<option value="${o}" ${savedJenis === o ? 'selected' : ''}>${o}</option>`
+                                    ).join('');
+                                    return `
                                     <div style="display:flex; gap:6px; align-items:center;">
                                         <input type="number" inputmode="numeric" step="1" min="0" class="total-unit-jumlah" data-index="${i}" value="${totalUnits[i]?.jumlah || 0}" placeholder="0" style="width:65px; padding:8px; border:1px solid #ccc; border-radius:6px; font-size:15px; font-weight:700; color:#1e293b;">
                                         <select class="total-unit-jenis" data-index="${i}" style="flex:1; padding:8px; border:1px solid #ccc; border-radius:6px; font-size:15px; font-weight:600; color:#1e293b;">
-                                            <option value="">-- Pilih --</option>
-                                            <option value="CDE" ${totalUnits[i]?.jenis === 'CDE' ? 'selected' : ''}>CDE</option>
-                                            <option value="CDD" ${totalUnits[i]?.jenis === 'CDD' ? 'selected' : ''}>CDD</option>
-                                            <option value="CDD Long" ${totalUnits[i]?.jenis === 'CDD Long' ? 'selected' : ''}>CDD Long</option>
-                                            <option value="Fuso Long" ${totalUnits[i]?.jenis === 'Fuso Long' ? 'selected' : ''}>Fuso Long</option>
+                                            <option value="" ${savedJenis === '' ? 'selected' : ''}>-- Pilih --</option>
+                                            ${optionsHTML}
                                         </select>
                                         <input type="text" class="total-unit-custom" data-index="${i}" placeholder="ketik..." style="width:90px; padding:8px; border:1px solid #ccc; border-radius:6px; font-size:15px; color:#1e293b;">
                                     </div>
-                                `).join('')}
+                                `;
+                                }).join('')}
                             </div>
                         `;
                         
