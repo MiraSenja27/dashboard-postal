@@ -5921,7 +5921,9 @@
             const newName = (inputEl.value || '').trim();
             if (!newName) { inputEl.value = oldName; return; }
             if (newName === oldName) return;
-            if (masterUnitTypes.some(u => u.toLowerCase() === newName.toLowerCase())) {
+            // Cek duplikat TERHADAP ENTRI LAIN saja (kecualikan diri sendiri),
+            // sehingga perubahan hanya besar/kecil huruf (mis. "CDD Long" → "CDD LONG") tetap boleh.
+            if (masterUnitTypes.some(u => u !== oldName && u.toLowerCase() === newName.toLowerCase())) {
                 alert('Jenis unit "' + newName + '" sudah ada.');
                 inputEl.value = oldName;
                 return;
