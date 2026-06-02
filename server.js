@@ -997,8 +997,37 @@ app.get("/api/routes", async (req, res) => {
       _totalUnitsFromVolume: r.totalUnits
     }));
 
-    // totalUnits: utamakan hasil dari VolumeData (sesuai filter); jika kosong,
-    // baru fallback ke master RouteSettings (untuk rute yang belum punya volume).
+    // ── Fallback totalUnits LINTAS-MINGGU ──
+    // Badge "Total Unit" bersifat per-rute (jumlah armada), jadi harus tetap muncul
+    // untuk filter minggu/tanggal apa pun. Jika record di minggu terfilter belum punya
+    // totalUnits, ambil dari record rute yang sama di minggu mana pun (abaikan filter waktu).
+    const globalTUQuery = {};
+    if (category) globalTUQuery.category = category;
+    if (
+      routeFilter &&
+      routeFilter !== "" &&
+      routeFilter !== "undefined" &&
+      routeFilter !== "null" &&
+      routeFilter !== "Semua Rute"
+    ) {
+      globalTUQuery.rute = { $regex: new RegExp(`^${routeFilter}$`, "i") };
+    }
+    const globalTURecords = await VolumeData.find(globalTUQuery, "rute totalUnits tanggal")
+      .sort({ tanggal: -1 })
+      .lean();
+    const globalTUMap = {};
+    globalTURecords.forEach(item => {
+      if (!item || !item.rute || globalTUMap[item.rute]) return;
+      if (
+        Array.isArray(item.totalUnits) &&
+        item.totalUnits.some(tu => tu && ((tu.jumlah || 0) > 0 || (tu.jenis || '').trim() !== ''))
+      ) {
+        globalTUMap[item.rute] = item.totalUnits;
+      }
+    });
+
+    // totalUnits: utamakan hasil dari VolumeData minggu terfilter; jika kosong, pakai
+    // nilai lintas-minggu; terakhir baru fallback ke master RouteSettings.
     const routeSettingsMap = {};
     const allSettings = await RouteSettings.find({}).lean();
     allSettings.forEach(rs => {
@@ -1006,10 +1035,12 @@ app.get("/api/routes", async (req, res) => {
     });
 
     routes.forEach(route => {
+      const fromVolume = route._totalUnitsFromVolume;
+      const fromGlobal = globalTUMap[route.route_name];
       route.totalUnits =
-        (route._totalUnitsFromVolume && route._totalUnitsFromVolume.length > 0)
-          ? route._totalUnitsFromVolume
-          : (routeSettingsMap[route.route_name] || []);
+        (fromVolume && fromVolume.length > 0) ? fromVolume
+        : (fromGlobal && fromGlobal.length > 0) ? fromGlobal
+        : (routeSettingsMap[route.route_name] || []);
       delete route._totalUnitsFromVolume;
     });
     
