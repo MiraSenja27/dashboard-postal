@@ -948,8 +948,19 @@ app.get("/api/routes", async (req, res) => {
           space_sum: 0,
           count: 0,
           base_kapasitas: 0,
-          units: new Set()
+          units: new Set(),
+          totalUnits: null
         };
+      }
+
+      // Ambil totalUnits dari record terbaru yang punya isi (data di-sort tanggal desc),
+      // sehingga nilai yang tampil di popup sesuai scope filter dari VolumeData.
+      if (
+        !routeMap[item.rute].totalUnits &&
+        Array.isArray(item.totalUnits) &&
+        item.totalUnits.some(tu => tu && ((tu.jumlah || 0) > 0 || (tu.jenis || '').trim() !== ''))
+      ) {
+        routeMap[item.rute].totalUnits = item.totalUnits;
       }
 
       // Ambil kapasitas terbesar yang tidak nol dari semua record rute ini
@@ -982,18 +993,24 @@ app.get("/api/routes", async (req, res) => {
       kapasitas: r.kapasitas_total,
       space_available: r.space_sum,
       base_kapasitas: r.base_kapasitas,
-      units: Array.from(r.units).join(', ')
+      units: Array.from(r.units).join(', '),
+      _totalUnitsFromVolume: r.totalUnits
     }));
-    
-    // Tambah totalUnits dari RouteSettings
+
+    // totalUnits: utamakan hasil dari VolumeData (sesuai filter); jika kosong,
+    // baru fallback ke master RouteSettings (untuk rute yang belum punya volume).
     const routeSettingsMap = {};
     const allSettings = await RouteSettings.find({}).lean();
     allSettings.forEach(rs => {
       routeSettingsMap[rs.rute] = rs.totalUnits || [];
     });
-    
+
     routes.forEach(route => {
-      route.totalUnits = routeSettingsMap[route.route_name] || [];
+      route.totalUnits =
+        (route._totalUnitsFromVolume && route._totalUnitsFromVolume.length > 0)
+          ? route._totalUnitsFromVolume
+          : (routeSettingsMap[route.route_name] || []);
+      delete route._totalUnitsFromVolume;
     });
     
     let minDate = null,
@@ -1099,9 +1116,28 @@ app.delete("/api/sla", async (req, res) => {
 // Delete Volume data by route name (dengan filter weekKey/tanggal opsional)
 app.delete("/api/volume", async (req, res) => {
   try {
-    const { routeName, routeNames, weekKey, startDate, endDate, category } = req.body;
+    const { ids, routeName, routeNames, weekKey, startDate, endDate, category } = req.body;
+
+    // ── Mode 1: hapus berdasarkan daftar _id (per-baris, sesuai centang) ──
+    if (Array.isArray(ids) && ids.length > 0) {
+      const validIds = ids.filter(Boolean);
+      const idFilter = { _id: { $in: validIds } };
+      if (category) idFilter.category = category;
+      const r = await VolumeData.deleteMany(idFilter);
+      if (r.deletedCount === 0)
+        return res.status(404).json({
+          success: false,
+          message: "Data tidak ditemukan untuk ID yang dipilih",
+        });
+      return res.json({
+        success: true,
+        message: `Berhasil menghapus ${r.deletedCount} data Volume`,
+      });
+    }
+
+    // ── Mode 2: hapus berdasarkan rute + scope waktu (perilaku lama) ──
     if (!routeName && (!routeNames || !Array.isArray(routeNames))) {
-      return res.status(400).json({ success: false, message: "Route name(s) is required" });
+      return res.status(400).json({ success: false, message: "Route name(s) or ids is required" });
     }
     const targets = routeNames || [routeName];
 

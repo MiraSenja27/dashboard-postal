@@ -4783,14 +4783,22 @@
             const selectAll = document.getElementById('selectAllVolume');
             const checkboxes = document.querySelectorAll('.volume-checkbox');
             checkboxes.forEach(cb => {
-                cb.checked = selectAll.checked;
+                const tr = cb.closest('tr');
+                if (tr && tr.style.display !== 'none') {
+                    cb.checked = selectAll.checked;
+                }
             });
         }
 
         async function deleteSelectedVolume() {
-            const checkboxes = document.querySelectorAll('.volume-checkbox:checked');
+            const checkboxes = Array.from(document.querySelectorAll('.volume-checkbox:checked'))
+                .filter(cb => {
+                    const tr = cb.closest('tr');
+                    return tr && tr.style.display !== 'none';
+                });
+
             if (checkboxes.length === 0) {
-                alert('Pilih setidaknya satu data Volume untuk dihapus.');
+                alert('Pilih setidaknya satu data Volume yang terlihat untuk dihapus.');
                 return;
             }
             
@@ -4799,7 +4807,7 @@
             }
             
             // Kirim ID spesifik agar hanya data yang terfilter yang terhapus
-            const ids = Array.from(checkboxes).map(cb => cb.value).filter(Boolean);
+            const ids = checkboxes.map(cb => cb.value).filter(Boolean);
             
             try {
                 const response = await fetch(`${API_URL}/volume`, {
@@ -4981,13 +4989,13 @@
             <!-- Filter scope -->
             <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:12px 18px; margin-bottom:20px; display:flex; gap:10px; align-items:center; flex-wrap:nowrap; overflow-x:auto;">
                 <span style="font-weight:800; color:#1e3c72; font-size:16px; white-space:nowrap;">🎯 Terapkan ke:</span>
-                <select id="settingsWeekFilter" style="padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:15px; height:40px; min-width:180px; color:#1e293b; font-weight:600;">
+                <select id="settingsWeekFilter" onchange="onSettingsWeekChange()" style="padding:9px 12px; border:1px solid #cbd5e1; border-radius:8px; font-size:15px; height:40px; min-width:180px; color:#1e293b; font-weight:600;">
                     <option value="ALL">📅 SEMUA MINGGU</option>
                 </select>
                 <span style="color:#1e293b; font-size:16px; white-space:nowrap; font-weight:600;">|</span>
-                <input type="date" id="settingsStartDate" style="padding:9px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:15px; height:40px; width:165px; color:#1e293b; font-weight:600;">
+                <input type="date" id="settingsStartDate" onchange="onSettingsDateChange()" style="padding:9px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:15px; height:40px; width:165px; color:#1e293b; font-weight:600;">
                 <span style="color:#1e293b; font-size:16px; white-space:nowrap; font-weight:600;">s/d</span>
-                <input type="date" id="settingsEndDate" style="padding:9px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:15px; height:40px; width:165px; color:#1e293b; font-weight:600;">
+                <input type="date" id="settingsEndDate" onchange="onSettingsDateChange()" style="padding:9px 10px; border:1px solid #cbd5e1; border-radius:8px; font-size:15px; height:40px; width:165px; color:#1e293b; font-weight:600;">
                 <button onclick="clearSettingsDateFilter()" style="padding:9px 18px; background:#64748b; color:white; border:none; border-radius:8px; cursor:pointer; font-size:15px; height:40px; white-space:nowrap; flex-shrink:0; font-weight:700;">Reset</button>
             </div>
 
@@ -5592,6 +5600,7 @@
             const tbody = document.getElementById('routeSettingsBody');
             tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px;">⏳ Memuat data rute...</td></tr>';
             modal.style.display = 'flex';
+            setupSettingsDelegation();
 
             // Populate week dropdown dari weekFilter utama
             const settingsWeekFilter = document.getElementById('settingsWeekFilter');
@@ -5608,8 +5617,38 @@
                 });
             }
 
+            // Saat pertama dibuka, tampilkan akumulasi SEMUA MINGGU
+            if (settingsWeekFilter) settingsWeekFilter.value = 'ALL';
+            const sd0 = document.getElementById('settingsStartDate');
+            const se0 = document.getElementById('settingsEndDate');
+            if (sd0) sd0.value = '';
+            if (se0) se0.value = '';
+
+            await loadRouteSettingsData();
+        }
+
+        // Memuat (ulang) isi tabel pengaturan sesuai filter scope yang dipilih.
+        // Dipanggil saat buka popup dan setiap kali filter popup berubah.
+        async function loadRouteSettingsData() {
+            const tbody = document.getElementById('routeSettingsBody');
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px;">⏳ Memuat data rute...</td></tr>';
+
+            // Baca scope filter dari popup (bukan hardcode ALL)
+            const weekKey   = document.getElementById('settingsWeekFilter')?.value || 'ALL';
+            const startDate = document.getElementById('settingsStartDate')?.value || '';
+            const endDate   = document.getElementById('settingsEndDate')?.value || '';
+
+            const params = new URLSearchParams({ category: currentMenu });
+            if (weekKey && weekKey !== 'ALL') {
+                params.set('weekKey', weekKey);
+            } else {
+                params.set('weekKey', 'ALL');
+                if (startDate) params.set('startDate', startDate);
+                if (endDate)   params.set('endDate', endDate);
+            }
+
             try {
-                const response = await fetch(`${API_URL}/routes?category=${currentMenu}&weekKey=ALL`);
+                const response = await fetch(`${API_URL}/routes?${params.toString()}`);
                 const result = await response.json();
 
                 if (result.success && result.data) {
@@ -5656,7 +5695,7 @@
                             <div style="display:flex; flex-direction:column; gap:6px;">
                                 ${[0, 1, 2].map(i => `
                                     <div style="display:flex; gap:6px; align-items:center;">
-                                        <input type="number" class="total-unit-jumlah" data-index="${i}" value="${totalUnits[i]?.jumlah || 0}" placeholder="0" style="width:65px; padding:8px; border:1px solid #ccc; border-radius:6px; font-size:15px; font-weight:700; color:#1e293b;">
+                                        <input type="number" inputmode="numeric" step="1" min="0" class="total-unit-jumlah" data-index="${i}" value="${totalUnits[i]?.jumlah || 0}" placeholder="0" style="width:65px; padding:8px; border:1px solid #ccc; border-radius:6px; font-size:15px; font-weight:700; color:#1e293b;">
                                         <select class="total-unit-jenis" data-index="${i}" style="flex:1; padding:8px; border:1px solid #ccc; border-radius:6px; font-size:15px; font-weight:600; color:#1e293b;">
                                             <option value="">-- Pilih --</option>
                                             <option value="CDE" ${totalUnits[i]?.jenis === 'CDE' ? 'selected' : ''}>CDE</option>
@@ -5687,7 +5726,7 @@
                                 </div>
                             </td>
                             <td style="padding: 14px; border-bottom: 1px solid #ddd;">
-                                <input type="number" class="setting-kapasitas" value="${kapasitasMingguan}" placeholder="0" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size:16px; font-weight:700; color:#1e293b;">
+                                <input type="number" inputmode="decimal" step="any" min="0" class="setting-kapasitas" value="${kapasitasMingguan}" placeholder="0" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size:16px; font-weight:700; color:#1e293b;">
                             </td>
                         `;
                         tbody.appendChild(tr);
@@ -5700,6 +5739,25 @@
             }
         }
 
+        // Saat filter MINGGU berubah: kosongkan filter tanggal lalu muat ulang
+        function onSettingsWeekChange() {
+            const wk = document.getElementById('settingsWeekFilter')?.value;
+            if (wk && wk !== 'ALL') {
+                const sd = document.getElementById('settingsStartDate');
+                const se = document.getElementById('settingsEndDate');
+                if (sd) sd.value = '';
+                if (se) se.value = '';
+            }
+            loadRouteSettingsData();
+        }
+
+        // Saat filter TANGGAL berubah: set minggu ke ALL lalu muat ulang
+        function onSettingsDateChange() {
+            const sw = document.getElementById('settingsWeekFilter');
+            if (sw) sw.value = 'ALL';
+            loadRouteSettingsData();
+        }
+
         function clearSettingsDateFilter() {
             const sw = document.getElementById('settingsWeekFilter');
             const sd = document.getElementById('settingsStartDate');
@@ -5707,10 +5765,83 @@
             if (sw) sw.value = 'ALL';
             if (sd) sd.value = '';
             if (se) se.value = '';
+            loadRouteSettingsData();
         }
 
         function closeRouteSettings() {
             document.getElementById('routeSettingsModal').style.display = 'none';
+        }
+
+        // ── Header "Unit Kendaraan": tambah unit baru ke daftar checkbox ──
+        function addUnitOption(btn) {
+            const td = btn.closest('td');
+            if (!td) return;
+            const input = td.querySelector('.unit-new-input');
+            const box = td.querySelector('.unit-checkboxes');
+            if (!input || !box) return;
+            const val = (input.value || '').trim();
+            if (!val) { input.focus(); return; }
+
+            // Cegah duplikat (case-insensitive)
+            const exists = Array.from(box.querySelectorAll('.unit-checkbox'))
+                .some(cb => cb.value.toLowerCase() === val.toLowerCase());
+            if (exists) {
+                // Jika sudah ada, cukup pastikan tercentang
+                Array.from(box.querySelectorAll('.unit-checkbox'))
+                    .forEach(cb => { if (cb.value.toLowerCase() === val.toLowerCase()) cb.checked = true; });
+                input.value = '';
+                input.focus();
+                return;
+            }
+
+            const label = document.createElement('label');
+            label.style.cssText = 'display:inline-flex;align-items:center;gap:5px;margin-right:10px;font-size:15px;cursor:pointer;font-weight:600;color:#1e293b;';
+            label.innerHTML = `<input type="checkbox" class="unit-checkbox" value="${val}" checked style="cursor:pointer;"> ${val}`;
+            box.appendChild(label);
+            input.value = '';
+            input.focus();
+        }
+
+        // ── Header "Total Unit (3 Baris)": ketik + Enter → jadi opsi dropdown ──
+        function commitTotalUnitCustom(customInput) {
+            const val = (customInput.value || '').trim();
+            if (!val) return;
+            const idx = customInput.getAttribute('data-index');
+            const row = customInput.closest('tr');
+            if (!row) return;
+            const select = row.querySelector(`.total-unit-jenis[data-index="${idx}"]`);
+            if (!select) return;
+
+            // Tambah opsi jika belum ada, lalu pilih
+            let opt = Array.from(select.options).find(o => o.value.toLowerCase() === val.toLowerCase());
+            if (!opt) {
+                opt = document.createElement('option');
+                opt.value = val;
+                opt.textContent = val;
+                select.appendChild(opt);
+            }
+            select.value = opt.value;
+            customInput.value = '';
+        }
+
+        // Pasang listener delegasi SEKALI saja untuk modal pengaturan
+        let _settingsDelegationReady = false;
+        function setupSettingsDelegation() {
+            if (_settingsDelegationReady) return;
+            const modal = document.getElementById('routeSettingsModal');
+            if (!modal) return;
+            modal.addEventListener('keydown', (e) => {
+                if (e.key !== 'Enter') return;
+                if (e.target.classList.contains('unit-new-input')) {
+                    e.preventDefault();
+                    const btn = e.target.closest('td')?.querySelector('button[onclick*="addUnitOption"]');
+                    if (btn) addUnitOption(btn);
+                } else if (e.target.classList.contains('total-unit-custom')) {
+                    e.preventDefault();
+                    commitTotalUnitCustom(e.target);
+                }
+            });
+            _settingsDelegationReady = true;
         }
 
         async function applyRouteSettings() {
