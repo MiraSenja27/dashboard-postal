@@ -5008,13 +5008,13 @@
                         <th style="padding: 16px 14px; text-align: left; min-width:200px; font-weight:800; color:#1e3c72; font-size:16px;">Nama Rute</th>
                         <th style="padding: 16px 14px; text-align: left; min-width:350px; font-weight:800; color:#1e3c72; font-size:16px;">
                             <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                                <span>Total Unit (3 Baris)</span>
+                                <span>Total Unit</span>
                                 <button type="button" onclick="openUnitTypeManager()" style="padding:5px 12px; background:#1e3c72; color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:700;">⚙️ Kelola Jenis</button>
                             </div>
                         </th>
                         <th style="padding: 16px 14px; text-align: left; min-width:300px; font-weight:800; color:#1e3c72; font-size:16px;">
                             <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                                <span>Unit Kendaraan (CDE, CDD, dll)</span>
+                                <span>Unit Kendaraan</span>
                                 <button type="button" onclick="openUnitTypeManager()" style="padding:5px 12px; background:#1e3c72; color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:700;">⚙️ Kelola Jenis</button>
                             </div>
                         </th>
@@ -5676,9 +5676,10 @@
                         return;
                     }
 
-                    // ── Hitung satu daftar MASTER jenis unit (dipakai semua rute) ──
-                    const defaultUnits = ['CDE','CDD','CDD Long','Fuso Long'];
-                    const typeSet = new Set(defaultUnits);
+                    // ── Susun daftar MASTER jenis unit dari data yang BENAR-BENAR ada ──
+                    // (default hanya dipakai sebagai cadangan bila data kosong, sehingga
+                    //  jenis yang sudah dihapus tidak muncul lagi)
+                    const typeSet = new Set();
                     sortedRoutes.forEach(route => {
                         let uv = '';
                         if (Array.isArray(route.unitInfo)) uv = route.unitInfo.join(', ');
@@ -5690,6 +5691,7 @@
                         });
                     });
                     masterUnitTypes = Array.from(typeSet);
+                    if (masterUnitTypes.length === 0) masterUnitTypes = [...UNIT_TYPE_DEFAULTS];
 
                     sortedRoutes.forEach((route, index) => {
                         const tr = document.createElement('tr');
@@ -5858,19 +5860,16 @@
             const list = document.getElementById('unitTypeList');
             if (!list) return;
             if (!masterUnitTypes.length) {
-                list.innerHTML = '<div style="color:#94a3b8;font-size:14px;">Belum ada jenis unit.</div>';
+                list.innerHTML = '<div style="color:#94a3b8;font-size:14px;">Belum ada jenis unit. Tambahkan di bawah.</div>';
                 return;
             }
             list.innerHTML = masterUnitTypes.map(u => {
-                const isDefault = UNIT_TYPE_DEFAULTS.includes(u);
                 const e = _escAttr(u);
                 return `<div style="display:flex; gap:8px; align-items:center;">
-                    <input type="text" value="${e}" data-old="${e}" ${isDefault ? 'readonly' : ''}
+                    <input type="text" value="${e}" data-old="${e}"
                         onchange="renameUnitTypeGlobal(this)"
-                        style="flex:1; padding:8px 10px; border:1px solid ${isDefault ? '#e2e8f0' : '#cbd5e1'}; border-radius:6px; font-size:15px; color:#1e293b; ${isDefault ? 'background:#f8fafc;' : ''}">
-                    ${isDefault
-                        ? '<span style="font-size:11px;color:#94a3b8;width:64px;text-align:center;">standar</span>'
-                        : `<button type="button" data-del="${e}" style="padding:6px 12px; background:#ef4444; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:700;">Hapus</button>`}
+                        style="flex:1; padding:8px 10px; border:1px solid #cbd5e1; border-radius:6px; font-size:15px; color:#1e293b;">
+                    <button type="button" data-del="${e}" style="padding:6px 12px; background:#ef4444; color:#fff; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:700;">Hapus</button>
                 </div>`;
             }).join('');
         }
