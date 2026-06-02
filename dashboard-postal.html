@@ -5834,8 +5834,17 @@
                     </div>`;
                 document.body.appendChild(overlay);
                 overlay.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter' && e.target.id === 'unitTypeNewInput') { e.preventDefault(); addUnitTypeGlobal(); }
-                    else if (e.key === 'Escape') closeUnitTypeManager();
+                    if (e.key === 'Enter' && e.target.id === 'unitTypeNewInput') {
+                        e.preventDefault();
+                        addUnitTypeGlobal();
+                    } else if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.hasAttribute('data-old')) {
+                        // Ketik + Enter pada jenis yang sudah tersimpan → simpan perubahan nama
+                        e.preventDefault();
+                        renameUnitTypeGlobal(e.target);
+                        e.target.blur();
+                    } else if (e.key === 'Escape') {
+                        closeUnitTypeManager();
+                    }
                 });
                 overlay.addEventListener('mousedown', (e) => { if (e.target === overlay) closeUnitTypeManager(); });
                 overlay.addEventListener('click', (e) => {
@@ -5933,6 +5942,11 @@
                     if (opt.value === oldName) { opt.value = newName; opt.textContent = newName; }
                 });
             });
+            // Konfirmasi visual singkat (border hijau) bahwa perubahan tersimpan
+            const prevBorder = inputEl.style.border;
+            inputEl.style.border = '1px solid #16a34a';
+            inputEl.style.background = '#f0fdf4';
+            setTimeout(() => { inputEl.style.border = prevBorder; inputEl.style.background = ''; }, 700);
         }
 
         function deleteUnitTypeGlobal(name) {
