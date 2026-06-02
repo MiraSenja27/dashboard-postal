@@ -2067,12 +2067,12 @@
                 for (let i = 0; i < routeCards.length; i += cardsPerSlide) {
                     let slide = pptx.addSlide();
                     
-                    // Definisi posisi 2x2 grid (x, y, w, h dalam inci)
+                    // Definisi posisi 2x2 grid - FULL mengisi slide (10" x 7.5")
                     const positions = [
-                        { x: 0.15, y: 0.15, w: 4.75, h: 3.5 }, // Atas Kiri - diperbesar
-                        { x: 5.1, y: 0.15, w: 4.75, h: 3.5 }, // Atas Kanan - diperbesar
-                        { x: 0.15, y: 3.75, w: 4.75, h: 3.5 }, // Bawah Kiri - diperbesar
-                        { x: 5.1, y: 3.75, w: 4.75, h: 3.5 }  // Bawah Kanan - diperbesar
+                        { x: 0, y: 0, w: 5, h: 3.75 }, // Atas Kiri - FULL
+                        { x: 5, y: 0, w: 5, h: 3.75 }, // Atas Kanan - FULL
+                        { x: 0, y: 3.75, w: 5, h: 3.75 }, // Bawah Kiri - FULL
+                        { x: 5, y: 3.75, w: 5, h: 3.75 }  // Bawah Kanan - FULL
                     ];
 
                     for (let j = 0; j < cardsPerSlide && (i + j) < routeCards.length; j++) {
