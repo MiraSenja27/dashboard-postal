@@ -2069,10 +2069,10 @@
                     
                     // Definisi posisi 2x2 grid (x, y, w, h dalam inci)
                     const positions = [
-                        { x: 0.2, y: 0.2, w: 4.7, h: 2.6 }, // Atas Kiri
-                        { x: 5.1, y: 0.2, w: 4.7, h: 2.6 }, // Atas Kanan
-                        { x: 0.2, y: 2.9, w: 4.7, h: 2.6 }, // Bawah Kiri
-                        { x: 5.1, y: 2.9, w: 4.7, h: 2.6 }  // Bawah Kanan
+                        { x: 0.15, y: 0.15, w: 4.75, h: 3.5 }, // Atas Kiri - diperbesar
+                        { x: 5.1, y: 0.15, w: 4.75, h: 3.5 }, // Atas Kanan - diperbesar
+                        { x: 0.15, y: 3.75, w: 4.75, h: 3.5 }, // Bawah Kiri - diperbesar
+                        { x: 5.1, y: 3.75, w: 4.75, h: 3.5 }  // Bawah Kanan - diperbesar
                     ];
 
                     for (let j = 0; j < cardsPerSlide && (i + j) < routeCards.length; j++) {
@@ -2154,7 +2154,7 @@
                                 volumeBars.forEach(bar => {
                                     bar.style.flex = '1';
                                     bar.style.minWidth = '0';
-                                    bar.style.height = '120px'; // Match dengan tampilan web
+                                    bar.style.height = '180px'; // FULL SIZE
                                 });
                             }
                         });
