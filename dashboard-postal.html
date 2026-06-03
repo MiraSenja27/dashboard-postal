@@ -1351,12 +1351,15 @@
 
                         <!-- Doughnut Chart & Insight -->
                         <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); display:flex; flex-direction:column;">
-                            <h4 style="color:#1e3c72; margin-bottom:15px; font-weight:700; font-size:14px;">Breakdown & Rute Tertinggi</h4>
-                            <div style="display:flex; flex-direction:row; align-items:center; justify-content:space-between; flex:1; gap:15px;">
-                                <div id="chartTopRutesInsight" style="flex:1; font-size:13px; min-width: 140px;">
-                                    <!-- Terbanyak akan dimunculkan di sini via JS -->
+                            <div style="display:flex; flex-direction:row; align-items:flex-start; justify-content:space-between; flex:1; gap:15px;">
+                                <div style="flex:1; min-width:140px;">
+                                    <h4 style="color:#1e3c72; margin-bottom:12px; font-weight:700; font-size:14px;">📋 Rute Tertinggi (Volume)</h4>
+                                    <div id="chartTopRutesInsight" style="font-size:13px;">
+                                        <!-- Terbanyak akan dimunculkan di sini via JS -->
+                                    </div>
                                 </div>
-                                <div style="flex:1.2;">
+                                <div style="flex:1.2; display:flex; flex-direction:column;">
+                                    <h4 style="color:#1e3c72; margin-bottom:12px; font-weight:700; font-size:14px; text-align:center;">📊 Breakdown</h4>
                                     <canvas id="chartBreakdown" style="max-height:240px; max-width:240px; margin:0 auto; display:block;"></canvas>
                                 </div>
                             </div>
@@ -2357,11 +2360,15 @@
                             tooltip: {
                                 callbacks: {
                                     label: function(ctx) {
-                                        // Use the real data value (ctx.raw) not the visual parsed value
                                         const val = ctx.raw;
-                                        // Hide entry if real value is 0
+                                        // Jika nilai 0, sembunyikan dari popup
                                         if (val === 0) return null;
-                                        return `${ctx.dataset.label}: ${val.toLocaleString('id-ID')} kg`;
+                                        // Hitung total semua dataset di baris ini
+                                        const total = ctx.chart.data.datasets.reduce((sum, ds) => {
+                                            return sum + (ds.data[ctx.dataIndex] || 0);
+                                        }, 0);
+                                        const pct = total > 0 ? (val / total * 100).toFixed(1) : 0;
+                                        return `${ctx.dataset.label}: ${val.toLocaleString('id-ID')} kg (${pct}%)`;
                                     },
                                     footer: function(tooltipItems) {
                                         let total = 0;
