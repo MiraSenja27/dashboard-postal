@@ -1339,18 +1339,27 @@
                 <div id="dashboardChartsSection" style="display:block; margin: 20px 0;">
 
                     <!-- Charts Row -->
-                    <div style="display:grid; grid-template-columns:2fr 1fr; gap:20px;">
+                    <div style="display:grid; grid-template-columns:1.6fr 1fr; gap:20px;">
                         
                         <!-- Horizontal Bar Chart -->
-                        <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                        <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); display:flex; flex-direction:column;">
                             <h4 id="chartTopRutesTitle" style="color:#1e3c72; margin-bottom:15px; font-weight:700; font-size:14px;">Volume per Rute (10 teratas)</h4>
-                            <canvas id="chartTopRutes" style="max-height:450px;"></canvas>
+                            <div style="flex:1; min-height:450px;">
+                                <canvas id="chartTopRutes" style="max-height:450px;"></canvas>
+                            </div>
                         </div>
 
-                        <!-- Doughnut Chart - lebih kecil -->
-                        <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-                            <h4 style="color:#1e3c72; margin-bottom:15px; font-weight:700; font-size:14px;">Breakdown Postal vs Poslog</h4>
-                            <canvas id="chartBreakdown" style="max-height:260px; max-width:260px; margin:0 auto; display:block;"></canvas>
+                        <!-- Doughnut Chart & Insight -->
+                        <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); display:flex; flex-direction:column;">
+                            <h4 style="color:#1e3c72; margin-bottom:15px; font-weight:700; font-size:14px;">Breakdown & Rute Tertinggi</h4>
+                            <div style="display:flex; flex-direction:row; align-items:center; justify-content:space-between; flex:1; gap:15px;">
+                                <div id="chartTopRutesInsight" style="flex:1; font-size:13px; min-width: 140px;">
+                                    <!-- Terbanyak akan dimunculkan di sini via JS -->
+                                </div>
+                                <div style="flex:1.2;">
+                                    <canvas id="chartBreakdown" style="max-height:240px; max-width:240px; margin:0 auto; display:block;"></canvas>
+                                </div>
+                            </div>
                             <div id="chartBreakdownLegend" style="margin-top:15px; font-size:12px; color:#555;"></div>
                         </div>
                     </div>
@@ -2296,6 +2305,27 @@
 
             function fmtNum(n){ return n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toFixed(0); }
             document.getElementById('chartTopRutesTitle').textContent = 'Volume per Rute (10 teratas dari ' + data.length + ' rute)';
+
+            // Generate Insight Rute Terbanyak
+            let maxPostal = {name: '-', postal: 0};
+            let maxPoslog = {name: '-', poslog: 0};
+            data.forEach(r => {
+                if (r.postal > maxPostal.postal) { maxPostal = r; }
+                if (r.poslog > maxPoslog.poslog) { maxPoslog = r; }
+            });
+
+            document.getElementById('chartTopRutesInsight').innerHTML = `
+                <div style="margin-bottom: 12px; padding: 12px; background: #fff5eb; border-left: 4px solid #FF8C42; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    <div style="color: #777; font-size: 11px; margin-bottom: 4px; font-weight: 600;">🏆 Terbanyak Postal</div>
+                    <div style="font-weight: 800; color: #1e3c72; font-size: 13px; line-height: 1.2; margin-bottom: 4px;">${maxPostal.name}</div>
+                    <div style="font-weight: 700; color: #FF8C42; font-size: 15px;">${fmtNum(maxPostal.postal)} kg</div>
+                </div>
+                <div style="padding: 12px; background: #e0f7f5; border-left: 4px solid #4ECDC4; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    <div style="color: #777; font-size: 11px; margin-bottom: 4px; font-weight: 600;">🏆 Terbanyak Poslog</div>
+                    <div style="font-weight: 800; color: #1e3c72; font-size: 13px; line-height: 1.2; margin-bottom: 4px;">${maxPoslog.name}</div>
+                    <div style="font-weight: 700; color: #4ECDC4; font-size: 15px;">${fmtNum(maxPoslog.poslog)} kg</div>
+                </div>
+            `;
 
             // Chart 1: HORIZONTAL Bar Chart - setiap rute tampil terpisah dengan postal & poslog
             const ctx1 = document.getElementById('chartTopRutes');
