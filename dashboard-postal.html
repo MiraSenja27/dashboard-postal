@@ -2454,7 +2454,7 @@
         function clearWeekFilter() {
             const weekFilter = document.getElementById('weekFilter');
             if (weekFilter) {
-                weekFilter.value = '';
+                weekFilter.value = 'ALL';
             }
         }
 
@@ -2596,7 +2596,7 @@
                 // Build query params
                 const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
                 let queryParams = `category=${currentMenu}&routeFilter=${encodeURIComponent(routeFilter)}`;
-                if (weekKey) {
+                if (weekKey && weekKey !== 'ALL') {
                     queryParams += `&weekKey=${weekKey}`;
                 } else {
                     queryParams += `&startDate=${startDate}&endDate=${endDate}`;
@@ -2851,6 +2851,12 @@
                     await loadSLAData(weekKey);
                 } else if (currentView === 'volume') {
                     await loadVolumeData(weekKey);
+                }
+
+                // If dashboard charts are visible, redraw them (same as applyFilter)
+                if (document.getElementById('dashboardChartsSection').style.display !== 'none') {
+                    await loadVolumeData(weekKey);
+                    setTimeout(() => { _renderDashboardCharts(); }, 300);
                 }
                 
                 // Note: The period label will be updated inside each load function 
@@ -3415,7 +3421,7 @@
                 const endDate = document.getElementById('endDate').value;
                 const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
                 let url = `${API_URL}/sla?category=${currentMenu}&routeFilter=${encodeURIComponent(routeFilter)}`;
-                if (weekKey) {
+                if (weekKey && weekKey !== 'ALL') {
                     url += `&weekKey=${weekKey}`;
                 } else if (startDate && endDate) {
                     url += `&startDate=${startDate}&endDate=${endDate}`;
@@ -3642,7 +3648,7 @@
                 const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
                 
                 let url = `${API_URL}/volume?category=${currentMenu}&routeFilter=${encodeURIComponent(routeFilter)}`;
-                if (weekKey) {
+                if (weekKey && weekKey !== 'ALL') {
                     url += `&weekKey=${weekKey}`;
                 } else if (startDate && endDate) {
                     url += `&startDate=${startDate}&endDate=${endDate}`;
@@ -4474,7 +4480,7 @@
                 const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
                 
                 let url = `${API_URL}/routes?category=${currentMenu}&routeFilter=${encodeURIComponent(routeFilter)}`;
-                if (weekKey) {
+                if (weekKey && weekKey !== 'ALL') {
                     url += `&weekKey=${weekKey}`;
                 } else if (startDate && endDate) {
                     url += `&startDate=${startDate}&endDate=${endDate}`;
