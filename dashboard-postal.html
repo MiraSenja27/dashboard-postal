@@ -2248,29 +2248,30 @@
         }
 
         function _renderDashboardCharts() {
+            // Parse dari tabel HTML - GROUP per nama rute dan akumulasi
             const rows = document.querySelectorAll('#volume-view tbody tr');
-            const data = [];
+            const ruteMap = {};
+            
             rows.forEach(function(row) {
                 const cells = row.querySelectorAll('td');
-                if (cells.length >= 7) {
-                    const name = (cells[2] && cells[2].textContent.trim()) || '';
-                    const postal = parseFloat((cells[3] && cells[3].textContent.replace(/,/g,'')) || 0);
-                    const poslog = parseFloat((cells[4] && cells[4].textContent.replace(/,/g,'')) || 0);
-                    const space = parseFloat((cells[6] && cells[6].textContent.replace(/,/g,'')) || 0);
-                    if (name && (postal > 0 || poslog > 0)) {
-                        data.push({ name: name, postal: postal, poslog: poslog, space: Math.max(0, space) });
-                    }
+                if (cells.length >= 6) {
+                    const rute = (cells[3] && cells[3].textContent.trim()) || '';
+                    const postal = parseFloat((cells[4] && cells[4].textContent.replace(/\./g,'').replace(',','.')) || 0);
+                    const poslog = parseFloat((cells[5] && cells[5].textContent.replace(/\./g,'').replace(',','.')) || 0);
+                    if (!rute || rute === '-') return;
+                    if (!ruteMap[rute]) ruteMap[rute] = { name: rute, postal: 0, poslog: 0 };
+                    ruteMap[rute].postal += postal;
+                    ruteMap[rute].poslog += poslog;
                 }
             });
+
+            const data = Object.values(ruteMap).filter(function(r){ return r.postal > 0 || r.poslog > 0; });
+            if (data.length === 0) return;
 
             const top10 = data.sort(function(a,b){ return (b.postal+b.poslog)-(a.postal+a.poslog); }).slice(0,10);
             const totalPostal = data.reduce(function(s,r){ return s+r.postal; }, 0);
             const totalPoslog = data.reduce(function(s,r){ return s+r.poslog; }, 0);
-            const totalSpace = data.reduce(function(s,r){ return s+r.space; }, 0);
-            const totalVol = totalPostal + totalPoslog;
-            const grandTotal = totalVol + totalSpace;
 
-            // Update title
             function fmtNum(n){ return n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toFixed(0); }
             document.getElementById('chartTopRutesTitle').textContent = 'Volume per Rute (10 teratas dari ' + data.length + ' rute)';
 
@@ -3777,6 +3778,7 @@
                     };
 
                     const _volumeData = sortedData;
+                    window._volumeRawData = sortedData; // Simpan untuk dashboard charts
                     renderVolumeTable(_volumeData);
                     
                     // Update notif tanggal berdasarkan data aktual (bukan filter input)
