@@ -2305,8 +2305,8 @@
                     data: {
                         labels: top10.map(function(r){ return r.name; }),
                         datasets: [
-                            { label: 'Postal (kg)', data: top10.map(function(r){ return r.postal; }), backgroundColor: '#FF8C42', borderRadius: 3 },
-                            { label: 'Poslog (kg)', data: top10.map(function(r){ return r.poslog; }), backgroundColor: '#4ECDC4', borderRadius: 3, minBarLength: 7 }
+                            { label: 'Postal (kg)', data: top10.map(function(r){ return r.postal; }), backgroundColor: '#FF8C42', borderRadius: 3, minBarLength: 5 },
+                            { label: 'Poslog (kg)', data: top10.map(function(r){ return r.poslog; }), backgroundColor: '#4ECDC4', borderRadius: 3, minBarLength: 15 }
                         ]
                     },
                     options: {
