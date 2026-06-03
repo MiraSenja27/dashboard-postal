@@ -188,7 +188,7 @@
 
         .dashboard-container {
             background: white;
-            padding: 30px;
+            padding: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         }
 
@@ -1148,7 +1148,33 @@
             z-index: 10;
         }
 
-
+        /* FIT LAPTOP 14 INCH (Option 1) */
+        .dashboard-charts-fit {
+            display: block; 
+            margin: 15px 0;
+            height: calc(100vh - 270px);
+            max-height: 530px; /* Kembali persis seperti tinggi aslinya di PC */
+            min-height: 380px;
+        }
+        .charts-row-grid {
+            display: grid; 
+            grid-template-columns: 1.6fr 1fr; 
+            gap: 20px;
+            height: 100%;
+        }
+        .chart-container-left {
+            flex: 1; 
+            min-height: 0; 
+            position: relative;
+        }
+        @media (max-width: 1024px) {
+            .dashboard-charts-fit {
+                height: auto;
+            }
+            .charts-row-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
@@ -1336,21 +1362,33 @@
                 </div>
 
                 <!-- Dashboard Charts - HIDDEN by default, tampil saat klik menu Dashboard -->
-                <div id="dashboardChartsSection" style="display:block; margin: 20px 0;">
+                <div id="dashboardChartsSection" class="dashboard-charts-fit">
 
                     <!-- Charts Row -->
-                    <div style="display:grid; grid-template-columns:2fr 1fr; gap:20px;">
+                    <div class="charts-row-grid">
                         
                         <!-- Horizontal Bar Chart -->
-                        <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                        <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); display:flex; flex-direction:column;">
                             <h4 id="chartTopRutesTitle" style="color:#1e3c72; margin-bottom:15px; font-weight:700; font-size:14px;">Volume per Rute (10 teratas)</h4>
-                            <canvas id="chartTopRutes" style="max-height:450px;"></canvas>
+                            <div class="chart-container-left">
+                                <canvas id="chartTopRutes"></canvas>
+                            </div>
                         </div>
 
-                        <!-- Doughnut Chart - lebih kecil -->
-                        <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-                            <h4 style="color:#1e3c72; margin-bottom:15px; font-weight:700; font-size:14px;">Breakdown Postal vs Poslog</h4>
-                            <canvas id="chartBreakdown" style="max-height:260px; max-width:260px; margin:0 auto; display:block;"></canvas>
+                        <!-- Doughnut Chart & Insight -->
+                        <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); display:flex; flex-direction:column;">
+                            <div style="display:flex; flex-direction:row; align-items:flex-start; justify-content:space-between; flex:1; gap:15px;">
+                                <div style="flex:1; min-width:140px;">
+                                    <h4 style="color:#1e3c72; margin-bottom:12px; font-weight:700; font-size:14px;">📋 Rute Tertinggi (Volume)</h4>
+                                    <div id="chartTopRutesInsight" style="font-size:13px;">
+                                        <!-- Terbanyak akan dimunculkan di sini via JS -->
+                                    </div>
+                                </div>
+                                <div style="flex:1.2; display:flex; flex-direction:column;">
+                                    <h4 style="color:#1e3c72; margin-bottom:12px; font-weight:700; font-size:14px; text-align:center;">📊 Breakdown</h4>
+                                    <canvas id="chartBreakdown" style="max-height:240px; max-width:240px; margin:0 auto; display:block;"></canvas>
+                                </div>
+                            </div>
                             <div id="chartBreakdownLegend" style="margin-top:15px; font-size:12px; color:#555;"></div>
                         </div>
                     </div>
@@ -2297,6 +2335,32 @@
             function fmtNum(n){ return n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toFixed(0); }
             document.getElementById('chartTopRutesTitle').textContent = 'Volume per Rute (10 teratas dari ' + data.length + ' rute)';
 
+            // Generate Insight Rute Terbanyak (Top 3)
+            let sortedPostal = [...data].sort((a,b) => b.postal - a.postal).slice(0, 3);
+            let sortedPoslog = [...data].sort((a,b) => b.poslog - a.poslog).slice(0, 3);
+
+            let htmlPostal = `<div style="margin-bottom: 20px; padding: 16px; background: #fff5eb; border-left: 4px solid #FF8C42; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <div style="color: #555; font-size: 16px; margin-bottom: 10px; font-weight: 800;">🏆 TOP 3 POSTAL</div>`;
+            sortedPostal.forEach((r, i) => {
+                htmlPostal += `<div style="display:flex; justify-content:space-between; margin-bottom: 6px; border-bottom: 1px dashed #fad8c3; padding-bottom: 4px;">
+                    <span style="font-weight: 700; color: #1e3c72; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%;" title="${r.name}">${i+1}. ${r.name}</span>
+                    <span style="font-weight: 800; color: #D35400; font-size: 16px; text-align: right;">${r.postal.toLocaleString('id-ID')} kg</span>
+                </div>`;
+            });
+            htmlPostal += `</div>`;
+
+            let htmlPoslog = `<div style="padding: 16px; background: #e0f7f5; border-left: 4px solid #4ECDC4; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <div style="color: #555; font-size: 16px; margin-bottom: 10px; font-weight: 800;">🏆 TOP 3 POSLOG</div>`;
+            sortedPoslog.forEach((r, i) => {
+                htmlPoslog += `<div style="display:flex; justify-content:space-between; margin-bottom: 6px; border-bottom: 1px dashed #bdf1ed; padding-bottom: 4px;">
+                    <span style="font-weight: 700; color: #1e3c72; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%;" title="${r.name}">${i+1}. ${r.name}</span>
+                    <span style="font-weight: 800; color: #00796B; font-size: 16px; text-align: right;">${r.poslog.toLocaleString('id-ID')} kg</span>
+                </div>`;
+            });
+            htmlPoslog += `</div>`;
+
+            document.getElementById('chartTopRutesInsight').innerHTML = htmlPostal + htmlPoslog;
+
             // Chart 1: HORIZONTAL Bar Chart - setiap rute tampil terpisah dengan postal & poslog
             const ctx1 = document.getElementById('chartTopRutes');
             if (ctx1) {
@@ -2305,8 +2369,8 @@
                     data: {
                         labels: top10.map(function(r){ return r.name; }),
                         datasets: [
-                            { label: 'Postal (kg)', data: top10.map(function(r){ return r.postal; }), backgroundColor: '#FF8C42', borderRadius: 3 },
-                            { label: 'Poslog (kg)', data: top10.map(function(r){ return r.poslog; }), backgroundColor: '#4ECDC4', borderRadius: 3, minBarLength: 7 }
+                            { label: 'Postal (kg)', data: top10.map(function(r){ return r.postal; }), backgroundColor: '#FF8C42', borderRadius: 3, minBarLength: 5 },
+                            { label: 'Poslog (kg)', data: top10.map(function(r){ return r.poslog; }), backgroundColor: '#4ECDC4', borderRadius: 3, minBarLength: 15 }
                         ]
                     },
                     options: {
@@ -2322,19 +2386,19 @@
                             tooltip: {
                                 callbacks: {
                                     label: function(ctx) {
-                                        const val = ctx.parsed.x;
-                                        // Compute total volume for this index across all datasets
+                                        const val = ctx.raw;
+                                        // Jika nilai 0, sembunyikan dari popup
+                                        if (val === 0) return null;
+                                        // Hitung total semua dataset di baris ini
                                         const total = ctx.chart.data.datasets.reduce((sum, ds) => {
-                                            const dataVal = ds.data[ctx.dataIndex];
-                                            return sum + (typeof dataVal === 'number' ? dataVal : 0);
+                                            return sum + (ds.data[ctx.dataIndex] || 0);
                                         }, 0);
-                                        // Show label with value and total
-                                        return `${ctx.dataset.label}: ${val.toLocaleString('id-ID')} kg (Total: ${total.toLocaleString('id-ID')} kg)`;
+                                        const pct = total > 0 ? (val / total * 100).toFixed(1) : 0;
+                                        return `${ctx.dataset.label}: ${val.toLocaleString('id-ID')} kg (${pct}%)`;
                                     },
                                     footer: function(tooltipItems) {
-                                        // Footer can show total again for emphasis
                                         let total = 0;
-                                        tooltipItems.forEach(i => { total += i.parsed.x; });
+                                        tooltipItems.forEach(i => { total += i.raw; });
                                         return 'Total: ' + total.toLocaleString('id-ID') + ' kg';
                                     }
                                 }
@@ -2353,7 +2417,7 @@
                         }
                     }
                 });
-                ctx1.parentElement.style.height = '450px';
+                ctx1.parentElement.style.height = '100%';
             }
 
             // Chart 2: Doughnut - ambil dari stats agar cocok dengan stat cards atas
@@ -2366,18 +2430,47 @@
                 const pPoslog = st.poslog_volume || totalPoslog;
                 const pSisa = Math.max(0, cap - pPostal - pPoslog);
                 const grandTotal = pPostal + pPoslog + pSisa;
+                let visualPoslog = pPoslog;
+                let visualSisa = pSisa;
+                let visualPostal = pPostal;
+
+                if (grandTotal > 0 && pPoslog > 0) {
+                    const minPct = 0.04; // 4% minimum visual size
+                    if ((pPoslog / grandTotal) < minPct) {
+                        visualPoslog = grandTotal * minPct;
+                        const diff = visualPoslog - pPoslog;
+                        if (visualSisa > diff) {
+                            visualSisa -= diff;
+                        } else {
+                            visualPostal -= diff;
+                        }
+                    }
+                }
                 
                 _chartInstances.breakdown = new Chart(ctx2, {
                     type: 'doughnut',
                     data: {
                         labels: ['Postal', 'Poslog', 'Sisa Kapasitas'],
-                        datasets: [{ data: [pPostal, pPoslog, pSisa], backgroundColor: ['#FF8C42', '#4ECDC4', '#B0BEC5'], borderWidth: 2 }]
+                        datasets: [{ data: [visualPostal, visualPoslog, visualSisa], backgroundColor: ['#FF8C42', '#4ECDC4', '#B0BEC5'], borderWidth: 2 }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: true,
                         cutout: '60%',
-                        plugins: { legend: { display: false } }
+                        plugins: { 
+                            legend: { display: false },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(ctx) {
+                                        let trueVal = 0;
+                                        if (ctx.dataIndex === 0) trueVal = pPostal;
+                                        else if (ctx.dataIndex === 1) trueVal = pPoslog;
+                                        else if (ctx.dataIndex === 2) trueVal = pSisa;
+                                        return `${ctx.label}: ${trueVal.toLocaleString('id-ID')} kg`;
+                                    }
+                                }
+                            }
+                        }
                     }
                 });
                 var pct1 = grandTotal > 0 ? (pPostal/grandTotal*100).toFixed(1) : 0;
