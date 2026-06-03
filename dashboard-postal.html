@@ -2322,7 +2322,6 @@
                                 callbacks: {
                                     label: function(ctx) {
                                         const val = ctx.parsed.x;
-                                        if (val === 0) return null; // Sembunyikan label jika 0
                                         return ctx.dataset.label + ': ' + val.toLocaleString('id-ID') + ' kg';
                                     },
                                     footer: function(tooltipItems) {
