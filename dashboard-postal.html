@@ -2327,7 +2327,7 @@
                             },
                             y: {
                                 stacked: true,
-                                ticks: { font: { size: 11 } }
+                                ticks: { font: { size: 14, weight: 'bold' } }
                             }
                         }
                     }
@@ -2365,17 +2365,16 @@
                 var pct2 = grandTotal > 0 ? (pPoslog/grandTotal*100).toFixed(1) : 0;
                 var pct3 = grandTotal > 0 ? (pSisa/grandTotal*100).toFixed(1) : 0;
                 document.getElementById('chartBreakdownLegend').innerHTML =
-                    '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; font-size: 15px; margin-top: 10px; color: #333;">' +
-                    '<div style="display:flex; align-items:center; gap:5px;"><span style="color:#FF8C42; font-size:18px;">■</span> Postal: <b style="font-size:16px;">' + fmtNum(pPostal) + ' kg</b> <span style="font-weight:bold; font-size:15px; color:#555;">(' + pct1 + '%)</span></div>' +
-                    '<div style="display:flex; align-items:center; gap:5px;"><span style="color:#4ECDC4; font-size:18px;">■</span> Poslog: <b style="font-size:16px;">' + fmtNum(pPoslog) + ' kg</b> <span style="font-weight:bold; font-size:15px; color:#555;">(' + pct2 + '%)</span></div>' +
-                    '<div style="display:flex; align-items:center; gap:5px;"><span style="color:#B0BEC5; font-size:18px;">■</span> Sisa Kapasitas: <b style="font-size:16px;">' + fmtNum(pSisa) + ' kg</b> <span style="font-weight:bold; font-size:15px; color:#555;">(' + pct3 + '%)</span></div>' +
+                    '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; font-size: 18px; margin-top: 15px; color: #111;">' +
+                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#FF8C42; font-size:24px;">■</span> Postal: <b style="font-size:20px;">' + fmtNum(pPostal) + ' kg</b> <span style="font-weight:bold; font-size:18px; color:#444;">(' + pct1 + '%)</span></div>' +
+                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#4ECDC4; font-size:24px;">■</span> Poslog: <b style="font-size:20px;">' + fmtNum(pPoslog) + ' kg</b> <span style="font-weight:bold; font-size:18px; color:#444;">(' + pct2 + '%)</span></div>' +
+                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#B0BEC5; font-size:24px;">■</span> Sisa Kapasitas: <b style="font-size:20px;">' + fmtNum(pSisa) + ' kg</b> <span style="font-weight:bold; font-size:18px; color:#444;">(' + pct3 + '%)</span></div>' +
                     '</div>';
             }
         }
 
         function goToDashboardDefault() {
-            showView('dashboard').then(() => {
-                resetFilter();
+            return showView('dashboard').then(() => {
                 window.scrollTo({top: 0, behavior: 'smooth'});
             });
         }
