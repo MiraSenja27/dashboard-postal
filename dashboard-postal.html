@@ -19,8 +19,9 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            min-height: 100vh;
-            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
         }
 
         .header {
@@ -188,8 +189,10 @@
 
         .dashboard-container {
             background: white;
-            padding: 30px;
+            padding: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            height: calc(100vh - 150px);
+            overflow-y: hidden;
         }
 
         .filter-section {
@@ -1148,7 +1151,32 @@
             z-index: 10;
         }
 
-
+        /* FIT LAPTOP 14 INCH (Option 1) */
+        .dashboard-charts-fit {
+            display: block; 
+            margin: 15px 0;
+            height: calc(100vh - 270px);
+            min-height: 350px;
+        }
+        .charts-row-grid {
+            display: grid; 
+            grid-template-columns: 1.6fr 1fr; 
+            gap: 20px;
+            height: 100%;
+        }
+        .chart-container-left {
+            flex: 1; 
+            min-height: 0; 
+            position: relative;
+        }
+        @media (max-width: 1024px) {
+            .dashboard-charts-fit {
+                height: auto;
+            }
+            .charts-row-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 
@@ -1336,16 +1364,16 @@
                 </div>
 
                 <!-- Dashboard Charts - HIDDEN by default, tampil saat klik menu Dashboard -->
-                <div id="dashboardChartsSection" style="display:block; margin: 20px 0;">
+                <div id="dashboardChartsSection" class="dashboard-charts-fit">
 
                     <!-- Charts Row -->
-                    <div style="display:grid; grid-template-columns:1.6fr 1fr; gap:20px;">
+                    <div class="charts-row-grid">
                         
                         <!-- Horizontal Bar Chart -->
                         <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); display:flex; flex-direction:column;">
                             <h4 id="chartTopRutesTitle" style="color:#1e3c72; margin-bottom:15px; font-weight:700; font-size:14px;">Volume per Rute (10 teratas)</h4>
-                            <div style="flex:1; min-height:450px;">
-                                <canvas id="chartTopRutes" style="max-height:450px;"></canvas>
+                            <div class="chart-container-left">
+                                <canvas id="chartTopRutes"></canvas>
                             </div>
                         </div>
 
@@ -2391,7 +2419,7 @@
                         }
                     }
                 });
-                ctx1.parentElement.style.height = '450px';
+                ctx1.parentElement.style.height = '100%';
             }
 
             // Chart 2: Doughnut - ambil dari stats agar cocok dengan stat cards atas
