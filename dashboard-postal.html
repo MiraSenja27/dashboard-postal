@@ -2228,25 +2228,18 @@
 
         function showDashboardCharts() {
             goToDashboardDefault();
-            setTimeout(function() {
+            setTimeout(async function() {
+                // Load volume data dulu agar tabel terisi
+                await loadVolumeData('ALL');
                 // Show charts section
                 document.getElementById('dashboardChartsSection').style.display = 'block';
                 // Hide route cards dan rankings
                 var ranking = document.querySelector('.ranking-container');
-                var routeToolbar = document.querySelector('.route-toolbar');
                 var routesGrid = document.getElementById('routesContainer');
-                var delayAnalysis = document.querySelector('.delay-analysis');
-                var addBtn = document.querySelector('.add-route-btn');
                 if (ranking) ranking.style.display = 'none';
-                if (routeToolbar) routeToolbar.style.display = 'none';
                 if (routesGrid) routesGrid.style.display = 'none';
-                if (delayAnalysis) delayAnalysis.style.display = 'none';
-                if (addBtn) addBtn.style.display = 'none';
-                // Hide tambah rute & sembunyikan SLA buttons
                 document.querySelectorAll('.route-toolbar, [onclick*="tambahRute"], [onclick*="toggleSLA"]').forEach(function(el){ el.style.display='none'; });
-                // Hide semua button di bawah charts
                 document.querySelectorAll('.add-route-btn, button[onclick*="tambah"], .toggle-sla-btn').forEach(function(el){ el.style.display='none'; });
-                // Hide Tambah Rute & Sembunyikan SLA by text content
                 document.querySelectorAll('button').forEach(function(btn){
                     if(btn.textContent.includes('Tambah Rute') || btn.textContent.includes('Sembunyikan SLA')) btn.style.display='none';
                 });
@@ -2317,15 +2310,24 @@
                 ctx1.parentElement.style.height = '450px';
             }
 
-            // Chart 2: Doughnut - Postal + Poslog + Sisa Kapasitas
+            // Chart 2: Doughnut - ambil dari stats agar cocok dengan stat cards atas
             const ctx2 = document.getElementById('chartBreakdown');
             if (ctx2) {
                 if (_chartInstances.breakdown) _chartInstances.breakdown.destroy();
+                
+                // Ambil dari global stats (cocok dengan stat cards)
+                const st = window._dashStats || {};
+                const cap = st.total_capacity || 1;
+                const pPostal = st.postal_volume || totalPostal;
+                const pPoslog = st.poslog_volume || totalPoslog;
+                const pSisa = Math.max(0, cap - pPostal - pPoslog);
+                const grandTotal = pPostal + pPoslog + pSisa;
+                
                 _chartInstances.breakdown = new Chart(ctx2, {
                     type: 'doughnut',
                     data: {
                         labels: ['Postal', 'Poslog', 'Sisa Kapasitas'],
-                        datasets: [{ data: [totalPostal, totalPoslog, totalSpace], backgroundColor: ['#FF8C42', '#4ECDC4', '#B0BEC5'], borderWidth: 2 }]
+                        datasets: [{ data: [pPostal, pPoslog, pSisa], backgroundColor: ['#FF8C42', '#4ECDC4', '#B0BEC5'], borderWidth: 2 }]
                     },
                     options: {
                         responsive: true,
@@ -2334,13 +2336,13 @@
                         plugins: { legend: { position: 'bottom', labels: { font: { size: 12 } } } }
                     }
                 });
-                var pct1 = grandTotal > 0 ? (totalPostal/grandTotal*100).toFixed(1) : 0;
-                var pct2 = grandTotal > 0 ? (totalPoslog/grandTotal*100).toFixed(1) : 0;
-                var pct3 = grandTotal > 0 ? (totalSpace/grandTotal*100).toFixed(1) : 0;
+                var pct1 = grandTotal > 0 ? (pPostal/grandTotal*100).toFixed(1) : 0;
+                var pct2 = grandTotal > 0 ? (pPoslog/grandTotal*100).toFixed(1) : 0;
+                var pct3 = grandTotal > 0 ? (pSisa/grandTotal*100).toFixed(1) : 0;
                 document.getElementById('chartBreakdownLegend').innerHTML =
-                    '<div style="margin-bottom:5px;">🟠 Postal: <b>' + fmtNum(totalPostal) + ' kg</b> (' + pct1 + '%)</div>' +
-                    '<div style="margin-bottom:5px;">🟢 Poslog: <b>' + fmtNum(totalPoslog) + ' kg</b> (' + pct2 + '%)</div>' +
-                    '<div>⚪ Sisa Kapasitas: <b>' + fmtNum(totalSpace) + ' kg</b> (' + pct3 + '%)</div>';
+                    '<div style="margin-bottom:5px;">🟠 Postal: <b>' + fmtNum(pPostal) + ' kg</b> (' + pct1 + '%)</div>' +
+                    '<div style="margin-bottom:5px;">🟢 Poslog: <b>' + fmtNum(pPoslog) + ' kg</b> (' + pct2 + '%)</div>' +
+                    '<div>⚪ Sisa Kapasitas: <b>' + fmtNum(pSisa) + ' kg</b> (' + pct3 + '%)</div>';
             }
         }
 
@@ -2494,6 +2496,7 @@
 
             // Re-render dashboard charts jika sedang aktif
             if (document.getElementById('dashboardChartsSection').style.display !== 'none') {
+                await loadVolumeData(weekKey);
                 setTimeout(function(){ _renderDashboardCharts(); }, 300);
             }
         }
@@ -2858,6 +2861,8 @@
         }
 
         function updateStatistics(stats) {
+            // Simpan ke global untuk dipakai pie chart
+            window._dashStats = stats;
             const statCards = document.querySelectorAll('.stat-card .stat-value');
             if (statCards.length >= 6) {
                 // 0: Total Rute
