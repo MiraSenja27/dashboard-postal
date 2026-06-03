@@ -1190,7 +1190,7 @@
         <div class="sticky-header-wrapper">
             <div class="header">
             <div class="logo-container">
-                <h1 class="title" onclick="goToDashboardDefault();" title="Kembali ke Dashboard Utama">Dashboard Postal</h1>
+                <h1 id="dashboardTitle" onclick="goToDashboardDefault(); window.scrollTo({top:0, behavior:'smooth'});" style="cursor:pointer;" title="Kembali ke Dashboard Utama">Dashboard Postal</h1>
                 <div class="tabs">
                     <div class="tab-item active" onclick="switchCategory('primer', this)">
                         <span class="tab-icon">📦</span> PRIMER
