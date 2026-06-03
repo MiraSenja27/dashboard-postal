@@ -1349,7 +1349,7 @@
                         <!-- Doughnut Chart - lebih kecil -->
                         <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
                             <h4 style="color:#1e3c72; margin-bottom:15px; font-weight:700; font-size:14px;">Breakdown Postal vs Poslog</h4>
-                            <canvas id="chartBreakdown" style="max-height:320px;"></canvas>
+                            <canvas id="chartBreakdown" style="max-height:260px; max-width:260px; margin:0 auto; display:block;"></canvas>
                             <div id="chartBreakdownLegend" style="margin-top:15px; font-size:12px; color:#555;"></div>
                         </div>
                     </div>
@@ -2248,28 +2248,23 @@
         }
 
         function _renderDashboardCharts() {
-            // Parse dari tabel HTML - GROUP per nama rute dan akumulasi
-            const rows = document.querySelectorAll('#volume-view tbody tr');
-            const ruteMap = {};
+            // Ambil langsung dari raw data API - field name: postal dan nonPostal
+            const rawData = window._volumeRawData || [];
             
-            function parseAngka(txt) {
-                if (!txt) return 0;
-                txt = txt.trim();
-                // Format Indonesia: 1.234,56 → hapus titik → ganti koma ke titik
-                return parseFloat(txt.replace(/\./g, '').replace(',', '.')) || 0;
+            function parseAngka(v) {
+                return parseFloat(String(v || 0).replace(/\./g,'').replace(',','.')) || 0;
             }
             
-            rows.forEach(function(row) {
-                const cells = row.querySelectorAll('td');
-                if (cells.length >= 6) {
-                    const rute = (cells[3] && cells[3].textContent.trim()) || '';
-                    const postal = parseAngka(cells[4] && cells[4].textContent);
-                    const poslog = parseAngka(cells[5] && cells[5].textContent);
-                    if (!rute || rute === '-' || rute === 'NAMA RUTE') return;
-                    if (!ruteMap[rute]) ruteMap[rute] = { name: rute, postal: 0, poslog: 0 };
-                    ruteMap[rute].postal += postal;
-                    ruteMap[rute].poslog += poslog;
-                }
+            // GROUP dan akumulasi per nama rute
+            const ruteMap = {};
+            rawData.forEach(function(r) {
+                const rute = r.rute || '';
+                if (!rute) return;
+                const postal = parseAngka(r.postal);
+                const poslog = parseAngka(r.nonPostal); // Field benar: nonPostal
+                if (!ruteMap[rute]) ruteMap[rute] = { name: rute, postal: 0, poslog: 0 };
+                ruteMap[rute].postal += postal;
+                ruteMap[rute].poslog += poslog;
             });
 
             const data = Object.values(ruteMap).filter(function(r){ return r.postal > 0 || r.poslog > 0; });
