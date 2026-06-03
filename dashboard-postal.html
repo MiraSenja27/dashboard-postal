@@ -8,6 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -1214,7 +1215,7 @@
             <div id="submenu-primer" class="submenu show" style="padding: 10px 0; border: none; flex: none;">
                 <div class="submenu-left">
                     <button class="submenu-btn" onclick="showDownload('primer')">📥 Download PPT</button>
-                    <button class="submenu-btn" onclick="goToDashboardDefault()">📊 Dashboard</button>
+                    <button class="submenu-btn" onclick="showDashboardCharts()">📊 Dashboard</button>
                     <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA Waktu</button>
                     <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
 <button class="submenu-btn" onclick="openRouteSettings()">⚙️ Pengaturan</button>
@@ -1224,7 +1225,7 @@
             <div id="submenu-sekunder" class="submenu" style="padding: 10px 0; border: none; flex: none;">
                 <div class="submenu-left">
                     <button class="submenu-btn" onclick="showDownload('sekunder')">📥 Download PPT</button>
-                    <button class="submenu-btn" onclick="goToDashboardDefault()">📊 Dashboard</button>
+                    <button class="submenu-btn" onclick="showDashboardCharts()">📊 Dashboard</button>
                     <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA Waktu</button>
                     <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
                 </div>
@@ -1233,7 +1234,7 @@
             <div id="submenu-tersier" class="submenu" style="padding: 10px 0; border: none; flex: none;">
                 <div class="submenu-left">
                     <button class="submenu-btn" onclick="showDownload('tersier')">📥 Download PPT</button>
-                    <button class="submenu-btn" onclick="goToDashboardDefault()">📊 Dashboard</button>
+                    <button class="submenu-btn" onclick="showDashboardCharts()">📊 Dashboard</button>
                     <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA Waktu</button>
                     <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
                 </div>
@@ -1330,6 +1331,22 @@
                     <div class="stat-card">
                         <div class="stat-label">Sisa Kapasitas</div>
                         <div class="stat-value">15.3%</div>
+                    </div>
+                </div>
+
+                <!-- Dashboard Charts - HIDDEN by default, tampil saat klik menu Dashboard -->
+                <div id="dashboardChartsSection" style="display:none; margin: 20px 0;">
+                    <div style="background:white; padding:25px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px;">
+                            <div>
+                                <h4 style="color:#1e3c72; margin-bottom:15px; font-weight:600;">📊 Top 10 Rute (Postal + Poslog)</h4>
+                                <canvas id="chartTopRutes"></canvas>
+                            </div>
+                            <div>
+                                <h4 style="color:#1e3c72; margin-bottom:15px; font-weight:600;">📈 Breakdown Postal vs Poslog</h4>
+                                <canvas id="chartBreakdown"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -2198,6 +2215,69 @@
             const weekFilter = document.getElementById('weekFilter');
             if (weekFilter) {
                 weekFilter.value = 'ALL';
+            }
+        }
+
+        // Dashboard Charts Function
+        let _chartInstances = {};
+
+        function showDashboardCharts() {
+            goToDashboardDefault();
+            setTimeout(function() {
+                document.getElementById('dashboardChartsSection').style.display = 'block';
+                _renderDashboardCharts();
+            }, 400);
+        }
+
+        function _renderDashboardCharts() {
+            const rows = document.querySelectorAll('#volume-view tbody tr');
+            const data = [];
+            rows.forEach(function(row) {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 5) {
+                    const name = (cells[2] && cells[2].textContent.trim()) || '';
+                    const postal = parseFloat((cells[3] && cells[3].textContent.replace(/,/g,'')) || 0);
+                    const poslog = parseFloat((cells[4] && cells[4].textContent.replace(/,/g,'')) || 0);
+                    if (name && (postal > 0 || poslog > 0)) {
+                        data.push({ name: name.substring(0,22), postal: postal, poslog: poslog });
+                    }
+                }
+            });
+            if (data.length === 0) return;
+
+            const top10 = data.sort(function(a,b){ return (b.postal+b.poslog)-(a.postal+a.poslog); }).slice(0,10);
+            const totalPostal = data.reduce(function(s,r){ return s+r.postal; }, 0);
+            const totalPoslog = data.reduce(function(s,r){ return s+r.poslog; }, 0);
+
+            // Chart 1: Top 10 Rute
+            const ctx1 = document.getElementById('chartTopRutes');
+            if (ctx1) {
+                if (_chartInstances.top) _chartInstances.top.destroy();
+                _chartInstances.top = new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: top10.map(function(r){ return r.name; }),
+                        datasets: [
+                            { label: 'Postal (kg)', data: top10.map(function(r){ return r.postal; }), backgroundColor: '#FF8C42' },
+                            { label: 'Poslog (kg)', data: top10.map(function(r){ return r.poslog; }), backgroundColor: '#4ECDC4' }
+                        ]
+                    },
+                    options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
+                });
+            }
+
+            // Chart 2: Breakdown
+            const ctx2 = document.getElementById('chartBreakdown');
+            if (ctx2) {
+                if (_chartInstances.breakdown) _chartInstances.breakdown.destroy();
+                _chartInstances.breakdown = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Postal', 'Poslog'],
+                        datasets: [{ data: [totalPostal, totalPoslog], backgroundColor: ['#FF8C42', '#4ECDC4'] }]
+                    },
+                    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+                });
             }
         }
 
