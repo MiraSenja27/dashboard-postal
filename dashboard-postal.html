@@ -8,6 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
     <style>
         * {
             margin: 0;
@@ -930,6 +931,130 @@
             background: #f8f9fa;
         }
 
+        /* ===== DASHBOARD CHARTS STYLING ===== */
+        .dashboard-charts-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            padding: 20px 30px;
+            background: #f8fafc;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .chart-card h3 {
+            color: #1e3c72;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .chart-card canvas {
+            max-height: 250px;
+        }
+
+        .trend-card {
+            grid-column: 1 / 3;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-box h4 {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .stat-box .value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        /* Top 5 Tables */
+        .top5-tables-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            padding: 20px 30px;
+        }
+
+        .top5-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .top5-card h3 {
+            color: #1e3c72;
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .top5-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .top5-table thead {
+            background: #f1f5f9;
+        }
+
+        .top5-table th {
+            padding: 10px;
+            text-align: left;
+            color: #1e3c72;
+            font-weight: 600;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .top5-table td {
+            padding: 10px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .top5-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .delay-badge {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .ontime-badge {
+            background: #dcfce7;
+            color: #166534;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
         .view-toggle {
             display: flex;
             gap: 10px;
@@ -1330,6 +1455,72 @@
                     <div class="stat-card">
                         <div class="stat-label">Sisa Kapasitas</div>
                         <div class="stat-value">15.3%</div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="dashboard-charts-container" id="dashboard-charts">
+                    <!-- Top 10 Rute Chart -->
+                    <div class="chart-card">
+                        <h3>📊 Top 10 Rute</h3>
+                        <canvas id="topRoutesChart"></canvas>
+                    </div>
+
+                    <!-- Breakdown Pie Chart -->
+                    <div class="chart-card">
+                        <h3>🎯 Breakdown Volume</h3>
+                        <canvas id="breakdownChart"></canvas>
+                    </div>
+
+                    <!-- Unit Type Chart -->
+                    <div class="chart-card">
+                        <h3>🚚 Jenis Unit</h3>
+                        <canvas id="unitTypeChart"></canvas>
+                    </div>
+
+                    <!-- Trend Chart -->
+                    <div class="chart-card trend-card">
+                        <h3>📈 Trend 7 Hari</h3>
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Top 5 Tables Section -->
+                <div class="top5-tables-container">
+                    <!-- Top 5 Delay -->
+                    <div class="top5-card">
+                        <h3>🔴 Top 5 Rute & Nopol Delay</h3>
+                        <table class="top5-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Rute</th>
+                                    <th>Nopol</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top5-delay-body">
+                                <tr><td colspan="4" style="text-align:center; color:#999;">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Top 5 On-Time -->
+                    <div class="top5-card">
+                        <h3>🟢 Top 5 Rute & Nopol On-Time</h3>
+                        <table class="top5-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Rute</th>
+                                    <th>Nopol</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="top5-ontime-body">
+                                <tr><td colspan="4" style="text-align:center; color:#999;">Memuat data...</td></tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -2067,12 +2258,12 @@
                 for (let i = 0; i < routeCards.length; i += cardsPerSlide) {
                     let slide = pptx.addSlide();
                     
-                    // Definisi posisi 2x2 grid - spacing 0.08" di semua sisi, cards lebih lebar
+                    // Definisi posisi 2x2 grid (x, y, w, h dalam inci)
                     const positions = [
-                        { x: 0.08, y: 0.08, w: 4.87, h: 3.64 }, // Atas Kiri
-                        { x: 5.05, y: 0.08, w: 4.87, h: 3.64 }, // Atas Kanan
-                        { x: 0.08, y: 3.78, w: 4.87, h: 3.64 }, // Bawah Kiri
-                        { x: 5.05, y: 3.78, w: 4.87, h: 3.64 }  // Bawah Kanan
+                        { x: 0.2, y: 0.2, w: 4.7, h: 2.6 }, // Atas Kiri
+                        { x: 5.1, y: 0.2, w: 4.7, h: 2.6 }, // Atas Kanan
+                        { x: 0.2, y: 2.9, w: 4.7, h: 2.6 }, // Bawah Kiri
+                        { x: 5.1, y: 2.9, w: 4.7, h: 2.6 }  // Bawah Kanan
                     ];
 
                     for (let j = 0; j < cardsPerSlide && (i + j) < routeCards.length; j++) {
@@ -2154,7 +2345,6 @@
                                 volumeBars.forEach(bar => {
                                     bar.style.flex = '1';
                                     bar.style.minWidth = '0';
-                                    bar.style.height = '180px'; // FULL SIZE
                                 });
                             }
                         });
