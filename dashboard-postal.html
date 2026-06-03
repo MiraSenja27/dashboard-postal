@@ -2310,22 +2310,22 @@
             let sortedPostal = [...data].sort((a,b) => b.postal - a.postal).slice(0, 3);
             let sortedPoslog = [...data].sort((a,b) => b.poslog - a.poslog).slice(0, 3);
 
-            let htmlPostal = `<div style="margin-bottom: 12px; padding: 10px; background: #fff5eb; border-left: 4px solid #FF8C42; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                <div style="color: #777; font-size: 11px; margin-bottom: 6px; font-weight: 700;">🏆 TOP 3 POSTAL</div>`;
+            let htmlPostal = `<div style="margin-bottom: 15px; padding: 12px; background: #fff5eb; border-left: 4px solid #FF8C42; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <div style="color: #777; font-size: 12px; margin-bottom: 8px; font-weight: 700;">🏆 TOP 3 POSTAL</div>`;
             sortedPostal.forEach((r, i) => {
-                htmlPostal += `<div style="display:flex; justify-content:space-between; margin-bottom: 4px; border-bottom: 1px dashed #fad8c3; padding-bottom: 2px;">
-                    <span style="font-weight: 700; color: #1e3c72; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%;" title="${r.name}">${i+1}. ${r.name}</span>
-                    <span style="font-weight: 700; color: #FF8C42; font-size: 11px;">${fmtNum(r.postal)}</span>
+                htmlPostal += `<div style="display:flex; justify-content:space-between; margin-bottom: 6px; border-bottom: 1px dashed #fad8c3; padding-bottom: 4px;">
+                    <span style="font-weight: 700; color: #1e3c72; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%;" title="${r.name}">${i+1}. ${r.name}</span>
+                    <span style="font-weight: 700; color: #FF8C42; font-size: 13px; text-align: right;">${r.postal.toLocaleString('id-ID')} kg</span>
                 </div>`;
             });
             htmlPostal += `</div>`;
 
-            let htmlPoslog = `<div style="padding: 10px; background: #e0f7f5; border-left: 4px solid #4ECDC4; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                <div style="color: #777; font-size: 11px; margin-bottom: 6px; font-weight: 700;">🏆 TOP 3 POSLOG</div>`;
+            let htmlPoslog = `<div style="padding: 12px; background: #e0f7f5; border-left: 4px solid #4ECDC4; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <div style="color: #777; font-size: 12px; margin-bottom: 8px; font-weight: 700;">🏆 TOP 3 POSLOG</div>`;
             sortedPoslog.forEach((r, i) => {
-                htmlPoslog += `<div style="display:flex; justify-content:space-between; margin-bottom: 4px; border-bottom: 1px dashed #bdf1ed; padding-bottom: 2px;">
-                    <span style="font-weight: 700; color: #1e3c72; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%;" title="${r.name}">${i+1}. ${r.name}</span>
-                    <span style="font-weight: 700; color: #4ECDC4; font-size: 11px;">${fmtNum(r.poslog)}</span>
+                htmlPoslog += `<div style="display:flex; justify-content:space-between; margin-bottom: 6px; border-bottom: 1px dashed #bdf1ed; padding-bottom: 4px;">
+                    <span style="font-weight: 700; color: #1e3c72; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%;" title="${r.name}">${i+1}. ${r.name}</span>
+                    <span style="font-weight: 700; color: #4ECDC4; font-size: 13px; text-align: right;">${r.poslog.toLocaleString('id-ID')} kg</span>
                 </div>`;
             });
             htmlPoslog += `</div>`;
