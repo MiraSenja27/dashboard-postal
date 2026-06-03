@@ -2312,15 +2312,22 @@
                         indexAxis: 'y',
                         responsive: true,
                         maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
                         plugins: {
                             legend: { position: 'bottom', labels: { font: { size: 13 }, padding: 16 } },
                             tooltip: {
                                 callbacks: {
                                     label: function(ctx) {
-                                        return ctx.dataset.label + ': ' + ctx.parsed.x.toLocaleString('id-ID') + ' kg';
+                                        const val = ctx.parsed.x;
+                                        if (val === 0) return null; // Sembunyikan label jika 0
+                                        return ctx.dataset.label + ': ' + val.toLocaleString('id-ID') + ' kg';
                                     },
                                     footer: function(tooltipItems) {
-                                        const total = tooltipItems.reduce(function(s, i){ return s + i.parsed.x; }, 0);
+                                        let total = 0;
+                                        tooltipItems.forEach(function(i) { total += i.parsed.x; });
                                         return 'Total: ' + total.toLocaleString('id-ID') + ' kg';
                                     }
                                 }
