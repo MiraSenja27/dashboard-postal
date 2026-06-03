@@ -2230,7 +2230,7 @@
             goToDashboardDefault();
             setTimeout(async function() {
                 // Load volume data dulu agar tabel terisi
-                await loadVolumeData('ALL');
+                await loadVolumeData(null);
                 // Show charts section
                 document.getElementById('dashboardChartsSection').style.display = 'block';
                 // Hide route cards dan rankings
@@ -2252,13 +2252,20 @@
             const rows = document.querySelectorAll('#volume-view tbody tr');
             const ruteMap = {};
             
+            function parseAngka(txt) {
+                if (!txt) return 0;
+                txt = txt.trim();
+                // Format Indonesia: 1.234,56 → hapus titik → ganti koma ke titik
+                return parseFloat(txt.replace(/\./g, '').replace(',', '.')) || 0;
+            }
+            
             rows.forEach(function(row) {
                 const cells = row.querySelectorAll('td');
                 if (cells.length >= 6) {
                     const rute = (cells[3] && cells[3].textContent.trim()) || '';
-                    const postal = parseFloat((cells[4] && cells[4].textContent.replace(/\./g,'').replace(',','.')) || 0);
-                    const poslog = parseFloat((cells[5] && cells[5].textContent.replace(/\./g,'').replace(',','.')) || 0);
-                    if (!rute || rute === '-') return;
+                    const postal = parseAngka(cells[4] && cells[4].textContent);
+                    const poslog = parseAngka(cells[5] && cells[5].textContent);
+                    if (!rute || rute === '-' || rute === 'NAMA RUTE') return;
                     if (!ruteMap[rute]) ruteMap[rute] = { name: rute, postal: 0, poslog: 0 };
                     ruteMap[rute].postal += postal;
                     ruteMap[rute].poslog += poslog;
@@ -2333,7 +2340,7 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: true,
-                        cutout: '45%',
+                        cutout: '30%',
                         plugins: { legend: { position: 'bottom', labels: { font: { size: 12 } } } }
                     }
                 });
