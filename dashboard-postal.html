@@ -1214,6 +1214,7 @@
         <div class="submenu-container" style="background: white; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; padding: 0 30px; gap: 20px;">
             <div id="submenu-primer" class="submenu show" style="padding: 10px 0; border: none; flex: none;">
                 <div class="submenu-left">
+                    <button class="submenu-btn" onclick="goToDashboardDefault()">🏠 Overview</button>
                     <button class="submenu-btn" onclick="showDownload('primer')">📥 Download PPT</button>
 
                     <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA Waktu</button>
@@ -1224,7 +1225,7 @@
 
             <div id="submenu-sekunder" class="submenu" style="padding: 10px 0; border: none; flex: none;">
                 <div class="submenu-left">
-
+                    <button class="submenu-btn" onclick="goToDashboardDefault()">🏠 Overview</button>
                     <button class="submenu-btn" onclick="showDownload('sekunder')">📥 Download PPT</button>
                     <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA Waktu</button>
                     <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
@@ -1233,6 +1234,7 @@
 
             <div id="submenu-tersier" class="submenu" style="padding: 10px 0; border: none; flex: none;">
                 <div class="submenu-left">
+                    <button class="submenu-btn" onclick="goToDashboardDefault()">🏠 Overview</button>
                     <button class="submenu-btn" onclick="showDownload('tersier')">📥 Download PPT</button>
                     <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA Waktu</button>
                     <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
@@ -2594,6 +2596,13 @@
                 loadSLAData('ALL');
             } else if (currentView === 'volume') {
                 loadVolumeData('ALL');
+            }
+
+            // If dashboard charts are visible, redraw them
+            if (document.getElementById('dashboardChartsSection').style.display !== 'none') {
+                loadVolumeData('ALL').then(() => {
+                    setTimeout(() => { _renderDashboardCharts(); }, 300);
+                });
             }
             
             if (typeof showToast === 'function') {
