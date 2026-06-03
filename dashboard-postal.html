@@ -1336,30 +1336,6 @@
 
                 <!-- Dashboard Charts - HIDDEN by default, tampil saat klik menu Dashboard -->
                 <div id="dashboardChartsSection" style="display:none; margin: 20px 0;">
-                    
-                    <!-- KPI Summary Cards -->
-                    <div id="dashKpiCards" style="display:grid; grid-template-columns:repeat(4,1fr); gap:15px; margin-bottom:20px;">
-                        <div style="background:white; padding:18px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); border-left:4px solid #FF8C42;">
-                            <div style="font-size:12px; color:#888; margin-bottom:6px;">Total Volume Postal</div>
-                            <div id="kpiPostal" style="font-size:22px; font-weight:800; color:#FF8C42;">-</div>
-                            <div style="font-size:11px; color:#aaa; margin-top:4px;">kg</div>
-                        </div>
-                        <div style="background:white; padding:18px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); border-left:4px solid #4ECDC4;">
-                            <div style="font-size:12px; color:#888; margin-bottom:6px;">Total Volume Poslog</div>
-                            <div id="kpiPoslog" style="font-size:22px; font-weight:800; color:#4ECDC4;">-</div>
-                            <div style="font-size:11px; color:#aaa; margin-top:4px;">kg</div>
-                        </div>
-                        <div style="background:white; padding:18px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); border-left:4px solid #1e3c72;">
-                            <div style="font-size:12px; color:#888; margin-bottom:6px;">Total Volume</div>
-                            <div id="kpiTotal" style="font-size:22px; font-weight:800; color:#1e3c72;">-</div>
-                            <div style="font-size:11px; color:#aaa; margin-top:4px;">kg</div>
-                        </div>
-                        <div style="background:white; padding:18px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); border-left:4px solid #4CAF50;">
-                            <div style="font-size:12px; color:#888; margin-bottom:6px;">Jumlah Rute</div>
-                            <div id="kpiRute" style="font-size:22px; font-weight:800; color:#4CAF50;">-</div>
-                            <div style="font-size:11px; color:#aaa; margin-top:4px;">rute aktif</div>
-                        </div>
-                    </div>
 
                     <!-- Charts Row -->
                     <div style="display:grid; grid-template-columns:2fr 1fr; gap:20px;">
@@ -2268,6 +2244,12 @@
                 if (addBtn) addBtn.style.display = 'none';
                 // Hide tambah rute & sembunyikan SLA buttons
                 document.querySelectorAll('.route-toolbar, [onclick*="tambahRute"], [onclick*="toggleSLA"]').forEach(function(el){ el.style.display='none'; });
+                // Hide semua button di bawah charts
+                document.querySelectorAll('.add-route-btn, button[onclick*="tambah"], .toggle-sla-btn').forEach(function(el){ el.style.display='none'; });
+                // Hide Tambah Rute & Sembunyikan SLA by text content
+                document.querySelectorAll('button').forEach(function(btn){
+                    if(btn.textContent.includes('Tambah Rute') || btn.textContent.includes('Sembunyikan SLA')) btn.style.display='none';
+                });
                 _renderDashboardCharts();
             }, 400);
         }
@@ -2292,12 +2274,8 @@
             const totalPoslog = data.reduce(function(s,r){ return s+r.poslog; }, 0);
             const totalVol = totalPostal + totalPoslog;
 
-            // Update KPI Cards
+            // Update title
             function fmtNum(n){ return n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toFixed(0); }
-            document.getElementById('kpiPostal').textContent = fmtNum(totalPostal);
-            document.getElementById('kpiPoslog').textContent = fmtNum(totalPoslog);
-            document.getElementById('kpiTotal').textContent = fmtNum(totalVol);
-            document.getElementById('kpiRute').textContent = data.length;
             document.getElementById('chartTopRutesTitle').textContent = 'Volume per Rute (10 teratas dari ' + data.length + ' rute)';
 
             // Chart 1: HORIZONTAL Bar Chart
