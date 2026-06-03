@@ -2252,7 +2252,14 @@
             const rawData = window._volumeRawData || [];
             
             function parseAngka(v) {
-                return parseFloat(String(v || 0).replace(/\./g,'').replace(',','.')) || 0;
+                if (typeof v === 'number') return v;
+                if (typeof v === 'string') {
+                    if (v.includes(',')) {
+                        return parseFloat(v.replace(/\./g,'').replace(',','.')) || 0;
+                    }
+                    return parseFloat(v) || 0;
+                }
+                return parseFloat(v) || 0;
             }
             
             // GROUP dan akumulasi per nama rute
@@ -2335,17 +2342,19 @@
                     options: {
                         responsive: true,
                         maintainAspectRatio: true,
-                        cutout: '30%',
-                        plugins: { legend: { position: 'bottom', labels: { font: { size: 12 } } } }
+                        cutout: '60%',
+                        plugins: { legend: { display: false } }
                     }
                 });
                 var pct1 = grandTotal > 0 ? (pPostal/grandTotal*100).toFixed(1) : 0;
                 var pct2 = grandTotal > 0 ? (pPoslog/grandTotal*100).toFixed(1) : 0;
                 var pct3 = grandTotal > 0 ? (pSisa/grandTotal*100).toFixed(1) : 0;
                 document.getElementById('chartBreakdownLegend').innerHTML =
-                    '<div style="margin-bottom:5px;">🟠 Postal: <b>' + fmtNum(pPostal) + ' kg</b> (' + pct1 + '%)</div>' +
-                    '<div style="margin-bottom:5px;">🟢 Poslog: <b>' + fmtNum(pPoslog) + ' kg</b> (' + pct2 + '%)</div>' +
-                    '<div>⚪ Sisa Kapasitas: <b>' + fmtNum(pSisa) + ' kg</b> (' + pct3 + '%)</div>';
+                    '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; font-size: 15px; margin-top: 10px; color: #333;">' +
+                    '<div style="display:flex; align-items:center; gap:5px;"><span style="color:#FF8C42; font-size:18px;">■</span> Postal: <b style="font-size:16px;">' + fmtNum(pPostal) + ' kg</b> <span style="font-weight:bold; font-size:15px; color:#555;">(' + pct1 + '%)</span></div>' +
+                    '<div style="display:flex; align-items:center; gap:5px;"><span style="color:#4ECDC4; font-size:18px;">■</span> Poslog: <b style="font-size:16px;">' + fmtNum(pPoslog) + ' kg</b> <span style="font-weight:bold; font-size:15px; color:#555;">(' + pct2 + '%)</span></div>' +
+                    '<div style="display:flex; align-items:center; gap:5px;"><span style="color:#B0BEC5; font-size:18px;">■</span> Sisa Kapasitas: <b style="font-size:16px;">' + fmtNum(pSisa) + ' kg</b> <span style="font-weight:bold; font-size:15px; color:#555;">(' + pct3 + '%)</span></div>' +
+                    '</div>';
             }
         }
 
@@ -6342,3 +6351,4 @@
     </script>
 </body>
 </html>
+
