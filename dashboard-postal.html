@@ -8,7 +8,6 @@
     <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -268,76 +267,6 @@
             font-weight: bold;
             line-height: 1.1;
             white-space: nowrap;
-        }
-
-        /* ===== DASHBOARD SUMMARY STYLING ===== */
-        .dashboard-summary {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-        }
-
-        .dashboard-summary h2 {
-            font-size: 20px;
-            color: #1e3c72;
-            margin-bottom: 20px;
-            font-weight: 700;
-        }
-
-        .summary-charts-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        .chart-container {
-            background: #f8fafc;
-            padding: 20px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .chart-container h3 {
-            font-size: 14px;
-            color: #1e3c72;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .chart-container canvas {
-            max-height: 300px;
-        }
-
-        /* Hide routes container in dashboard view */
-        .routes-grid {
-            display: none;
-        }
-
-        .route-toolbar {
-            display: none;
-        }
-
-        .delay-analysis {
-            display: none;
-        }
-
-        /* Show routes in other views */
-        #sla-view .routes-grid,
-        #volume-view .routes-grid {
-            display: grid;
-        }
-
-        #sla-view .route-toolbar,
-        #volume-view .route-toolbar {
-            display: flex;
-        }
-
-        #sla-view .delay-analysis,
-        #volume-view .delay-analysis {
-            display: block;
         }
 
         .header {
@@ -1422,37 +1351,6 @@
                         <ul id="ranking-nopol" class="ranking-list">
                             <li style="padding: 20px; text-align: center; color: #999;">Memuat data nopol...</li>
                         </ul>
-                    </div>
-                </div>
-
-                <!-- DASHBOARD SUMMARY SECTION -->
-                <div class="dashboard-summary" id="dashboard-summary">
-                    <h2>📊 Summary Dashboard</h2>
-                    
-                    <div class="summary-charts-grid">
-                        <!-- Top 10 Rute Chart -->
-                        <div class="chart-container">
-                            <h3>Top 10 Rute (Postal + Poslog)</h3>
-                            <canvas id="topRoutesChart"></canvas>
-                        </div>
-
-                        <!-- Breakdown Chart -->
-                        <div class="chart-container">
-                            <h3>Breakdown Volume (Postal vs Poslog)</h3>
-                            <canvas id="breakdownChart"></canvas>
-                        </div>
-
-                        <!-- Unit Type Chart -->
-                        <div class="chart-container">
-                            <h3>Distribution by Unit Type</h3>
-                            <canvas id="unitTypeChart"></canvas>
-                        </div>
-
-                        <!-- Trend Chart -->
-                        <div class="chart-container">
-                            <h3>Trend 7 Hari Terakhir</h3>
-                            <canvas id="trendChart"></canvas>
-                        </div>
                     </div>
                 </div>
 
