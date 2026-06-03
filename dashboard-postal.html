@@ -8,6 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -229,22 +230,46 @@
 
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 15px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
         }
 
         .stat-card {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
-            padding: 18px 20px;
-            border-radius: 12px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
             position: relative;
-            min-height: 90px;
+            min-height: 120px;
             display: flex;
             flex-direction: column;
             justify-content: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.1);
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            top: -30%;
+            right: -30%;
         }
 
         /* Role based visibility */
@@ -253,20 +278,21 @@
         }
 
         .stat-label {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
-            opacity: 1;
-            margin-bottom: 6px;
+            opacity: 0.95;
+            margin-bottom: 10px;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
+            letter-spacing: 1px;
             white-space: nowrap;
         }
 
         .stat-value {
-            font-size: 26px;
-            font-weight: bold;
+            font-size: 32px;
+            font-weight: 900;
             line-height: 1.1;
             white-space: nowrap;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .header {
@@ -852,6 +878,150 @@
             color: #1e3c72;
         }
 
+        /* ===== DASHBOARD & SLA CHARTS STYLING ===== */
+        .charts-section {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e2e8f0;
+        }
+
+        .charts-section h3 {
+            font-size: 20px;
+            font-weight: 800;
+            color: #1e3c72;
+            margin-bottom: 25px;
+            border-bottom: 3px solid #FF8C42;
+            padding-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .chart-box {
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .chart-box:hover {
+            border-color: #FF8C42;
+            box-shadow: 0 8px 24px rgba(255, 140, 66, 0.1);
+        }
+
+        .chart-box h4 {
+            font-size: 16px;
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-box canvas {
+            max-height: 320px;
+        }
+
+        /* Top 5 Delay/OnTime Tables */
+        .top-five-tables {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .top-five-card {
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+
+        .top-five-card h4 {
+            font-size: 16px;
+            color: #1e3c72;
+            margin-bottom: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 12px;
+        }
+
+        .top-five-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .top-five-table thead {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        }
+
+        .top-five-table th {
+            padding: 14px;
+            text-align: left;
+            color: white;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .top-five-table td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .top-five-table tbody tr {
+            transition: all 0.2s ease;
+        }
+
+        .top-five-table tbody tr:hover {
+            background: #f0f4f8;
+        }
+
+        .delay-badge {
+            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+            color: #991b1b;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        .ontime-badge {
+            background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+            color: #166534;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        @media (max-width: 768px) {
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .top-five-tables {
+                grid-template-columns: 1fr;
+            }
+        }
+
         .data-table {
             width: 100%;
             border-collapse: collapse;
@@ -1333,6 +1503,21 @@
                     </div>
                 </div>
 
+                <!-- DASHBOARD SUMMARY CHARTS -->
+                <div class="charts-section" id="dashboardChartsSection">
+                    <h3>📊 Summary Volume Dashboard</h3>
+                    <div class="charts-grid">
+                        <div class="chart-box">
+                            <h4>Top 10 Rute (Total Volume)</h4>
+                            <canvas id="topRoutesChartDashboard"></canvas>
+                        </div>
+                        <div class="chart-box">
+                            <h4>Breakdown Volume (Postal vs Poslog)</h4>
+                            <canvas id="breakdownChartDashboard"></canvas>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Top Delay Rankings -->
                 <div class="ranking-container">
                     <div class="ranking-card">
@@ -1399,6 +1584,47 @@
 
             <!-- SLA View -->
             <div id="sla-view" class="hidden" style="position: relative;">
+                <!-- SLA CHARTS SECTION -->
+                <div class="charts-section" id="slaChartsSection">
+                    <h3>📊 Top Rute & Nopol Delay vs On-Time</h3>
+                    <div class="top-five-tables">
+                        <!-- Top 5 Delay -->
+                        <div class="top-five-card">
+                            <h4>🔴 Top 5 Rute & Nopol Delay</h4>
+                            <table class="top-five-table">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Rute</th>
+                                        <th>Nopol</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="top5DelayBody">
+                                    <tr><td colspan="4" style="text-align:center; color:#999;">Memuat data...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Top 5 On-Time -->
+                        <div class="top-five-card">
+                            <h4>🟢 Top 5 Rute & Nopol On-Time</h4>
+                            <table class="top-five-table">
+                                <thead>
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Rute</th>
+                                        <th>Nopol</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="top5OntimeBody">
+                                    <tr><td colspan="4" style="text-align:center; color:#999;">Memuat data...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
                 <table class="data-table">
                     <thead>
                         <tr class="main-header">
@@ -2494,6 +2720,222 @@
             }
             return dateStr;
         }
+
+        // ===== DASHBOARD CHARTS FUNCTIONS =====
+        let dashboardCharts = {};
+
+        // Parse volume table data
+        function parseVolumeTableData() {
+            const rows = document.querySelectorAll('#volume-view tbody tr');
+            const data = [];
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                if (cells.length >= 4) {
+                    const routeName = cells[2].textContent.trim();
+                    const postal = parseFloat(cells[3].textContent.replace(/,/g, '')) || 0;
+                    const poslog = parseFloat(cells[4].textContent.replace(/,/g, '')) || 0;
+                    const space = parseFloat(cells[6].textContent.replace(/,/g, '')) || 0;
+                    
+                    data.push({
+                        route: routeName,
+                        postal: postal,
+                        poslog: poslog,
+                        total: postal + poslog,
+                        space: space
+                    });
+                }
+            });
+            
+            return data;
+        }
+
+        // Calculate dashboard metrics
+        function calculateDashboardMetrics(volumeData) {
+            let totalPostal = 0;
+            let totalPoslog = 0;
+            let totalSpace = 0;
+            
+            volumeData.forEach(item => {
+                totalPostal += item.postal;
+                totalPoslog += item.poslog;
+                totalSpace += item.space;
+            });
+            
+            // Get top 10 routes
+            const topRoutes = [...volumeData]
+                .sort((a, b) => b.total - a.total)
+                .slice(0, 10);
+            
+            return {
+                totalPostal,
+                totalPoslog,
+                totalSpace,
+                topRoutes,
+                volumeData
+            };
+        }
+
+        // Render dashboard charts
+        function renderDashboardCharts() {
+            if (currentView !== 'dashboard') return;
+            
+            // Parse data from volume table
+            const volumeData = parseVolumeTableData();
+            if (volumeData.length === 0) return;
+            
+            const metrics = calculateDashboardMetrics(volumeData);
+            
+            // Update KPI stats
+            updateDashboardStats(metrics);
+            
+            // Render top routes chart
+            renderTopRoutesChart(metrics.topRoutes);
+            
+            // Render breakdown chart
+            renderBreakdownChart(metrics);
+        }
+
+        // Update KPI statistics
+        function updateDashboardStats(metrics) {
+            // Update stat cards if they exist
+            const statCards = document.querySelectorAll('.stats-grid .stat-card');
+            if (statCards.length >= 5) {
+                statCards[3].querySelector('.stat-value').textContent = 
+                    (metrics.totalPostal / 1000).toFixed(1) + 'K kg';
+                statCards[4].querySelector('.stat-value').textContent = 
+                    (metrics.totalPoslog / 1000).toFixed(1) + 'K kg';
+            }
+        }
+
+        // Render top routes chart
+        function renderTopRoutesChart(topRoutes) {
+            const ctx = document.getElementById('topRoutesChartDashboard');
+            if (!ctx) return;
+            
+            // Destroy existing chart
+            if (dashboardCharts.topRoutes) {
+                dashboardCharts.topRoutes.destroy();
+            }
+            
+            const labels = topRoutes.map(r => r.route.substring(0, 20) + (r.route.length > 20 ? '...' : ''));
+            const postalData = topRoutes.map(r => r.postal);
+            const poslogData = topRoutes.map(r => r.poslog);
+            
+            dashboardCharts.topRoutes = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Postal (kg)',
+                            data: postalData,
+                            backgroundColor: '#FF8C42',
+                            borderColor: '#FF7F1F',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        },
+                        {
+                            label: 'Poslog (kg)',
+                            data: poslogData,
+                            backgroundColor: '#4ECDC4',
+                            borderColor: '#3BA39C',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    indexAxis: 'x',
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                font: { size: 13, weight: 'bold' },
+                                padding: 15,
+                                usePointStyle: true
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                font: { size: 12 },
+                                callback: function(value) {
+                                    return (value / 1000).toFixed(0) + 'K';
+                                }
+                            },
+                            grid: { drawBorder: false }
+                        },
+                        x: {
+                            ticks: { font: { size: 11 } },
+                            grid: { drawBorder: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Render breakdown chart (Postal vs Poslog)
+        function renderBreakdownChart(metrics) {
+            const ctx = document.getElementById('breakdownChartDashboard');
+            if (!ctx) return;
+            
+            // Destroy existing chart
+            if (dashboardCharts.breakdown) {
+                dashboardCharts.breakdown.destroy();
+            }
+            
+            dashboardCharts.breakdown = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Postal', 'Poslog'],
+                    datasets: [{
+                        data: [metrics.totalPostal, metrics.totalPoslog],
+                        backgroundColor: ['#FF8C42', '#4ECDC4'],
+                        borderColor: ['#FF7F1F', '#3BA39C'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 13, weight: 'bold' },
+                                padding: 20,
+                                usePointStyle: true
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Hook to dashboard view switch
+        const originalShowView = showView;
+        showView = async function(view) {
+            await originalShowView(view);
+            if (view === 'dashboard') {
+                setTimeout(() => renderDashboardCharts(), 500);
+            }
+        };
+
+        // Hook to filter change
+        const originalApplyFilter = applyFilter;
+        applyFilter = async function() {
+            await originalApplyFilter();
+            if (currentView === 'dashboard') {
+                setTimeout(() => renderDashboardCharts(), 500);
+            }
+        };
 
         // Toast Notification System
         function showToast(message, type = 'success') {
