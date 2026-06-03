@@ -1336,16 +1336,45 @@
 
                 <!-- Dashboard Charts - HIDDEN by default, tampil saat klik menu Dashboard -->
                 <div id="dashboardChartsSection" style="display:none; margin: 20px 0;">
-                    <div style="background:white; padding:25px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
-                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:30px;">
-                            <div>
-                                <h4 style="color:#1e3c72; margin-bottom:15px; font-weight:600;">📊 Top 10 Rute (Postal + Poslog)</h4>
-                                <canvas id="chartTopRutes"></canvas>
-                            </div>
-                            <div>
-                                <h4 style="color:#1e3c72; margin-bottom:15px; font-weight:600;">📈 Breakdown Postal vs Poslog</h4>
-                                <canvas id="chartBreakdown"></canvas>
-                            </div>
+                    
+                    <!-- KPI Summary Cards -->
+                    <div id="dashKpiCards" style="display:grid; grid-template-columns:repeat(4,1fr); gap:15px; margin-bottom:20px;">
+                        <div style="background:white; padding:18px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); border-left:4px solid #FF8C42;">
+                            <div style="font-size:12px; color:#888; margin-bottom:6px;">Total Volume Postal</div>
+                            <div id="kpiPostal" style="font-size:22px; font-weight:800; color:#FF8C42;">-</div>
+                            <div style="font-size:11px; color:#aaa; margin-top:4px;">kg</div>
+                        </div>
+                        <div style="background:white; padding:18px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); border-left:4px solid #4ECDC4;">
+                            <div style="font-size:12px; color:#888; margin-bottom:6px;">Total Volume Poslog</div>
+                            <div id="kpiPoslog" style="font-size:22px; font-weight:800; color:#4ECDC4;">-</div>
+                            <div style="font-size:11px; color:#aaa; margin-top:4px;">kg</div>
+                        </div>
+                        <div style="background:white; padding:18px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); border-left:4px solid #1e3c72;">
+                            <div style="font-size:12px; color:#888; margin-bottom:6px;">Total Volume</div>
+                            <div id="kpiTotal" style="font-size:22px; font-weight:800; color:#1e3c72;">-</div>
+                            <div style="font-size:11px; color:#aaa; margin-top:4px;">kg</div>
+                        </div>
+                        <div style="background:white; padding:18px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); border-left:4px solid #4CAF50;">
+                            <div style="font-size:12px; color:#888; margin-bottom:6px;">Jumlah Rute</div>
+                            <div id="kpiRute" style="font-size:22px; font-weight:800; color:#4CAF50;">-</div>
+                            <div style="font-size:11px; color:#aaa; margin-top:4px;">rute aktif</div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row -->
+                    <div style="display:grid; grid-template-columns:2fr 1fr; gap:20px;">
+                        
+                        <!-- Horizontal Bar Chart -->
+                        <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                            <h4 id="chartTopRutesTitle" style="color:#1e3c72; margin-bottom:15px; font-weight:700; font-size:14px;">Volume per Rute (10 teratas)</h4>
+                            <canvas id="chartTopRutes" style="max-height:350px;"></canvas>
+                        </div>
+
+                        <!-- Doughnut Chart - lebih kecil -->
+                        <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+                            <h4 style="color:#1e3c72; margin-bottom:15px; font-weight:700; font-size:14px;">Breakdown Postal vs Poslog</h4>
+                            <canvas id="chartBreakdown" style="max-height:200px;"></canvas>
+                            <div id="chartBreakdownLegend" style="margin-top:15px; font-size:12px; color:#555;"></div>
                         </div>
                     </div>
                 </div>
@@ -2224,7 +2253,21 @@
         function showDashboardCharts() {
             goToDashboardDefault();
             setTimeout(function() {
+                // Show charts section
                 document.getElementById('dashboardChartsSection').style.display = 'block';
+                // Hide route cards dan rankings
+                var ranking = document.querySelector('.ranking-container');
+                var routeToolbar = document.querySelector('.route-toolbar');
+                var routesGrid = document.getElementById('routesContainer');
+                var delayAnalysis = document.querySelector('.delay-analysis');
+                var addBtn = document.querySelector('.add-route-btn');
+                if (ranking) ranking.style.display = 'none';
+                if (routeToolbar) routeToolbar.style.display = 'none';
+                if (routesGrid) routesGrid.style.display = 'none';
+                if (delayAnalysis) delayAnalysis.style.display = 'none';
+                if (addBtn) addBtn.style.display = 'none';
+                // Hide tambah rute & sembunyikan SLA buttons
+                document.querySelectorAll('.route-toolbar, [onclick*="tambahRute"], [onclick*="toggleSLA"]').forEach(function(el){ el.style.display='none'; });
                 _renderDashboardCharts();
             }, 400);
         }
@@ -2239,17 +2282,25 @@
                     const postal = parseFloat((cells[3] && cells[3].textContent.replace(/,/g,'')) || 0);
                     const poslog = parseFloat((cells[4] && cells[4].textContent.replace(/,/g,'')) || 0);
                     if (name && (postal > 0 || poslog > 0)) {
-                        data.push({ name: name.substring(0,22), postal: postal, poslog: poslog });
+                        data.push({ name: name, postal: postal, poslog: poslog });
                     }
                 }
             });
-            if (data.length === 0) return;
 
             const top10 = data.sort(function(a,b){ return (b.postal+b.poslog)-(a.postal+a.poslog); }).slice(0,10);
             const totalPostal = data.reduce(function(s,r){ return s+r.postal; }, 0);
             const totalPoslog = data.reduce(function(s,r){ return s+r.poslog; }, 0);
+            const totalVol = totalPostal + totalPoslog;
 
-            // Chart 1: Top 10 Rute
+            // Update KPI Cards
+            function fmtNum(n){ return n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toFixed(0); }
+            document.getElementById('kpiPostal').textContent = fmtNum(totalPostal);
+            document.getElementById('kpiPoslog').textContent = fmtNum(totalPoslog);
+            document.getElementById('kpiTotal').textContent = fmtNum(totalVol);
+            document.getElementById('kpiRute').textContent = data.length;
+            document.getElementById('chartTopRutesTitle').textContent = 'Volume per Rute (10 teratas dari ' + data.length + ' rute)';
+
+            // Chart 1: HORIZONTAL Bar Chart
             const ctx1 = document.getElementById('chartTopRutes');
             if (ctx1) {
                 if (_chartInstances.top) _chartInstances.top.destroy();
@@ -2262,11 +2313,21 @@
                             { label: 'Poslog (kg)', data: top10.map(function(r){ return r.poslog; }), backgroundColor: '#4ECDC4' }
                         ]
                     },
-                    options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true } } }
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom', labels: { font: { size: 12 } } } },
+                        scales: {
+                            x: { beginAtZero: true, ticks: { font: { size: 11 } } },
+                            y: { ticks: { font: { size: 11 } } }
+                        }
+                    }
                 });
+                ctx1.parentElement.style.height = '350px';
             }
 
-            // Chart 2: Breakdown
+            // Chart 2: Doughnut - compact
             const ctx2 = document.getElementById('chartBreakdown');
             if (ctx2) {
                 if (_chartInstances.breakdown) _chartInstances.breakdown.destroy();
@@ -2274,10 +2335,21 @@
                     type: 'doughnut',
                     data: {
                         labels: ['Postal', 'Poslog'],
-                        datasets: [{ data: [totalPostal, totalPoslog], backgroundColor: ['#FF8C42', '#4ECDC4'] }]
+                        datasets: [{ data: [totalPostal, totalPoslog], backgroundColor: ['#FF8C42', '#4ECDC4'], borderWidth: 2 }]
                     },
-                    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
+                        cutout: '65%',
+                        plugins: { legend: { position: 'bottom', labels: { font: { size: 12 } } } }
+                    }
                 });
+                // Legend detail
+                var pct1 = totalVol > 0 ? (totalPostal/totalVol*100).toFixed(1) : 0;
+                var pct2 = totalVol > 0 ? (totalPoslog/totalVol*100).toFixed(1) : 0;
+                document.getElementById('chartBreakdownLegend').innerHTML =
+                    '<div style="margin-bottom:6px;">🟠 Postal: <b>' + fmtNum(totalPostal) + ' kg</b> (' + pct1 + '%)</div>' +
+                    '<div>🟢 Poslog: <b>' + fmtNum(totalPoslog) + ' kg</b> (' + pct2 + '%)</div>';
             }
         }
 
