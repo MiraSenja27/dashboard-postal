@@ -2322,11 +2322,18 @@
                                 callbacks: {
                                     label: function(ctx) {
                                         const val = ctx.parsed.x;
-                                        return ctx.dataset.label + ': ' + val.toLocaleString('id-ID') + ' kg';
+                                        // Compute total volume for this index across all datasets
+                                        const total = ctx.chart.data.datasets.reduce((sum, ds) => {
+                                            const dataVal = ds.data[ctx.dataIndex];
+                                            return sum + (typeof dataVal === 'number' ? dataVal : 0);
+                                        }, 0);
+                                        // Show label with value and total
+                                        return `${ctx.dataset.label}: ${val.toLocaleString('id-ID')} kg (Total: ${total.toLocaleString('id-ID')} kg)`;
                                     },
                                     footer: function(tooltipItems) {
+                                        // Footer can show total again for emphasis
                                         let total = 0;
-                                        tooltipItems.forEach(function(i) { total += i.parsed.x; });
+                                        tooltipItems.forEach(i => { total += i.parsed.x; });
                                         return 'Total: ' + total.toLocaleString('id-ID') + ' kg';
                                     }
                                 }
