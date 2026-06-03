@@ -1215,7 +1215,7 @@
             <div id="submenu-primer" class="submenu show" style="padding: 10px 0; border: none; flex: none;">
                 <div class="submenu-left">
                     <button class="submenu-btn" onclick="showDownload('primer')">📥 Download PPT</button>
-                    <button class="submenu-btn" onclick="showDashboardCharts()">📊 Dashboard</button>
+                    <button class="submenu-btn" onclick="showDashboardCharts()">📊 Report</button>
                     <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA Waktu</button>
                     <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
 <button class="submenu-btn" onclick="openRouteSettings()">⚙️ Pengaturan</button>
@@ -1225,7 +1225,7 @@
             <div id="submenu-sekunder" class="submenu" style="padding: 10px 0; border: none; flex: none;">
                 <div class="submenu-left">
                     <button class="submenu-btn" onclick="showDownload('sekunder')">📥 Download PPT</button>
-                    <button class="submenu-btn" onclick="showDashboardCharts()">📊 Dashboard</button>
+                    <button class="submenu-btn" onclick="showDashboardCharts()">📊 Report</button>
                     <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA Waktu</button>
                     <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
                 </div>
@@ -1234,7 +1234,7 @@
             <div id="submenu-tersier" class="submenu" style="padding: 10px 0; border: none; flex: none;">
                 <div class="submenu-left">
                     <button class="submenu-btn" onclick="showDownload('tersier')">📥 Download PPT</button>
-                    <button class="submenu-btn" onclick="showDashboardCharts()">📊 Dashboard</button>
+                    <button class="submenu-btn" onclick="showDashboardCharts()">📊 Report</button>
                     <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA Waktu</button>
                     <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
                 </div>
@@ -2229,8 +2229,9 @@
         function showDashboardCharts() {
             goToDashboardDefault();
             setTimeout(async function() {
-                // Load volume data dulu agar tabel terisi
-                await loadVolumeData(null);
+                // Load volume data sesuai filter yang aktif
+                const weekFilterEl = document.getElementById('weekFilter');
+                await loadVolumeData(weekFilterEl && weekFilterEl.value !== 'ALL' ? weekFilterEl.value : null);
                 // Show charts section
                 document.getElementById('dashboardChartsSection').style.display = 'block';
                 // Hide route cards dan rankings
@@ -2252,14 +2253,17 @@
             const rawData = window._volumeRawData || [];
             
             function parseAngka(v) {
+                if (v === null || v === undefined || v === '') return 0;
                 if (typeof v === 'number') return v;
                 if (typeof v === 'string') {
-                    if (v.includes(',')) {
+                    // Check if it looks like Indonesian number (e.g., 1.234.567,89)
+                    if (v.includes(',') || (v.includes('.') && v.split('.').length > 2)) {
                         return parseFloat(v.replace(/\./g,'').replace(',','.')) || 0;
                     }
+                    // For standard float strings like "1234.56"
                     return parseFloat(v) || 0;
                 }
-                return parseFloat(v) || 0;
+                return 0;
             }
             
             // GROUP dan akumulasi per nama rute
@@ -2294,7 +2298,7 @@
                         labels: top10.map(function(r){ return r.name; }),
                         datasets: [
                             { label: 'Postal (kg)', data: top10.map(function(r){ return r.postal; }), backgroundColor: '#FF8C42', borderRadius: 3 },
-                            { label: 'Poslog (kg)', data: top10.map(function(r){ return r.poslog; }), backgroundColor: '#4ECDC4', borderRadius: 3 }
+                            { label: 'Poslog (kg)', data: top10.map(function(r){ return r.poslog; }), backgroundColor: '#4ECDC4', borderRadius: 3, minBarLength: 7 }
                         ]
                     },
                     options: {
@@ -2302,18 +2306,29 @@
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
-                            legend: { position: 'bottom', labels: { font: { size: 12 } } },
+                            legend: { position: 'bottom', labels: { font: { size: 13 }, padding: 16 } },
                             tooltip: {
                                 callbacks: {
                                     label: function(ctx) {
                                         return ctx.dataset.label + ': ' + ctx.parsed.x.toLocaleString('id-ID') + ' kg';
+                                    },
+                                    footer: function(tooltipItems) {
+                                        const total = tooltipItems.reduce(function(s, i){ return s + i.parsed.x; }, 0);
+                                        return 'Total: ' + total.toLocaleString('id-ID') + ' kg';
                                     }
                                 }
                             }
                         },
                         scales: {
-                            x: { beginAtZero: true, ticks: { font: { size: 11 }, callback: function(v){ return fmtNum(v); } } },
-                            y: { ticks: { font: { size: 11 } } }
+                            x: {
+                                beginAtZero: true,
+                                stacked: true,
+                                ticks: { font: { size: 11 }, callback: function(v){ return fmtNum(v); } }
+                            },
+                            y: {
+                                stacked: true,
+                                ticks: { font: { size: 11 } }
+                            }
                         }
                     }
                 });
@@ -6351,4 +6366,7 @@
     </script>
 </body>
 </html>
+
+
+
 
