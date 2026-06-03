@@ -1343,13 +1343,13 @@
                         <!-- Horizontal Bar Chart -->
                         <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
                             <h4 id="chartTopRutesTitle" style="color:#1e3c72; margin-bottom:15px; font-weight:700; font-size:14px;">Volume per Rute (10 teratas)</h4>
-                            <canvas id="chartTopRutes" style="max-height:350px;"></canvas>
+                            <canvas id="chartTopRutes" style="max-height:450px;"></canvas>
                         </div>
 
                         <!-- Doughnut Chart - lebih kecil -->
                         <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08);">
                             <h4 style="color:#1e3c72; margin-bottom:15px; font-weight:700; font-size:14px;">Breakdown Postal vs Poslog</h4>
-                            <canvas id="chartBreakdown" style="max-height:200px;"></canvas>
+                            <canvas id="chartBreakdown" style="max-height:320px;"></canvas>
                             <div id="chartBreakdownLegend" style="margin-top:15px; font-size:12px; color:#555;"></div>
                         </div>
                     </div>
@@ -2259,12 +2259,13 @@
             const data = [];
             rows.forEach(function(row) {
                 const cells = row.querySelectorAll('td');
-                if (cells.length >= 5) {
+                if (cells.length >= 7) {
                     const name = (cells[2] && cells[2].textContent.trim()) || '';
                     const postal = parseFloat((cells[3] && cells[3].textContent.replace(/,/g,'')) || 0);
                     const poslog = parseFloat((cells[4] && cells[4].textContent.replace(/,/g,'')) || 0);
+                    const space = parseFloat((cells[6] && cells[6].textContent.replace(/,/g,'')) || 0);
                     if (name && (postal > 0 || poslog > 0)) {
-                        data.push({ name: name, postal: postal, poslog: poslog });
+                        data.push({ name: name, postal: postal, poslog: poslog, space: Math.max(0, space) });
                     }
                 }
             });
@@ -2272,13 +2273,15 @@
             const top10 = data.sort(function(a,b){ return (b.postal+b.poslog)-(a.postal+a.poslog); }).slice(0,10);
             const totalPostal = data.reduce(function(s,r){ return s+r.postal; }, 0);
             const totalPoslog = data.reduce(function(s,r){ return s+r.poslog; }, 0);
+            const totalSpace = data.reduce(function(s,r){ return s+r.space; }, 0);
             const totalVol = totalPostal + totalPoslog;
+            const grandTotal = totalVol + totalSpace;
 
             // Update title
             function fmtNum(n){ return n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toFixed(0); }
             document.getElementById('chartTopRutesTitle').textContent = 'Volume per Rute (10 teratas dari ' + data.length + ' rute)';
 
-            // Chart 1: HORIZONTAL Bar Chart
+            // Chart 1: HORIZONTAL Bar Chart - setiap rute tampil terpisah dengan postal & poslog
             const ctx1 = document.getElementById('chartTopRutes');
             if (ctx1) {
                 if (_chartInstances.top) _chartInstances.top.destroy();
@@ -2287,33 +2290,42 @@
                     data: {
                         labels: top10.map(function(r){ return r.name; }),
                         datasets: [
-                            { label: 'Postal (kg)', data: top10.map(function(r){ return r.postal; }), backgroundColor: '#FF8C42' },
-                            { label: 'Poslog (kg)', data: top10.map(function(r){ return r.poslog; }), backgroundColor: '#4ECDC4' }
+                            { label: 'Postal (kg)', data: top10.map(function(r){ return r.postal; }), backgroundColor: '#FF8C42', borderRadius: 3 },
+                            { label: 'Poslog (kg)', data: top10.map(function(r){ return r.poslog; }), backgroundColor: '#4ECDC4', borderRadius: 3 }
                         ]
                     },
                     options: {
                         indexAxis: 'y',
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: { legend: { position: 'bottom', labels: { font: { size: 12 } } } },
+                        plugins: {
+                            legend: { position: 'bottom', labels: { font: { size: 12 } } },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(ctx) {
+                                        return ctx.dataset.label + ': ' + ctx.parsed.x.toLocaleString('id-ID') + ' kg';
+                                    }
+                                }
+                            }
+                        },
                         scales: {
-                            x: { beginAtZero: true, ticks: { font: { size: 11 } } },
+                            x: { beginAtZero: true, ticks: { font: { size: 11 }, callback: function(v){ return fmtNum(v); } } },
                             y: { ticks: { font: { size: 11 } } }
                         }
                     }
                 });
-                ctx1.parentElement.style.height = '350px';
+                ctx1.parentElement.style.height = '450px';
             }
 
-            // Chart 2: Doughnut - compact
+            // Chart 2: Doughnut - Postal + Poslog + Sisa Kapasitas
             const ctx2 = document.getElementById('chartBreakdown');
             if (ctx2) {
                 if (_chartInstances.breakdown) _chartInstances.breakdown.destroy();
                 _chartInstances.breakdown = new Chart(ctx2, {
                     type: 'doughnut',
                     data: {
-                        labels: ['Postal', 'Poslog'],
-                        datasets: [{ data: [totalPostal, totalPoslog], backgroundColor: ['#FF8C42', '#4ECDC4'], borderWidth: 2 }]
+                        labels: ['Postal', 'Poslog', 'Sisa Kapasitas'],
+                        datasets: [{ data: [totalPostal, totalPoslog, totalSpace], backgroundColor: ['#FF8C42', '#4ECDC4', '#B0BEC5'], borderWidth: 2 }]
                     },
                     options: {
                         responsive: true,
@@ -2322,12 +2334,13 @@
                         plugins: { legend: { position: 'bottom', labels: { font: { size: 12 } } } }
                     }
                 });
-                // Legend detail
-                var pct1 = totalVol > 0 ? (totalPostal/totalVol*100).toFixed(1) : 0;
-                var pct2 = totalVol > 0 ? (totalPoslog/totalVol*100).toFixed(1) : 0;
+                var pct1 = grandTotal > 0 ? (totalPostal/grandTotal*100).toFixed(1) : 0;
+                var pct2 = grandTotal > 0 ? (totalPoslog/grandTotal*100).toFixed(1) : 0;
+                var pct3 = grandTotal > 0 ? (totalSpace/grandTotal*100).toFixed(1) : 0;
                 document.getElementById('chartBreakdownLegend').innerHTML =
-                    '<div style="margin-bottom:6px;">🟠 Postal: <b>' + fmtNum(totalPostal) + ' kg</b> (' + pct1 + '%)</div>' +
-                    '<div>🟢 Poslog: <b>' + fmtNum(totalPoslog) + ' kg</b> (' + pct2 + '%)</div>';
+                    '<div style="margin-bottom:5px;">🟠 Postal: <b>' + fmtNum(totalPostal) + ' kg</b> (' + pct1 + '%)</div>' +
+                    '<div style="margin-bottom:5px;">🟢 Poslog: <b>' + fmtNum(totalPoslog) + ' kg</b> (' + pct2 + '%)</div>' +
+                    '<div>⚪ Sisa Kapasitas: <b>' + fmtNum(totalSpace) + ' kg</b> (' + pct3 + '%)</div>';
             }
         }
 
@@ -2477,6 +2490,11 @@
                 await loadSLAData(weekKey);
             } else if (currentView === 'volume') {
                 await loadVolumeData(weekKey);
+            }
+
+            // Re-render dashboard charts jika sedang aktif
+            if (document.getElementById('dashboardChartsSection').style.display !== 'none') {
+                setTimeout(function(){ _renderDashboardCharts(); }, 300);
             }
         }
 
