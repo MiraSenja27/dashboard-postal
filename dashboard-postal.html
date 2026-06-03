@@ -8,7 +8,6 @@
     <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * {
             margin: 0;
@@ -1355,20 +1354,6 @@
                     </div>
                 </div>
 
-                <!-- Dashboard Charts -->
-                <div style="background:white; padding:20px; margin:20px 0; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
-                        <div>
-                            <h4 style="color:#1e3c72; margin-bottom:15px; font-weight:bold; font-size:14px;">Top 10 Rute (Postal + Poslog)</h4>
-                            <canvas id="dashboardTopRoutesChart" style="max-height:280px;"></canvas>
-                        </div>
-                        <div>
-                            <h4 style="color:#1e3c72; margin-bottom:15px; font-weight:bold; font-size:14px;">Breakdown Postal vs Poslog</h4>
-                            <canvas id="dashboardBreakdownChart" style="max-height:280px;"></canvas>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Route Toolbar -->
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap;">
                     <button onclick="openAddRouteModal()" class="admin-only"
@@ -2509,111 +2494,6 @@
             }
             return dateStr;
         }
-
-        // Dashboard Charts Function
-        let dashboardCharts = {};
-        
-        function renderDashboardCharts() {
-            if (currentView !== 'dashboard') return;
-            
-            const volumeRows = document.querySelectorAll('#volume-view tbody tr');
-            const volumeData = [];
-            
-            volumeRows.forEach(row => {
-                const cells = row.querySelectorAll('td');
-                if (cells.length >= 7) {
-                    const routeName = cells[2].textContent.trim();
-                    const postal = parseFloat(cells[3].textContent.replace(/,/g, '')) || 0;
-                    const poslog = parseFloat(cells[4].textContent.replace(/,/g, '')) || 0;
-                    
-                    volumeData.push({
-                        route: routeName.length > 25 ? routeName.substring(0, 25) + '...' : routeName,
-                        postal: postal,
-                        poslog: poslog,
-                        total: postal + poslog
-                    });
-                }
-            });
-            
-            if (volumeData.length === 0) return;
-            
-            const topRoutes = volumeData.sort((a, b) => b.total - a.total).slice(0, 10);
-            const totalPostal = volumeData.reduce((sum, r) => sum + r.postal, 0);
-            const totalPoslog = volumeData.reduce((sum, r) => sum + r.poslog, 0);
-            
-            // Top Routes Chart
-            const ctx1 = document.getElementById('dashboardTopRoutesChart');
-            if (ctx1) {
-                if (dashboardCharts.topRoutes) dashboardCharts.topRoutes.destroy();
-                dashboardCharts.topRoutes = new Chart(ctx1, {
-                    type: 'bar',
-                    data: {
-                        labels: topRoutes.map(r => r.route),
-                        datasets: [
-                            {
-                                label: 'Postal (kg)',
-                                data: topRoutes.map(r => r.postal),
-                                backgroundColor: '#FF8C42',
-                                borderColor: '#FF7F1F',
-                                borderWidth: 1
-                            },
-                            {
-                                label: 'Poslog (kg)',
-                                data: topRoutes.map(r => r.poslog),
-                                backgroundColor: '#4ECDC4',
-                                borderColor: '#3BA39C',
-                                borderWidth: 1
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: {display: true, position: 'top', labels: {font: {size: 12, weight: 'bold'}}}
-                        },
-                        scales: {
-                            y: {beginAtZero: true, ticks: {font: {size: 11}}, grid: {drawBorder: false}}
-                        }
-                    }
-                });
-            }
-            
-            // Breakdown Chart
-            const ctx2 = document.getElementById('dashboardBreakdownChart');
-            if (ctx2) {
-                if (dashboardCharts.breakdown) dashboardCharts.breakdown.destroy();
-                dashboardCharts.breakdown = new Chart(ctx2, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Postal', 'Poslog'],
-                        datasets: [{
-                            data: [totalPostal, totalPoslog],
-                            backgroundColor: ['#FF8C42', '#4ECDC4'],
-                            borderColor: ['#FF7F1F', '#3BA39C'],
-                            borderWidth: 2
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: {display: true, position: 'bottom', labels: {font: {size: 12, weight: 'bold'}}}
-                        }
-                    }
-                });
-            }
-        }
-        
-        // Hook to showView - render charts when dashboard is shown
-        const originalShowView = window.showView;
-        window.showView = async function(view) {
-            const result = await originalShowView(view);
-            if (view === 'dashboard') {
-                setTimeout(() => renderDashboardCharts(), 300);
-            }
-            return result;
-        };
 
         // Toast Notification System
         function showToast(message, type = 'success') {
