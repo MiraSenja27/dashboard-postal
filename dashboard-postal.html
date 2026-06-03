@@ -1215,7 +1215,7 @@
             <div id="submenu-primer" class="submenu show" style="padding: 10px 0; border: none; flex: none;">
                 <div class="submenu-left">
                     <button class="submenu-btn" onclick="showDownload('primer')">📥 Download PPT</button>
-                    <button class="submenu-btn" onclick="showDashboardCharts()">📊 Report</button>
+
                     <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA Waktu</button>
                     <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
 <button class="submenu-btn" onclick="openRouteSettings()">⚙️ Pengaturan</button>
@@ -1224,8 +1224,8 @@
 
             <div id="submenu-sekunder" class="submenu" style="padding: 10px 0; border: none; flex: none;">
                 <div class="submenu-left">
+
                     <button class="submenu-btn" onclick="showDownload('sekunder')">📥 Download PPT</button>
-                    <button class="submenu-btn" onclick="showDashboardCharts()">📊 Report</button>
                     <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA Waktu</button>
                     <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
                 </div>
@@ -1234,7 +1234,6 @@
             <div id="submenu-tersier" class="submenu" style="padding: 10px 0; border: none; flex: none;">
                 <div class="submenu-left">
                     <button class="submenu-btn" onclick="showDownload('tersier')">📥 Download PPT</button>
-                    <button class="submenu-btn" onclick="showDashboardCharts()">📊 Report</button>
                     <button class="submenu-btn" onclick="showView('sla')">⏱️ SLA Waktu</button>
                     <button class="submenu-btn" onclick="showView('volume')">📈 Volume Kiriman</button>
                 </div>
@@ -1335,7 +1334,7 @@
                 </div>
 
                 <!-- Dashboard Charts - HIDDEN by default, tampil saat klik menu Dashboard -->
-                <div id="dashboardChartsSection" style="display:none; margin: 20px 0;">
+                <div id="dashboardChartsSection" style="display:block; margin: 20px 0;">
 
                     <!-- Charts Row -->
                     <div style="display:grid; grid-template-columns:2fr 1fr; gap:20px;">
@@ -2454,6 +2453,8 @@
             try {
                 if (view === 'dashboard') {
                     await loadDashboardData(filter.weekKey);
+                    await loadVolumeData(filter.weekKey);
+                    setTimeout(() => { _renderDashboardCharts(); }, 300);
                 } else if (view === 'sla') {
                     await loadSLAData(filter.weekKey);
                 } else if (view === 'volume') {
