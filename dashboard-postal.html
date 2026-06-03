@@ -2454,6 +2454,70 @@
         }
 
         async function applyFilter() {
+            // Grab raw input values
+            const rawStartDate = document.getElementById('startDate').value;
+            const rawEndDate   = document.getElementById('endDate').value;
+            const routeFilter  = document.getElementById('routeFilter').value;
+
+            // Auto‑set to current month if dates are empty
+            if (!rawStartDate || !rawEndDate) {
+                setCurrentMonthFilter();
+            }
+            // Re‑read after possible auto‑fill
+            const startDate = document.getElementById('startDate').value;
+            const endDate   = document.getElementById('endDate').value;
+
+            // Validate range
+            if (startDate > endDate) {
+                alert('❌ Tanggal mulai harus lebih kecil dari tanggal akhir');
+                return;
+            }
+
+            // weekKey (may be '' or 'ALL' or specific week)
+            const weekFilter = document.getElementById('weekFilter');
+            const weekKey    = weekFilter ? weekFilter.value : '';
+
+            // Save filters globally for all views
+            ['dashboard', 'sla', 'volume'].forEach(view => {
+                viewFilters[view] = {
+                    startDate: startDate,
+                    endDate:   endDate,
+                    weekKey:   weekKey,
+                    routeFilter: routeFilter
+                };
+            });
+
+            // Update period label (weekly vs daily)
+            let labelText = '';
+            if (weekKey === 'ALL') {
+                labelText = 'Menampilkan data: SEMUA MINGGU';
+                updatePeriodLabel(labelText, 'weekly');
+            } else if (weekKey) {
+                const selectedOption = weekFilter.options[weekFilter.selectedIndex];
+                labelText = `Menampilkan data minggu: ${selectedOption ? selectedOption.text : ''}`;
+                updatePeriodLabel(labelText, 'weekly');
+            } else {
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+                const months = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+                labelText = startDate === endDate
+                    ? `Menampilkan data harian: ${start.getDate()} ${months[start.getMonth()]} ${start.getFullYear()}`
+                    : `Menampilkan data: ${start.getDate()} ${months[start.getMonth()]} - ${end.getDate()} ${months[end.getMonth()]} ${end.getFullYear()}`;
+                updatePeriodLabel(labelText, 'daily');
+            }
+
+            // Refresh data according to active view
+            await loadDashboardData(weekKey);
+            if (currentView === 'sla') {
+                await loadSLAData(weekKey);
+            } else if (currentView === 'volume') {
+                await loadVolumeData(weekKey);
+            }
+
+            // If dashboard charts are visible, redraw them
+            if (document.getElementById('dashboardChartsSection').style.display !== 'none') {
+                await loadVolumeData(weekKey);
+                setTimeout(() => { _renderDashboardCharts(); }, 300);
             }
         }
 
@@ -4206,9 +4270,10 @@
                     setTimeout(applyFixedHeader, 80);
                 } catch (error) {
                     console.error('Error parsing saved user:', error);
-                    sessionStorage.removeItem('currentUser');
+                    // Preserve sessionStorage; just show login page
                     document.getElementById('login-page').style.display = 'flex';
                 }
+
             } else {
                 document.getElementById('login-page').style.display = 'flex';
             }
