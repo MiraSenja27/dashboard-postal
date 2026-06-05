@@ -2311,8 +2311,7 @@
                 const rute = r.rute || '';
                 if (!rute) return;
                 const postal = parseAngka(r.postal);
-                // Support both field names: nonPostal and non_postal_volume
-                const poslog = parseAngka(r.nonPostal ?? r.non_postal_volume ?? r.poslog ?? 0);
+                const poslog = parseAngka(r.nonPostal); // Field benar: nonPostal
                 if (!ruteMap[rute]) ruteMap[rute] = { name: rute, postal: 0, poslog: 0 };
                 ruteMap[rute].postal += postal;
                 ruteMap[rute].poslog += poslog;
@@ -2329,14 +2328,7 @@
                 return;
             }
 
-            // Prioritaskan rute dengan poslog > 0 agar muncul di grafik
-            const withPoslog = data.filter(function(r){ return r.poslog > 0; });
-            const withoutPoslog = data.filter(function(r){ return r.poslog === 0; });
-            // Sort masing-masing group berdasarkan total
-            withPoslog.sort(function(a,b){ return (b.postal+b.poslog)-(a.postal+a.poslog); });
-            withoutPoslog.sort(function(a,b){ return (b.postal+b.poslog)-(a.postal+a.poslog); });
-            // Gabungkan: rute dengan poslog dulu, lalu sisanya
-            const top10 = [...withPoslog, ...withoutPoslog].slice(0,10);
+            const top10 = data.sort(function(a,b){ return (b.postal+b.poslog)-(a.postal+a.poslog); }).slice(0,10);
             const totalPostal = data.reduce(function(s,r){ return s+r.postal; }, 0);
             const totalPoslog = data.reduce(function(s,r){ return s+r.poslog; }, 0);
 
@@ -2413,11 +2405,11 @@
                         scales: {
                             x: {
                                 beginAtZero: true,
-                                stacked: false,
+                                stacked: true,
                                 ticks: { font: { size: 11 }, callback: function(v){ return fmtNum(v); } }
                             },
                             y: {
-                                stacked: false,
+                                stacked: true,
                                 ticks: { font: { size: 14, weight: 'bold' } }
                             }
                         }
