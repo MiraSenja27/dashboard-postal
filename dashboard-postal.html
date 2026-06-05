@@ -2635,7 +2635,13 @@
 
             // If dashboard charts are visible, redraw them
             if (document.getElementById('dashboardChartsSection').style.display !== 'none') {
+                // Simpan nilai routeFilter sementara
+                const originalRouteFilter = document.getElementById('routeFilter').value;
+                // Kosongkan routeFilter agar grafik menggunakan data lengkap
+                document.getElementById('routeFilter').value = '';
                 await loadVolumeData(weekKey);
+                // Kembalikan nilai routeFilter
+                document.getElementById('routeFilter').value = originalRouteFilter;
                 setTimeout(() => { _renderDashboardCharts(); }, 300);
             }
         }
