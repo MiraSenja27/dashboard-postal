@@ -2387,8 +2387,6 @@
                                 callbacks: {
                                     label: function(ctx) {
                                         const val = ctx.raw;
-                                        // Jika nilai 0, sembunyikan dari popup
-                                        if (val === 0) return null;
                                         // Hitung total semua dataset di baris ini
                                         const total = ctx.chart.data.datasets.reduce((sum, ds) => {
                                             return sum + (ds.data[ctx.dataIndex] || 0);
