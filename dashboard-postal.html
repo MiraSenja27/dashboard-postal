@@ -2410,7 +2410,10 @@
                             },
                             y: {
                                 stacked: true,
-                                ticks: { font: { size: 14, weight: 'bold' } }
+                                ticks: { 
+                                    font: { size: 14, weight: 'bold' },
+                                    color: '#333'
+                                }
                             }
                         }
                     }
@@ -3781,6 +3784,23 @@
 
                     // Normalisasi _id MongoDB → id agar record.id selalu tersedia
                     finalData = finalData.map(r => ({ ...r, id: r.id || r._id }));
+
+                    // Client-side filter untuk routeFilter sebagai fallback
+                    if (routeFilter && routeFilter !== '') {
+                        finalData = finalData.filter(function(r) {
+                            return r.rute === routeFilter;
+                        });
+                    }
+
+                    // Client-side filter untuk tanggal sebagai fallback
+                    if (startDate && endDate && (!weekKey || weekKey === 'ALL')) {
+                        finalData = finalData.filter(function(r) {
+                            const recordDate = new Date(r.tanggal);
+                            const start = new Date(startDate);
+                            const end = new Date(endDate);
+                            return recordDate >= start && recordDate <= end;
+                        });
+                    }
 
                     // Sort data: first by route order, then by date within the same route
                     const sortedData = [...finalData].sort((a, b) => {
