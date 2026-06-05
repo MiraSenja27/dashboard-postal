@@ -2476,11 +2476,15 @@
                 var pct1 = grandTotal > 0 ? (pPostal/grandTotal*100).toFixed(1) : 0;
                 var pct2 = grandTotal > 0 ? (pPoslog/grandTotal*100).toFixed(1) : 0;
                 var pct3 = grandTotal > 0 ? (pSisa/grandTotal*100).toFixed(1) : 0;
+                
+                // Fungsi formatting khusus untuk legend pie chart dengan presisi lebih tinggi
+                function formatLegendNum(n){ return n >= 1000000 ? (n/1000000).toFixed(3)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toFixed(0); }
+                
                 document.getElementById('chartBreakdownLegend').innerHTML =
                     '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; font-size: 18px; margin-top: 15px; color: #111;">' +
-                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#FF8C42; font-size:24px;">■</span> Postal: <b style="font-size:20px;">' + fmtNum(pPostal) + ' kg</b> <span style="font-weight:bold; font-size:18px; color:#444;">(' + pct1 + '%)</span></div>' +
-                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#4ECDC4; font-size:24px;">■</span> Poslog: <b style="font-size:20px;">' + fmtNum(pPoslog) + ' kg</b> <span style="font-weight:bold; font-size:18px; color:#444;">(' + pct2 + '%)</span></div>' +
-                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#B0BEC5; font-size:24px;">■</span> Sisa Kapasitas: <b style="font-size:20px;">' + fmtNum(pSisa) + ' kg</b> <span style="font-weight:bold; font-size:18px; color:#444;">(' + pct3 + '%)</span></div>' +
+                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#FF8C42; font-size:24px;">■</span> Postal: <b style="font-size:20px;">' + formatLegendNum(pPostal) + ' kg</b> <span style="font-weight:bold; font-size:18px; color:#444;">(' + pct1 + '%)</span></div>' +
+                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#4ECDC4; font-size:24px;">■</span> Poslog: <b style="font-size:20px;">' + formatLegendNum(pPoslog) + ' kg</b> <span style="font-weight:bold; font-size:18px; color:#444;">(' + pct2 + '%)</span></div>' +
+                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#B0BEC5; font-size:24px;">■</span> Sisa Kapasitas: <b style="font-size:20px;">' + formatLegendNum(pSisa) + ' kg</b> <span style="font-weight:bold; font-size:18px; color:#444;">(' + pct3 + '%)</span></div>' +
                     '</div>';
             }
         }
