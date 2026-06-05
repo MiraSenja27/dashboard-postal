@@ -2333,7 +2333,7 @@
             const totalPoslog = data.reduce(function(s,r){ return s+r.poslog; }, 0);
 
             function fmtNum(n){ return n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toFixed(0); }
-            document.getElementById('chartTopRutesTitle').textContent = 'Volume per Rute (10 teratas dari ' + data.length + ' rute)';
+            document.getElementById('chartTopRutesTitle').textContent = 'Volume Terbanyak (10 teratas dari ' + data.length + ' rute)';
 
             // Generate Insight Rute Terbanyak (Top 3)
             let sortedPostal = [...data].sort((a,b) => b.postal - a.postal).slice(0, 3);
