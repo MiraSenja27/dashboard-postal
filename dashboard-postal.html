@@ -2410,7 +2410,10 @@
                             },
                             y: {
                                 stacked: true,
-                                ticks: { font: { size: 14, weight: 'bold' } }
+                                ticks: { 
+                                    font: { size: 14, weight: 'bold' },
+                                    color: '#333'
+                                }
                             }
                         }
                     }
@@ -2632,7 +2635,13 @@
 
             // If dashboard charts are visible, redraw them
             if (document.getElementById('dashboardChartsSection').style.display !== 'none') {
+                // Simpan nilai routeFilter sementara
+                const originalRouteFilter = document.getElementById('routeFilter').value;
+                // Kosongkan routeFilter agar grafik menggunakan data lengkap
+                document.getElementById('routeFilter').value = '';
                 await loadVolumeData(weekKey);
+                // Kembalikan nilai routeFilter
+                document.getElementById('routeFilter').value = originalRouteFilter;
                 setTimeout(() => { _renderDashboardCharts(); }, 300);
             }
         }
@@ -2711,25 +2720,33 @@
                 const endDate = document.getElementById('endDate').value;
 
 
-                // Build query params
-                const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
-                let queryParams = `category=${currentMenu}&routeFilter=${encodeURIComponent(routeFilter)}`;
+                // Build query params untuk stats (TANPA routeFilter agar piechart tidak terpengaruh)
+                let statsQueryParams = `category=${currentMenu}`;
                 if (weekKey && weekKey !== 'ALL') {
-                    queryParams += `&weekKey=${weekKey}`;
+                    statsQueryParams += `&weekKey=${weekKey}`;
                 } else {
-                    queryParams += `&startDate=${startDate}&endDate=${endDate}`;
+                    statsQueryParams += `&startDate=${startDate}&endDate=${endDate}`;
                 }
 
-                // Load statistics
-                const statsResponse = await fetch(`${API_URL}/stats?${queryParams}`);
+                // Build query params untuk SLA (DENGAN routeFilter agar ranking terpengaruh filter rute)
+                const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
+                let slaQueryParams = `category=${currentMenu}&routeFilter=${encodeURIComponent(routeFilter)}`;
+                if (weekKey && weekKey !== 'ALL') {
+                    slaQueryParams += `&weekKey=${weekKey}`;
+                } else {
+                    slaQueryParams += `&startDate=${startDate}&endDate=${endDate}`;
+                }
+
+                // Load statistics (TANPA routeFilter)
+                const statsResponse = await fetch(`${API_URL}/stats?${statsQueryParams}`);
                 const statsData = await statsResponse.json();
 
                 if (statsData.success) {
                     updateStatistics(statsData.data);
                 }
 
-                // Load SLA data
-                const slaResponse = await fetch(`${API_URL}/sla?${queryParams}`);
+                // Load SLA data (DENGAN routeFilter)
+                const slaResponse = await fetch(`${API_URL}/sla?${slaQueryParams}`);
                 const slaResult = await slaResponse.json();
 
                 if (slaResult.success) {
@@ -3781,6 +3798,16 @@
 
                     // Normalisasi _id MongoDB → id agar record.id selalu tersedia
                     finalData = finalData.map(r => ({ ...r, id: r.id || r._id }));
+
+                    // Client-side filter untuk tanggal sebagai fallback (hanya jika tidak menggunakan weekKey)
+                    if (startDate && endDate && (!weekKey || weekKey === 'ALL')) {
+                        finalData = finalData.filter(function(r) {
+                            const recordDate = new Date(r.tanggal);
+                            const start = new Date(startDate);
+                            const end = new Date(endDate);
+                            return recordDate >= start && recordDate <= end;
+                        });
+                    }
 
                     // Sort data: first by route order, then by date within the same route
                     const sortedData = [...finalData].sort((a, b) => {
