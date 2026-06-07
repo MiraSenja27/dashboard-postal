@@ -3129,12 +3129,12 @@
 
                 // 3: Volume Postal
                 const postalReal = Math.round(stats.postal_volume || 0).toLocaleString('id-ID');
-                statCards[3].innerHTML = `${postalReal} kg <span style="position: absolute; top: 32px; right: 8px; font-size: 15px; font-weight: 700; opacity: 0.9;">${postalPct}%</span>`;
+                statCards[3].innerHTML = `${postalReal} kg <span style="position: absolute; top: 28px; right: 8px; font-size: 16px; font-weight: 700; opacity: 0.9;">${postalPct}%</span>`;
 
                 // 4: Volume Poslog
                 const poslogVol = stats.poslog_volume || 0;
                 const poslogReal = Math.round(poslogVol).toLocaleString('id-ID');
-                statCards[4].innerHTML = `${poslogReal} kg <span style="position: absolute; top: 32px; right: 8px; font-size: 15px; font-weight: 700; opacity: 0.9;">${poslogPct}%</span>`;
+                statCards[4].innerHTML = `${poslogReal} kg <span style="position: absolute; top: 28px; right: 8px; font-size: 16px; font-weight: 700; opacity: 0.9;">${poslogPct}%</span>`;
                 
                 // 5: Sisa Kapasitas (Harus melengkapi total agar 100%)
                 statCards[5].textContent = sisaPct + '%';
