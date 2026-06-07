@@ -1173,11 +1173,17 @@
         }
         @media (max-width: 1440px) {
             .dashboard-charts-fit {
-                max-height: 450px;
-                min-height: 320px;
+                max-height: 320px;
+                min-height: 250px;
+                margin-bottom: 30px;
+            }
+            .charts-row-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
             }
             .ranking-container {
                 grid-template-columns: 1fr;
+                margin-top: 20px;
             }
         }
         @media (max-width: 1024px) {
@@ -2423,13 +2429,15 @@
                             x: {
                                 beginAtZero: true,
                                 stacked: true,
-                                ticks: { font: { size: 11 }, callback: function(v){ return fmtNum(v); } }
+                                ticks: { font: { size: 10 }, callback: function(v){ return fmtNum(v); }, maxRotation: 0, autoSkip: true }
                             },
                             y: {
                                 stacked: true,
-                                ticks: { 
-                                    font: { size: 14, weight: 'bold' },
-                                    color: '#333'
+                                ticks: {
+                                    font: { size: 11, weight: '600' },
+                                    color: '#333',
+                                    maxRotation: 0,
+                                    autoSkip: false
                                 }
                             }
                         }
