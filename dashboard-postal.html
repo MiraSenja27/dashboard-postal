@@ -1322,8 +1322,8 @@
             </div>
 
             <!-- Global Filter (Geser ke kiri agar tidak bertumpuk) -->
-            <div class="global-filter-wrapper" style="display: flex; align-items: center; margin-left: 2px; flex-shrink: 0; white-space: nowrap;">
-                <div class="submenu-right" style="background: #f8fafc; padding: 5px 12px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; gap: 5px; align-items: center;">
+            <div class="global-filter-wrapper" style="display: flex; align-items: center; margin-left: 2px; flex-shrink: 0;">
+                <div class="submenu-right" style="background: #f8fafc; padding: 5px 12px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; gap: 5px; align-items: center; flex-wrap: wrap;">
                     <input type="date" class="filter-input" id="startDate" onchange="clearWeekFilter()" style="height: 32px;">
                     <span style="font-size: 11px; color: #64748b;">s/d</span>
                     <input type="date" class="filter-input" id="endDate" onchange="clearWeekFilter()" style="height: 32px;">
@@ -1440,7 +1440,7 @@
                                 </div>
                                 <div style="flex:1.2; display:flex; flex-direction:column;">
                                     <h4 style="color:#1e3c72; margin-bottom:12px; font-weight:700; font-size:14px; text-align:center;">📊 Breakdown</h4>
-                                    <canvas id="chartBreakdown" style="max-height:240px; max-width:240px; margin:0 auto; display:block;"></canvas>
+                                    <canvas id="chartBreakdown" style="max-height:180px; max-width:180px; margin:0 auto; display:block;"></canvas>
                                 </div>
                             </div>
                             <div id="chartBreakdownLegend" style="margin-top:15px; font-size:18px; color:#555;"></div>
