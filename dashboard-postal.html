@@ -1358,8 +1358,8 @@
                         <option value="Extra Spp Semarang - Spp Jakarta Timur">Extra Spp Semarang - Spp Jakarta Timur</option>
                         <option value="EXTRA SPP YOGYA - KCU SOLO - SPP JAT">EXTRA SPP YOGYA - KCU SOLO - SPP JAT</option>
                     </select>
-                    <button class="filter-btn" onclick="applyFilter()" style="height: 38px;">🔍 Filter</button>
-                    <button class="filter-btn" onclick="resetFilter()" style="background: #64748b; height: 38px;">🔄 Reset</button>
+                    <button class="filter-btn" onclick="applyFilter()" style="height: 28px;">🔍 Filter</button>
+                    <button class="filter-btn" onclick="resetFilter()" style="height: 28px;">🔄 Reset</button>
                 </div>
             </div>
         </div>
@@ -3129,12 +3129,12 @@
 
                 // 3: Volume Postal
                 const postalReal = Math.round(stats.postal_volume || 0).toLocaleString('id-ID');
-                statCards[3].innerHTML = `${postalReal} kg <span style="position: absolute; top: 18px; right: 18px; font-size: 22px; font-weight: 800; opacity: 0.9;">(${postalPct}%)</span>`;
-                
+                statCards[3].innerHTML = `${postalReal} kg <span style="position: absolute; top: 40px; right: 5px; font-size: 14px; font-weight: 700; opacity: 0.9;">${postalPct}%</span>`;
+
                 // 4: Volume Poslog
                 const poslogVol = stats.poslog_volume || 0;
                 const poslogReal = Math.round(poslogVol).toLocaleString('id-ID');
-                statCards[4].innerHTML = `${poslogReal} kg <span style="position: absolute; top: 18px; right: 18px; font-size: 22px; font-weight: 800; opacity: 0.9;">(${poslogPct}%)</span>`;
+                statCards[4].innerHTML = `${poslogReal} kg <span style="position: absolute; top: 40px; right: 5px; font-size: 14px; font-weight: 700; opacity: 0.9;">${poslogPct}%</span>`;
                 
                 // 5: Sisa Kapasitas (Harus melengkapi total agar 100%)
                 statCards[5].textContent = sisaPct + '%';
