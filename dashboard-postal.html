@@ -1171,9 +1171,19 @@
             min-height: 0; 
             position: relative;
         }
+        @media (max-width: 1440px) {
+            .dashboard-charts-fit {
+                max-height: 450px;
+                min-height: 320px;
+            }
+            .ranking-container {
+                grid-template-columns: 1fr;
+            }
+        }
         @media (max-width: 1024px) {
             .dashboard-charts-fit {
                 height: auto;
+                max-height: none;
             }
             .charts-row-grid {
                 grid-template-columns: 1fr;
