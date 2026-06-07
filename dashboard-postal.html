@@ -27,12 +27,12 @@
 
         .header {
             background: white;
-            padding: 15px 30px;
+            padding: 8px 15px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 30px;
+            gap: 15px;
         }
 
         .sticky-header-wrapper {
@@ -46,7 +46,7 @@
         .logo-container {
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 10px;
             flex-shrink: 0;
         }
 
@@ -102,17 +102,18 @@
         }
 
         .tab-item {
-            padding: 6px 15px;
-            border-radius: 10px;
+            padding: 4px 10px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s ease;
             border: 1px solid #e2e8f0;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 5px;
             color: #475569;
-            height: 44px;
+            height: 32px;
+            font-size: 12px;
             background: white;
         }
 
@@ -173,14 +174,14 @@
         }
 
         .submenu-btn {
-            padding: 6px 12px;
+            padding: 3px 6px;
             border: 2px solid #1e3c72;
             background: white;
             color: #1e3c72;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 12px;
+            font-size: 10px;
             transition: all 0.3s ease;
         }
 
@@ -280,12 +281,12 @@
 
         .header {
             background: white;
-            padding: 15px 30px;
+            padding: 8px 15px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 30px;
+            gap: 15px;
         }
 
         .submenu-container {
@@ -293,8 +294,8 @@
             border-bottom: 1px solid #e2e8f0;
             display: flex;
             align-items: center;
-            padding: 0 10px;
-            gap: 5px;
+            padding: 0 3px;
+            gap: 2px;
             overflow-x: hidden;
             flex-wrap: nowrap;
         }
@@ -1322,15 +1323,15 @@
             </div>
 
             <!-- Global Filter (Geser ke kiri agar tidak bertumpuk) -->
-            <div class="global-filter-wrapper" style="display: flex; align-items: center; margin-left: 2px; flex-shrink: 0;">
-                <div class="submenu-right" style="background: #f8fafc; padding: 5px 8px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; gap: 4px; align-items: center;">
-                    <input type="date" class="filter-input" id="startDate" onchange="clearWeekFilter()" style="height: 28px; font-size: 12px;">
-                    <span style="font-size: 10px; color: #64748b;">s/d</span>
-                    <input type="date" class="filter-input" id="endDate" onchange="clearWeekFilter()" style="height: 28px; font-size: 12px;">
-                    <select class="filter-input" id="weekFilter" onchange="applyWeeklyFilter()" style="width: 120px; height: 28px; font-size: 12px;">
+            <div class="global-filter-wrapper" style="display: flex; align-items: center; margin-left: 0; flex-shrink: 0;">
+                <div class="submenu-right" style="background: #f8fafc; padding: 3px 3px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; gap: 2px; align-items: center;">
+                    <input type="date" class="filter-input" id="startDate" onchange="clearWeekFilter()" style="height: 24px; font-size: 10px;">
+                    <span style="font-size: 8px; color: #64748b;">s/d</span>
+                    <input type="date" class="filter-input" id="endDate" onchange="clearWeekFilter()" style="height: 24px; font-size: 10px;">
+                    <select class="filter-input" id="weekFilter" onchange="applyWeeklyFilter()" style="width: 80px; height: 24px; font-size: 10px;">
                         <option value="">📅 Pilih Minggu</option>
                     </select>
-                    <select class="filter-input" id="routeFilter" onchange="applyFilter()" style="width: 100px; height: 28px; font-size: 12px;">
+                    <select class="filter-input" id="routeFilter" onchange="applyFilter()" style="width: 65px; height: 24px; font-size: 10px;">
                         <option value="">Semua Rute</option>
                         <option value="Rute 1 JAT-SB">Rute 1 JAT-SB</option>
                         <option value="Rute 2 JAT-YK">Rute 2 JAT-YK</option>
@@ -1358,8 +1359,8 @@
                         <option value="Extra Spp Semarang - Spp Jakarta Timur">Extra Spp Semarang - Spp Jakarta Timur</option>
                         <option value="EXTRA SPP YOGYA - KCU SOLO - SPP JAT">EXTRA SPP YOGYA - KCU SOLO - SPP JAT</option>
                     </select>
-                    <button class="filter-btn" onclick="applyFilter()" style="height: 28px; padding: 5px 12px; font-size: 12px;">🔍 Filter</button>
-                    <button class="filter-btn" onclick="resetFilter()" style="height: 28px; padding: 5px 12px; font-size: 12px;">🔄 Reset</button>
+                    <button class="filter-btn" onclick="applyFilter()" style="height: 24px; padding: 3px 6px; font-size: 10px;">🔍 Filter</button>
+                    <button class="filter-btn" onclick="resetFilter()" style="height: 24px; padding: 3px 6px; font-size: 10px;">🔄 Reset</button>
                 </div>
             </div>
         </div>
