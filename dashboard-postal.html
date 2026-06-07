@@ -168,7 +168,7 @@
 
         .submenu.show {
             display: flex;
-            gap: 8px;
+            gap: 4px;
             flex-wrap: wrap;
         }
 
@@ -293,8 +293,8 @@
             border-bottom: 1px solid #e2e8f0;
             display: flex;
             align-items: center;
-            padding: 0 15px;
-            gap: 10px;
+            padding: 0 10px;
+            gap: 5px;
             overflow-x: hidden;
             flex-wrap: nowrap;
         }
@@ -313,38 +313,38 @@
 
         .submenu-left {
             display: flex;
-            gap: 6px;
+            gap: 4px;
             align-items: center;
         }
 
         .submenu-right {
             display: flex;
-            gap: 8px;
+            gap: 4px;
             align-items: center;
-            margin-left: 5px;
+            margin-left: 2px;
             flex-shrink: 0;
         }
 
         .filter-input {
-            padding: 5px 8px;
+            padding: 4px 6px;
             border: 1px solid #cbd5e1;
             border-radius: 8px;
-            font-size: 12px;
+            font-size: 11px;
             outline: none;
             transition: all 0.2s;
-            height: 32px;
+            height: 28px;
         }
 
         .filter-btn {
-            padding: 5px 12px;
+            padding: 4px 10px;
             background: #1e3c72;
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 12px;
-            height: 32px;
+            font-size: 11px;
+            height: 28px;
             display: flex;
             align-items: center;
             gap: 5px;
@@ -1291,7 +1291,7 @@
         <!-- New date range notification (top‑left) -->
         <div id="week-range" style="position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.9); color: #1e3c72; padding: 5px 10px; border-radius: 6px; font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">&#8203;</div>
 
-        <div class="submenu-container" style="background: white; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; padding: 0 30px; gap: 20px;">
+        <div class="submenu-container" style="background: white; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; padding: 0 10px; gap: 5px;">
             <div id="submenu-primer" class="submenu show" style="padding: 5px 0; border: none; flex: none;">
                 <div class="submenu-left">
                     <button class="submenu-btn" onclick="goToDashboardDefault()">🏠 Overview</button>
@@ -1322,15 +1322,15 @@
             </div>
 
             <!-- Global Filter (Geser ke kiri agar tidak bertumpuk) -->
-            <div class="global-filter-wrapper" style="display: flex; align-items: center; margin-left: 5px;">
-                <div class="submenu-right" style="background: #f8fafc; padding: 4px 10px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; gap: 5px; align-items: center;">
-                    <input type="date" class="filter-input" id="startDate" onchange="clearWeekFilter()" style="height: 30px;">
-                    <span style="font-size: 11px; color: #64748b;">s/d</span>
-                    <input type="date" class="filter-input" id="endDate" onchange="clearWeekFilter()" style="height: 30px;">
-                    <select class="filter-input" id="weekFilter" onchange="applyWeeklyFilter()" style="height: 30px;">
+            <div class="global-filter-wrapper" style="display: flex; align-items: center; margin-left: 2px; flex-shrink: 0; white-space: nowrap;">
+                <div class="submenu-right" style="background: #f8fafc; padding: 3px 8px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; gap: 4px; align-items: center;">
+                    <input type="date" class="filter-input" id="startDate" onchange="clearWeekFilter()" style="height: 28px;">
+                    <span style="font-size: 10px; color: #64748b;">s/d</span>
+                    <input type="date" class="filter-input" id="endDate" onchange="clearWeekFilter()" style="height: 28px;">
+                    <select class="filter-input" id="weekFilter" onchange="applyWeeklyFilter()" style="height: 28px;">
                         <option value="">📅 Pilih Minggu</option>
                     </select>
-                    <select class="filter-input" id="routeFilter" onchange="applyFilter()" style="width: 100px; height: 30px;">
+                    <select class="filter-input" id="routeFilter" onchange="applyFilter()" style="width: 90px; height: 28px;">
                         <option value="">Semua Rute</option>
                         <option value="Rute 1 JAT-SB">Rute 1 JAT-SB</option>
                         <option value="Rute 2 JAT-YK">Rute 2 JAT-YK</option>
