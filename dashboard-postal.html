@@ -168,18 +168,19 @@
 
         .submenu.show {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
         .submenu-btn {
-            padding: 10px 20px;
+            padding: 6px 12px;
             border: 2px solid #1e3c72;
             background: white;
             color: #1e3c72;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
+            font-size: 12px;
             transition: all 0.3s ease;
         }
 
@@ -292,9 +293,10 @@
             border-bottom: 1px solid #e2e8f0;
             display: flex;
             align-items: center;
-            padding: 0 20px;
-            gap: 15px;
-            overflow-x: auto;
+            padding: 0 15px;
+            gap: 10px;
+            overflow-x: hidden;
+            flex-wrap: nowrap;
         }
 
         .submenu {
@@ -324,25 +326,25 @@
         }
 
         .filter-input {
-            padding: 6px 10px;
+            padding: 5px 8px;
             border: 1px solid #cbd5e1;
             border-radius: 8px;
-            font-size: 13px;
+            font-size: 12px;
             outline: none;
             transition: all 0.2s;
-            height: 34px;
+            height: 32px;
         }
 
         .filter-btn {
-            padding: 6px 15px;
+            padding: 5px 12px;
             background: #1e3c72;
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 13px;
-            height: 34px;
+            font-size: 12px;
+            height: 32px;
             display: flex;
             align-items: center;
             gap: 5px;
@@ -1169,7 +1171,7 @@
         /* Responsive Dashboard Layout */
         .dashboard-charts-fit {
             display: block;
-            margin: 15px 0;
+            margin: 15px 0 25px 0;
             height: auto;
             max-height: 400px;
             min-height: 280px;
@@ -1320,15 +1322,15 @@
             </div>
 
             <!-- Global Filter (Geser ke kiri agar tidak bertumpuk) -->
-            <div class="global-filter-wrapper" style="display: flex; align-items: center; margin-left: 20px;">
-                <div class="submenu-right" style="background: #f8fafc; padding: 5px 15px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; gap: 8px; align-items: center;">
-                    <input type="date" class="filter-input" id="startDate" onchange="clearWeekFilter()" style="height: 38px;">
-                    <span style="font-size: 14px; color: #64748b;">s/d</span>
-                    <input type="date" class="filter-input" id="endDate" onchange="clearWeekFilter()" style="height: 38px;">
-                    <select class="filter-input" id="weekFilter" onchange="applyWeeklyFilter()" style="height: 38px;">
+            <div class="global-filter-wrapper" style="display: flex; align-items: center; margin-left: 10px;">
+                <div class="submenu-right" style="background: #f8fafc; padding: 4px 10px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; gap: 5px; align-items: center;">
+                    <input type="date" class="filter-input" id="startDate" onchange="clearWeekFilter()" style="height: 30px;">
+                    <span style="font-size: 11px; color: #64748b;">s/d</span>
+                    <input type="date" class="filter-input" id="endDate" onchange="clearWeekFilter()" style="height: 30px;">
+                    <select class="filter-input" id="weekFilter" onchange="applyWeeklyFilter()" style="height: 30px;">
                         <option value="">📅 Pilih Minggu</option>
                     </select>
-                    <select class="filter-input" id="routeFilter" onchange="applyFilter()" style="width: 150px; height: 38px;">
+                    <select class="filter-input" id="routeFilter" onchange="applyFilter()" style="width: 100px; height: 30px;">
                         <option value="">Semua Rute</option>
                         <option value="Rute 1 JAT-SB">Rute 1 JAT-SB</option>
                         <option value="Rute 2 JAT-YK">Rute 2 JAT-YK</option>
