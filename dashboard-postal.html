@@ -1323,14 +1323,14 @@
 
             <!-- Global Filter (Geser ke kiri agar tidak bertumpuk) -->
             <div class="global-filter-wrapper" style="display: flex; align-items: center; margin-left: 2px; flex-shrink: 0; white-space: nowrap;">
-                <div class="submenu-right" style="background: #f8fafc; padding: 3px 8px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; gap: 4px; align-items: center;">
+                <div class="submenu-right" style="background: #f8fafc; padding: 2px 6px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; gap: 3px; align-items: center;">
                     <input type="date" class="filter-input" id="startDate" onchange="clearWeekFilter()" style="height: 28px;">
                     <span style="font-size: 10px; color: #64748b;">s/d</span>
                     <input type="date" class="filter-input" id="endDate" onchange="clearWeekFilter()" style="height: 28px;">
                     <select class="filter-input" id="weekFilter" onchange="applyWeeklyFilter()" style="height: 28px;">
                         <option value="">📅 Pilih Minggu</option>
                     </select>
-                    <select class="filter-input" id="routeFilter" onchange="applyFilter()" style="width: 90px; height: 28px;">
+                    <select class="filter-input" id="routeFilter" onchange="applyFilter()" style="width: 85px; height: 28px;">
                         <option value="">Semua Rute</option>
                         <option value="Rute 1 JAT-SB">Rute 1 JAT-SB</option>
                         <option value="Rute 2 JAT-YK">Rute 2 JAT-YK</option>
@@ -3129,12 +3129,12 @@
 
                 // 3: Volume Postal
                 const postalReal = Math.round(stats.postal_volume || 0).toLocaleString('id-ID');
-                statCards[3].innerHTML = `${postalReal} kg <span style="position: absolute; top: 40px; right: 5px; font-size: 14px; font-weight: 700; opacity: 0.9;">${postalPct}%</span>`;
+                statCards[3].innerHTML = `${postalReal} kg <span style="position: absolute; top: 32px; right: 8px; font-size: 15px; font-weight: 700; opacity: 0.9;">${postalPct}%</span>`;
 
                 // 4: Volume Poslog
                 const poslogVol = stats.poslog_volume || 0;
                 const poslogReal = Math.round(poslogVol).toLocaleString('id-ID');
-                statCards[4].innerHTML = `${poslogReal} kg <span style="position: absolute; top: 40px; right: 5px; font-size: 14px; font-weight: 700; opacity: 0.9;">${poslogPct}%</span>`;
+                statCards[4].innerHTML = `${poslogReal} kg <span style="position: absolute; top: 32px; right: 8px; font-size: 15px; font-weight: 700; opacity: 0.9;">${poslogPct}%</span>`;
                 
                 // 5: Sisa Kapasitas (Harus melengkapi total agar 100%)
                 statCards[5].textContent = sisaPct + '%';
