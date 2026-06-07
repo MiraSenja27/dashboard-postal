@@ -168,12 +168,12 @@
 
         .submenu.show {
             display: flex;
-            gap: 4px;
+            gap: 8px;
             flex-wrap: wrap;
         }
 
         .submenu-btn {
-            padding: 4px 8px;
+            padding: 6px 12px;
             border: 2px solid #1e3c72;
             background: white;
             color: #1e3c72;
@@ -313,38 +313,38 @@
 
         .submenu-left {
             display: flex;
-            gap: 4px;
+            gap: 6px;
             align-items: center;
         }
 
         .submenu-right {
             display: flex;
-            gap: 4px;
+            gap: 5px;
             align-items: center;
-            margin-left: 2px;
+            margin-left: 5px;
             flex-shrink: 0;
         }
 
         .filter-input {
-            padding: 4px 6px;
+            padding: 5px 8px;
             border: 1px solid #cbd5e1;
             border-radius: 8px;
-            font-size: 11px;
+            font-size: 12px;
             outline: none;
             transition: all 0.2s;
-            height: 28px;
+            height: 32px;
         }
 
         .filter-btn {
-            padding: 4px 10px;
+            padding: 5px 12px;
             background: #1e3c72;
             color: white;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
-            font-size: 11px;
-            height: 28px;
+            font-size: 12px;
+            height: 32px;
             display: flex;
             align-items: center;
             gap: 5px;
@@ -1323,14 +1323,14 @@
 
             <!-- Global Filter (Geser ke kiri agar tidak bertumpuk) -->
             <div class="global-filter-wrapper" style="display: flex; align-items: center; margin-left: 2px; flex-shrink: 0; white-space: nowrap;">
-                <div class="submenu-right" style="background: #f8fafc; padding: 4px 10px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; gap: 5px; align-items: center;">
-                    <input type="date" class="filter-input" id="startDate" onchange="clearWeekFilter()" style="height: 28px;">
-                    <span style="font-size: 10px; color: #64748b;">s/d</span>
-                    <input type="date" class="filter-input" id="endDate" onchange="clearWeekFilter()" style="height: 28px;">
-                    <select class="filter-input" id="weekFilter" onchange="applyWeeklyFilter()" style="height: 28px;">
+                <div class="submenu-right" style="background: #f8fafc; padding: 5px 12px; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; gap: 5px; align-items: center;">
+                    <input type="date" class="filter-input" id="startDate" onchange="clearWeekFilter()" style="height: 32px;">
+                    <span style="font-size: 11px; color: #64748b;">s/d</span>
+                    <input type="date" class="filter-input" id="endDate" onchange="clearWeekFilter()" style="height: 32px;">
+                    <select class="filter-input" id="weekFilter" onchange="applyWeeklyFilter()" style="width: 140px; height: 32px;">
                         <option value="">📅 Pilih Minggu</option>
                     </select>
-                    <select class="filter-input" id="routeFilter" onchange="applyFilter()" style="width: 85px; height: 28px;">
+                    <select class="filter-input" id="routeFilter" onchange="applyFilter()" style="width: 120px; height: 32px;">
                         <option value="">Semua Rute</option>
                         <option value="Rute 1 JAT-SB">Rute 1 JAT-SB</option>
                         <option value="Rute 2 JAT-YK">Rute 2 JAT-YK</option>
@@ -1358,8 +1358,8 @@
                         <option value="Extra Spp Semarang - Spp Jakarta Timur">Extra Spp Semarang - Spp Jakarta Timur</option>
                         <option value="EXTRA SPP YOGYA - KCU SOLO - SPP JAT">EXTRA SPP YOGYA - KCU SOLO - SPP JAT</option>
                     </select>
-                    <button class="filter-btn" onclick="applyFilter()" style="height: 28px;">🔍 Filter</button>
-                    <button class="filter-btn" onclick="resetFilter()" style="height: 28px;">🔄 Reset</button>
+                    <button class="filter-btn" onclick="applyFilter()" style="height: 32px;">🔍 Filter</button>
+                    <button class="filter-btn" onclick="resetFilter()" style="height: 32px;">🔄 Reset</button>
                 </div>
             </div>
         </div>
@@ -1443,7 +1443,7 @@
                                     <canvas id="chartBreakdown" style="max-height:240px; max-width:240px; margin:0 auto; display:block;"></canvas>
                                 </div>
                             </div>
-                            <div id="chartBreakdownLegend" style="margin-top:15px; font-size:12px; color:#555;"></div>
+                            <div id="chartBreakdownLegend" style="margin-top:15px; font-size:18px; color:#555;"></div>
                         </div>
                     </div>
                 </div>
@@ -2393,22 +2393,22 @@
             let sortedPostal = [...data].sort((a,b) => b.postal - a.postal).slice(0, 3);
             let sortedPoslog = [...data].sort((a,b) => b.poslog - a.poslog).slice(0, 3);
 
-            let htmlPostal = `<div style="margin-bottom: 20px; padding: 16px; background: #fff5eb; border-left: 4px solid #FF8C42; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                <div style="color: #555; font-size: 16px; margin-bottom: 10px; font-weight: 800;">🏆 TOP 3 POSTAL</div>`;
+            let htmlPostal = `<div style="margin-bottom: 20px; padding: 14px; background: #fff5eb; border-left: 4px solid #FF8C42; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <div style="color: #555; font-size: 13px; margin-bottom: 8px; font-weight: 800;">🏆 TOP 3 POSTAL</div>`;
             sortedPostal.forEach((r, i) => {
-                htmlPostal += `<div style="display:flex; justify-content:space-between; margin-bottom: 6px; border-bottom: 1px dashed #fad8c3; padding-bottom: 4px;">
-                    <span style="font-weight: 700; color: #1e3c72; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%;" title="${r.name}">${i+1}. ${r.name}</span>
-                    <span style="font-weight: 800; color: #D35400; font-size: 16px; text-align: right;">${r.postal.toLocaleString('id-ID')} kg</span>
+                htmlPostal += `<div style="display:flex; justify-content:space-between; margin-bottom: 5px; border-bottom: 1px dashed #fad8c3; padding-bottom: 3px;">
+                    <span style="font-weight: 700; color: #1e3c72; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%;" title="${r.name}">${i+1}. ${r.name}</span>
+                    <span style="font-weight: 800; color: #D35400; font-size: 12px; text-align: right;">${r.postal.toLocaleString('id-ID')} kg</span>
                 </div>`;
             });
             htmlPostal += `</div>`;
 
-            let htmlPoslog = `<div style="padding: 16px; background: #e0f7f5; border-left: 4px solid #4ECDC4; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                <div style="color: #555; font-size: 16px; margin-bottom: 10px; font-weight: 800;">🏆 TOP 3 POSLOG</div>`;
+            let htmlPoslog = `<div style="padding: 14px; background: #e0f7f5; border-left: 4px solid #4ECDC4; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <div style="color: #555; font-size: 13px; margin-bottom: 8px; font-weight: 800;">🏆 TOP 3 POSLOG</div>`;
             sortedPoslog.forEach((r, i) => {
-                htmlPoslog += `<div style="display:flex; justify-content:space-between; margin-bottom: 6px; border-bottom: 1px dashed #bdf1ed; padding-bottom: 4px;">
-                    <span style="font-weight: 700; color: #1e3c72; font-size: 16px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%;" title="${r.name}">${i+1}. ${r.name}</span>
-                    <span style="font-weight: 800; color: #00796B; font-size: 16px; text-align: right;">${r.poslog.toLocaleString('id-ID')} kg</span>
+                htmlPoslog += `<div style="display:flex; justify-content:space-between; margin-bottom: 5px; border-bottom: 1px dashed #bdf1ed; padding-bottom: 3px;">
+                    <span style="font-weight: 700; color: #1e3c72; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%;" title="${r.name}">${i+1}. ${r.name}</span>
+                    <span style="font-weight: 800; color: #00796B; font-size: 12px; text-align: right;">${r.poslog.toLocaleString('id-ID')} kg</span>
                 </div>`;
             });
             htmlPoslog += `</div>`;
