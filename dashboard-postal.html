@@ -2306,9 +2306,9 @@
                 viewFilters[view] = { startDate: '', endDate: '', weekKey: 'ALL', routeFilter: '' };
             });
             
-            // Clear date inputs and set weekFilter to ALL
-            document.getElementById('startDate').value = '';
-            document.getElementById('endDate').value = '';
+            // Don't clear date inputs - let them be filled by loadAvailableWeeks
+            // document.getElementById('startDate').value = '';
+            // document.getElementById('endDate').value = '';
             const weekFilter = document.getElementById('weekFilter');
             if (weekFilter) {
                 weekFilter.value = 'ALL';
@@ -2348,12 +2348,28 @@
             const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
             if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
                 rawData = rawData.filter(function(r) {
-                    const ruteName = (r.rute || '').toLowerCase();
-                    const filter = routeFilter.toLowerCase();
-                    return ruteName === filter || 
-                           ruteName.includes(filter) || 
-                           filter.includes(ruteName);
+                    const ruteName = (r.rute || '').trim();
+                    const filter = routeFilter.trim();
+                    
+                    // Exact match (case insensitive)
+                    if (ruteName.toLowerCase() === filter.toLowerCase()) {
+                        return true;
+                    }
+                    
+                    // Extract route number from filter (e.g., "Rute 1" from "Rute 1 JAT-SB")
+                    const filterMatch = filter.match(/^(Rute\s*\d+[A-Z]?|RUTE\s*B\d+|EXTRA)/i);
+                    const ruteMatch = ruteName.match(/^(Rute\s*\d+[A-Z]?|RUTE\s*B\d+|EXTRA)/i);
+                    
+                    if (filterMatch && ruteMatch) {
+                        // Normalize spaces and compare route numbers
+                        const filterRouteNum = filterMatch[1].replace(/\s+/g, ' ').toLowerCase();
+                        const ruteRouteNum = ruteMatch[1].replace(/\s+/g, ' ').toLowerCase();
+                        return filterRouteNum === ruteRouteNum;
+                    }
+                    
+                    return false;
                 });
+                console.log('_renderDashboardCharts - Route Filter:', routeFilter);
                 console.log('_renderDashboardCharts - Data after route filter:', rawData.length);
             }
             
@@ -2732,8 +2748,46 @@
             // Set ke SEMUA MINGGU
             document.getElementById('routeFilter').value = '';
             document.getElementById('weekFilter').value = 'ALL';
-            document.getElementById('startDate').value = '';
-            document.getElementById('endDate').value = '';
+            
+            // Fetch and set date range for ALL mode
+            fetch(`${API_URL}/volume?category=${currentMenu}`)
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success && result.data && result.data.length > 0) {
+                        const dates = result.data.map(r => r.tanggal).filter(Boolean).sort();
+                        if (dates.length > 0) {
+                            document.getElementById('startDate').value = dates[0];
+                            document.getElementById('endDate').value = dates[dates.length - 1];
+                            console.log('resetFilter - Set date range:', dates[0], 'to', dates[dates.length - 1]);
+                        }
+                    } else {
+                        document.getElementById('startDate').value = '';
+                        document.getElementById('endDate').value = '';
+                    }
+                    
+                    // Reload data after dates are set
+                    setTimeout(() => {
+                        if (currentView === 'dashboard') {
+                            loadDashboardData('ALL');
+                        } else if (currentView === 'sla') {
+                            loadSLAData('ALL');
+                        } else if (currentView === 'volume') {
+                            loadVolumeData('ALL');
+                        }
+                        
+                        // If dashboard charts are visible, redraw them
+                        if (document.getElementById('dashboardChartsSection').style.display !== 'none') {
+                            loadVolumeData('ALL').then(() => {
+                                setTimeout(() => { _renderDashboardCharts(); }, 300);
+                            });
+                        }
+                    }, 100);
+                })
+                .catch(err => {
+                    console.error('Error fetching date range for reset:', err);
+                    document.getElementById('startDate').value = '';
+                    document.getElementById('endDate').value = '';
+                });
 
             // Reset filter Kapasitas/minggu & tampilkan kembali semua baris tersembunyi
             const kapFilter = document.getElementById('kapasitasFilter');
@@ -2759,22 +2813,6 @@
             routeCards.forEach(card => {
                 card.style.display = 'block';
             });
-
-            // Reload data based on current view
-            if (currentView === 'dashboard') {
-                loadDashboardData('ALL');
-            } else if (currentView === 'sla') {
-                loadSLAData('ALL');
-            } else if (currentView === 'volume') {
-                loadVolumeData('ALL');
-            }
-
-            // If dashboard charts are visible, redraw them
-            if (document.getElementById('dashboardChartsSection').style.display !== 'none') {
-                loadVolumeData('ALL').then(() => {
-                    setTimeout(() => { _renderDashboardCharts(); }, 300);
-                });
-            }
             
             if (typeof showToast === 'function') {
                 showToast("Tampilan dikembalikan ke SEMUA MINGGU (Akumulasi)", "info");
@@ -3047,9 +3085,27 @@
 
                 if (weekKey === "ALL") {
                     weekLabel = "SEMUA MINGGU";
-                    // Clear date inputs for "ALL" mode to signify full range
-                    document.getElementById('startDate').value = "";
-                    document.getElementById('endDate').value = "";
+                    // Fetch min/max dates from server for ALL mode
+                    try {
+                        const volResponse = await fetch(`${API_URL}/volume?category=${currentMenu}`);
+                        const volResult = await volResponse.json();
+                        if (volResult.success && volResult.data && volResult.data.length > 0) {
+                            // Get min and max dates from actual data
+                            const dates = volResult.data.map(r => r.tanggal).filter(Boolean).sort();
+                            if (dates.length > 0) {
+                                startDate = dates[0];
+                                endDate = dates[dates.length - 1];
+                                document.getElementById('startDate').value = startDate;
+                                document.getElementById('endDate').value = endDate;
+                                console.log('applyWeeklyFilter - Set date range for ALL:', startDate, 'to', endDate);
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Error fetching date range for ALL:', err);
+                        // If fetch fails, clear dates
+                        document.getElementById('startDate').value = "";
+                        document.getElementById('endDate').value = "";
+                    }
                 } else {
                     const selectedOption = weekSelect.options[weekSelect.selectedIndex];
                     weekLabel = selectedOption.text;
@@ -4539,7 +4595,7 @@
                         else btn.classList.remove('active');
                     });
 
-                    // Initialize default filters to ALL weeks
+                    // Initialize default filters to ALL weeks and fetch date range
                     ['dashboard', 'sla', 'volume'].forEach(v => {
                         viewFilters[v] = {
                             startDate: '',
@@ -4548,6 +4604,29 @@
                             routeFilter: ''
                         };
                     });
+                    
+                    // Fetch and set date range for ALL weeks on initial load
+                    try {
+                        const volResponse = await fetch(`${API_URL}/volume?category=${currentMenu}`);
+                        const volResult = await volResponse.json();
+                        if (volResult.success && volResult.data && volResult.data.length > 0) {
+                            const dates = volResult.data.map(r => r.tanggal).filter(Boolean).sort();
+                            if (dates.length > 0) {
+                                const minDate = dates[0];
+                                const maxDate = dates[dates.length - 1];
+                                document.getElementById('startDate').value = minDate;
+                                document.getElementById('endDate').value = maxDate;
+                                // Update viewFilters with actual dates
+                                ['dashboard', 'sla', 'volume'].forEach(v => {
+                                    viewFilters[v].startDate = minDate;
+                                    viewFilters[v].endDate = maxDate;
+                                });
+                                console.log('Initial load - Set date range:', minDate, 'to', maxDate);
+                            }
+                        }
+                    } catch (err) {
+                        console.error('Error fetching initial date range:', err);
+                    }
 
                     // Show dashboard
                     await showView('dashboard');
@@ -5300,23 +5379,62 @@
             const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
             if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
                 const routeCards = document.querySelectorAll('.route-card');
+                let visibleCount = 0;
+                
+                // Extract route number from filter
+                const filterMatch = routeFilter.match(/^(Rute\s*\d+[A-Z]?|RUTE\s*B\d+|EXTRA)/i);
+                const filterRouteNum = filterMatch ? filterMatch[1].replace(/\s+/g, ' ').toLowerCase() : routeFilter.toLowerCase();
+                
+                console.log('renderRoutes - Filter:', routeFilter, '| Route Num:', filterRouteNum);
+                
                 routeCards.forEach(card => {
-                    const routeName = card.querySelector('.route-name');
-                    if (routeName) {
-                        const cardRouteName = routeName.textContent.trim().toLowerCase();
-                        const filterValue = routeFilter.toLowerCase();
-                        
-                        // Check if card contains the filtered route
-                        // Card may contain multiple routes (paired routes), so check inner HTML
+                    let shouldShow = false;
+                    
+                    // Check route sections (paired routes - chart bawah)
+                    const routeSections = card.querySelectorAll('.route-section h4');
+                    if (routeSections.length > 0) {
+                        routeSections.forEach(section => {
+                            const sectionText = section.textContent;
+                            // Extract route name from "Arah: (route name)"
+                            const arahMatch = sectionText.match(/Arah:\s*\(([^)]+)\)/i);
+                            if (arahMatch) {
+                                // For now, show card if it has paired routes (will implement better logic)
+                                // We need to check against actual route names in the card
+                                shouldShow = true;
+                            }
+                        });
+                        // Additional check: look for route names in the entire card HTML
                         const cardHTML = card.innerHTML.toLowerCase();
-                        const shouldShow = cardHTML.includes(filterValue) || 
-                                         filterValue.includes(cardRouteName) ||
-                                         cardRouteName.includes(filterValue);
-                        
-                        card.style.display = shouldShow ? 'block' : 'none';
+                        // Try to find exact route name matches
+                        shouldShow = cardHTML.includes(routeFilter.toLowerCase());
+                    } else {
+                        // Single route card - check route name
+                        const routeName = card.querySelector('.route-name');
+                        if (routeName) {
+                            const cardRouteName = routeName.textContent.trim();
+                            
+                            // Exact match (case insensitive)
+                            if (cardRouteName.toLowerCase() === routeFilter.toLowerCase()) {
+                                shouldShow = true;
+                            } else {
+                                // Extract route number from card name
+                                const cardMatch = cardRouteName.match(/^(Rute\s*\d+[A-Z]?|RUTE\s*B\d+|EXTRA|Extra)/i);
+                                if (cardMatch) {
+                                    const cardRouteNum = cardMatch[1].replace(/\s+/g, ' ').toLowerCase();
+                                    // Match route numbers
+                                    if (cardRouteNum === filterRouteNum || (cardRouteNum === 'extra' && filterRouteNum.includes('extra'))) {
+                                        shouldShow = true;
+                                    }
+                                }
+                            }
+                        }
                     }
+                    
+                    card.style.display = shouldShow ? 'block' : 'none';
+                    if (shouldShow) visibleCount++;
                 });
-                console.log('renderRoutes - Applied route filter:', routeFilter);
+                
+                console.log('renderRoutes - Visible:', visibleCount, '/', routeCards.length);
             } else {
                 // Show all cards if no filter
                 const routeCards = document.querySelectorAll('.route-card');
