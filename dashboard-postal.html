@@ -1290,8 +1290,6 @@
             </div>
         </div>
         <!-- New date range notification (top‑left) -->
-        <div id="week-range" style="position: absolute; top: 10px; left: 250px; background: rgba(255,255,255,0.9); color: #1e3c72; padding: 5px 10px; border-radius: 6px; font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">&#8203;</div>
-
         <div class="submenu-container" style="background: white; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; padding: 0 10px; gap: 5px;">
             <div id="submenu-primer" class="submenu show" style="padding: 5px 0; border: none; flex: none;">
                 <div class="submenu-left">
@@ -2635,6 +2633,9 @@
             const rawEndDate   = document.getElementById('endDate').value;
             const routeFilter  = document.getElementById('routeFilter').value;
 
+            console.log('applyFilter - Route Filter:', routeFilter);
+            console.log('applyFilter - Current View:', currentView);
+
             // Auto‑set to current month if dates are empty
             if (!rawStartDate || !rawEndDate) {
                 setCurrentMonthFilter();
@@ -3641,10 +3642,14 @@
                     // Keep for extra safety or remove if confident
 
                     // Client-side filter untuk rute sebagai fallback (jika server-side filter tidak bekerja)
+                    console.log('loadSLAData - Route Filter:', routeFilter);
+                    console.log('loadSLAData - Data before route filter:', finalData.length);
                     if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
                         finalData = finalData.filter(function(r) {
+                            console.log('loadSLAData - Comparing:', r.rute, 'with', routeFilter, 'Match:', r.rute === routeFilter);
                             return r.rute === routeFilter;
                         });
+                        console.log('loadSLAData - Data after route filter:', finalData.length);
                     }
 
                     // Store in global variable and sort by order
@@ -3886,10 +3891,14 @@
                     }
 
                     // Client-side filter untuk rute sebagai fallback (jika server-side filter tidak bekerja)
+                    console.log('loadVolumeData - Route Filter:', routeFilter);
+                    console.log('loadVolumeData - Data before route filter:', finalData.length);
                     if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
                         finalData = finalData.filter(function(r) {
+                            console.log('loadVolumeData - Comparing:', r.rute, 'with', routeFilter, 'Match:', r.rute === routeFilter);
                             return r.rute === routeFilter;
                         });
+                        console.log('loadVolumeData - Data after route filter:', finalData.length);
                     }
 
                     // Sort data: first by route order, then by date within the same route
