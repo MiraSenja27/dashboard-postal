@@ -2597,12 +2597,13 @@
                     const routeData = top10.find(r => r.name === routeFilter);
                     
                     if (routeData && stops.length > 0) {
-                        chartData = stops.map(stop => ({
-                            label: stop,
-                            postal: routeData.postal / stops.length, // Bagi rata volume ke setiap stop
-                            poslog: routeData.poslog / stops.length,
+                        // HANYA 1 BAR untuk rute yang dipilih (BUKAN 3 bar terpisah)
+                        chartData = [{
+                            label: routeFilter,
+                            postal: routeData.postal,
+                            poslog: routeData.poslog,
                             originalRoute: routeFilter
-                        }));
+                        }];
                         
                         document.getElementById('chartTopRutesTitle').textContent = 
                             `Urutan Pemberhentian: ${routeFilter} (${stops.join(' → ')})`;
