@@ -4734,8 +4734,10 @@
                 const startDate = document.getElementById('startDate').value;
                 const endDate = document.getElementById('endDate').value;
                 const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
-                
-                let url = `${API_URL}/routes?category=${currentMenu}&routeFilter=${encodeURIComponent(routeFilter)}`;
+
+                // Hapus routeFilter dari URL query karena server-side filter tidak bekerja
+                // Gunakan client-side filter saja
+                let url = `${API_URL}/routes?category=${currentMenu}`;
                 if (weekKey && weekKey !== 'ALL') {
                     url += `&weekKey=${weekKey}`;
                 } else if (startDate && endDate) {
