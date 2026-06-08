@@ -2815,10 +2815,17 @@
                 if (slaResult.success) {
                     let finalSlaData = slaResult.data;
                     // Client-side filter untuk rute sebagai fallback
+                    console.log('loadDashboardData SLA - Route Filter:', routeFilter);
+                    console.log('loadDashboardData SLA - Data before route filter:', finalSlaData.length);
                     if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
                         finalSlaData = finalSlaData.filter(function(r) {
-                            return r.rute === routeFilter;
+                            const match = (r.rute || '').toLowerCase() === routeFilter.toLowerCase() ||
+                                         (r.rute || '').toLowerCase().includes(routeFilter.toLowerCase()) ||
+                                         routeFilter.toLowerCase().includes((r.rute || '').toLowerCase());
+                            console.log('loadDashboardData SLA - Comparing:', r.rute, 'with', routeFilter, 'Match:', match);
+                            return match;
                         });
+                        console.log('loadDashboardData SLA - Data after route filter:', finalSlaData.length);
                     }
                     slaData = finalSlaData; // Store SLA data globally
                     updateRankings(slaData); // Update rankings list
@@ -3646,8 +3653,11 @@
                     console.log('loadSLAData - Data before route filter:', finalData.length);
                     if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
                         finalData = finalData.filter(function(r) {
-                            console.log('loadSLAData - Comparing:', r.rute, 'with', routeFilter, 'Match:', r.rute === routeFilter);
-                            return r.rute === routeFilter;
+                            const match = (r.rute || '').toLowerCase() === routeFilter.toLowerCase() ||
+                                         (r.rute || '').toLowerCase().includes(routeFilter.toLowerCase()) ||
+                                         routeFilter.toLowerCase().includes((r.rute || '').toLowerCase());
+                            console.log('loadSLAData - Comparing:', r.rute, 'with', routeFilter, 'Match:', match);
+                            return match;
                         });
                         console.log('loadSLAData - Data after route filter:', finalData.length);
                     }
@@ -3895,8 +3905,11 @@
                     console.log('loadVolumeData - Data before route filter:', finalData.length);
                     if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
                         finalData = finalData.filter(function(r) {
-                            console.log('loadVolumeData - Comparing:', r.rute, 'with', routeFilter, 'Match:', r.rute === routeFilter);
-                            return r.rute === routeFilter;
+                            const match = (r.rute || '').toLowerCase() === routeFilter.toLowerCase() ||
+                                         (r.rute || '').toLowerCase().includes(routeFilter.toLowerCase()) ||
+                                         routeFilter.toLowerCase().includes((r.rute || '').toLowerCase());
+                            console.log('loadVolumeData - Comparing:', r.rute, 'with', routeFilter, 'Match:', match);
+                            return match;
                         });
                         console.log('loadVolumeData - Data after route filter:', finalData.length);
                     }
