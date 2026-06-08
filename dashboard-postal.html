@@ -1335,7 +1335,7 @@
                     <select class="filter-input" id="weekFilter" onchange="applyWeeklyFilter()" style="width: 150px; height: 32px; font-size: 12px;">
                         <option value="">📅 Pilih Minggu</option>
                     </select>
-                    <select class="filter-input" id="routeFilter" onchange="applyFilter()" style="width: 100px; height: 32px; font-size: 12px;">
+                    <select class="filter-input" id="routeFilter" onchange="applyFilter()" style="width: 160px; height: 32px; font-size: 12px;">
                         <option value="">Semua Rute</option>
                         <option value="Rute 1 JAT-SB">Rute 1 JAT-SB</option>
                         <option value="Rute 2 JAT-YK">Rute 2 JAT-YK</option>
@@ -5616,27 +5616,27 @@
                 routeCards.forEach((card, index) => {
                     let shouldShow = false;
                     
-                    // Get all text content from the card
-                    const cardText = card.textContent || '';
+                    // Get the route name from the card (find the route name in the text content)
+                    const routeNameElement = card.querySelector('.route-name') || card.querySelector('h3');
+                    let cardRouteName = '';
                     
-                    // Check if filter text appears anywhere in the card
-                    if (cardText.includes(routeFilter)) {
-                        shouldShow = true;
-                        console.log('renderRoutes - Card', index, 'MATCH (contains filter text)');
+                    if (routeNameElement) {
+                        cardRouteName = routeNameElement.textContent.trim();
                     } else {
-                        // Try route number matching
-                        const filterMatch = routeFilter.match(/Rute\s*(\d+[A-Z]?)/i);
-                        if (filterMatch) {
-                            const filterNum = filterMatch[1]; // e.g., "1", "4A"
-                            // Check if card contains this route number
-                            const cardMatch = cardText.match(new RegExp('Rute\\s*' + filterNum + '(?:\\s|$|\\)|:)', 'i'));
-                            if (cardMatch) {
-                                shouldShow = true;
-                                console.log('renderRoutes - Card', index, 'MATCH (route number', filterNum, ')');
-                            } else {
-                                console.log('renderRoutes - Card', index, 'NO MATCH');
-                            }
+                        // Fallback: extract from card text
+                        const cardText = card.textContent || '';
+                        const routeMatch = cardText.match(/Rute\s+[^\n]+/);
+                        if (routeMatch) {
+                            cardRouteName = routeMatch[0].trim();
                         }
+                    }
+                    
+                    // EXACT MATCH only (case insensitive)
+                    if (cardRouteName && cardRouteName.toLowerCase() === routeFilter.toLowerCase()) {
+                        shouldShow = true;
+                        console.log('renderRoutes - Card', index, 'EXACT MATCH:', cardRouteName);
+                    } else {
+                        console.log('renderRoutes - Card', index, 'NO MATCH. Card route:', cardRouteName, 'Filter:', routeFilter);
                     }
                     
                     card.style.display = shouldShow ? 'block' : 'none';
