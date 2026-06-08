@@ -2774,17 +2774,17 @@
                 const endDate = document.getElementById('endDate').value;
 
 
-                // Build query params untuk stats (DENGAN routeFilter agar piechart terpengaruh filter rute)
+                // Build query params untuk stats (HAPUS routeFilter karena server-side filter tidak bekerja)
                 const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
-                let statsQueryParams = `category=${currentMenu}&routeFilter=${encodeURIComponent(routeFilter)}`;
+                let statsQueryParams = `category=${currentMenu}`;
                 if (weekKey && weekKey !== 'ALL') {
                     statsQueryParams += `&weekKey=${weekKey}`;
                 } else {
                     statsQueryParams += `&startDate=${startDate}&endDate=${endDate}`;
                 }
 
-                // Build query params untuk SLA (DENGAN routeFilter agar ranking terpengaruh filter rute)
-                let slaQueryParams = `category=${currentMenu}&routeFilter=${encodeURIComponent(routeFilter)}`;
+                // Build query params untuk SLA (HAPUS routeFilter karena server-side filter tidak bekerja)
+                let slaQueryParams = `category=${currentMenu}`;
                 if (weekKey && weekKey !== 'ALL') {
                     slaQueryParams += `&weekKey=${weekKey}`;
                 } else {
@@ -2837,7 +2837,8 @@
                 // Update period label - ambil min/max dari data volume aktual
                 const currentWeekKey = document.getElementById('weekFilter').value;
                 try {
-                    let volUrl = `${API_URL}/volume?category=${currentMenu}&routeFilter=${encodeURIComponent(routeFilter)}`;
+                    // Hapus routeFilter dari URL query karena server-side filter tidak bekerja
+                    let volUrl = `${API_URL}/volume?category=${currentMenu}`;
                     if (currentWeekKey && currentWeekKey !== 'ALL') {
                         volUrl += `&weekKey=${currentWeekKey}`;
                     } else if (startDate && endDate) {
@@ -3632,7 +3633,10 @@
                 const startDate = document.getElementById('startDate').value;
                 const endDate = document.getElementById('endDate').value;
                 const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
-                let url = `${API_URL}/sla?category=${currentMenu}&routeFilter=${encodeURIComponent(routeFilter)}`;
+
+                // Hapus routeFilter dari URL query karena server-side filter tidak bekerja
+                // Gunakan client-side filter saja
+                let url = `${API_URL}/sla?category=${currentMenu}`;
                 if (weekKey && weekKey !== 'ALL') {
                     url += `&weekKey=${weekKey}`;
                 } else if (startDate && endDate) {
@@ -3872,8 +3876,10 @@
                 const startDate = document.getElementById('startDate').value;
                 const endDate = document.getElementById('endDate').value;
                 const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
-                
-                let url = `${API_URL}/volume?category=${currentMenu}&routeFilter=${encodeURIComponent(routeFilter)}`;
+
+                // Hapus routeFilter dari URL query karena server-side filter tidak bekerja
+                // Gunakan client-side filter saja
+                let url = `${API_URL}/volume?category=${currentMenu}`;
                 if (weekKey && weekKey !== 'ALL') {
                     url += `&weekKey=${weekKey}`;
                 } else if (startDate && endDate) {
