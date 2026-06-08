@@ -1357,7 +1357,6 @@
                         <option value="Extra Spp Semarang - Spp Jakarta Timur">Extra Spp Semarang - Spp Jakarta Timur</option>
                         <option value="EXTRA SPP YOGYA - KCU SOLO - SPP JAT">EXTRA SPP YOGYA - KCU SOLO - SPP JAT</option>
                     </select>
-                    <button class="filter-btn" onclick="applyFilter()" style="height: 32px; padding: 5px 12px; font-size: 12px;">🔍 Filter</button>
                     <button class="filter-btn" onclick="resetFilter()" style="height: 32px; padding: 5px 12px; font-size: 12px;">🔄 Reset</button>
                 </div>
             </div>
@@ -2319,28 +2318,17 @@
         function calculateStatsFromFilteredData(routeFilter) {
             let rawData = window._volumeRawData || [];
             
-            // Filter data by route
+            // Filter data by route - EXACT MATCH ONLY
             const filteredData = rawData.filter(function(r) {
                 const ruteName = (r.rute || '').trim();
                 const filter = routeFilter.trim();
                 
-                // Exact match
-                if (ruteName.toLowerCase() === filter.toLowerCase()) {
-                    return true;
-                }
-                
-                // Route number match
-                const filterMatch = filter.match(/Rute\s*(\d+[A-Z]?)/i);
-                const ruteMatch = ruteName.match(/Rute\s*(\d+[A-Z]?)/i);
-                
-                if (filterMatch && ruteMatch) {
-                    return filterMatch[1].toLowerCase() === ruteMatch[1].toLowerCase();
-                }
-                
-                return false;
+                // ONLY exact match (case insensitive)
+                return ruteName.toLowerCase() === filter.toLowerCase();
             });
             
             console.log('calculateStatsFromFilteredData - Filtered data count:', filteredData.length);
+            console.log('calculateStatsFromFilteredData - Looking for exact match:', routeFilter);
             
             // Parse number helper
             function parseAngka(v) {
@@ -2424,26 +2412,11 @@
                     const ruteName = (r.rute || '').trim();
                     const filter = routeFilter.trim();
                     
-                    // Exact match (case insensitive)
-                    if (ruteName.toLowerCase() === filter.toLowerCase()) {
-                        return true;
-                    }
-                    
-                    // Extract route number from filter (e.g., "Rute 1" from "Rute 1 JAT-SB")
-                    const filterMatch = filter.match(/^(Rute\s*\d+[A-Z]?|RUTE\s*B\d+|EXTRA)/i);
-                    const ruteMatch = ruteName.match(/^(Rute\s*\d+[A-Z]?|RUTE\s*B\d+|EXTRA)/i);
-                    
-                    if (filterMatch && ruteMatch) {
-                        // Normalize spaces and compare route numbers
-                        const filterRouteNum = filterMatch[1].replace(/\s+/g, ' ').toLowerCase();
-                        const ruteRouteNum = ruteMatch[1].replace(/\s+/g, ' ').toLowerCase();
-                        return filterRouteNum === ruteRouteNum;
-                    }
-                    
-                    return false;
+                    // ONLY exact match (case insensitive)
+                    return ruteName.toLowerCase() === filter.toLowerCase();
                 });
                 console.log('_renderDashboardCharts - Route Filter:', routeFilter);
-                console.log('_renderDashboardCharts - Data after route filter:', rawData.length);
+                console.log('_renderDashboardCharts - Data after EXACT filter:', rawData.length);
             }
             
             function parseAngka(v) {
@@ -2725,8 +2698,10 @@
         function clearWeekFilter() {
             const weekFilter = document.getElementById('weekFilter');
             if (weekFilter) {
-                weekFilter.value = 'ALL';
+                weekFilter.value = '';
             }
+            // Langsung apply filter setelah clear
+            applyFilter();
         }
 
         async function applyFilter() {
@@ -2948,23 +2923,12 @@
                             const ruteName = (r.rute || '').trim();
                             const filter = routeFilter.trim();
                             
-                            // Exact match (case insensitive)
-                            if (ruteName.toLowerCase() === filter.toLowerCase()) {
-                                return true;
-                            }
-                            
-                            // Extract route number from filter
-                            const filterMatch = filter.match(/Rute\s*(\d+[A-Z]?)/i);
-                            const ruteMatch = ruteName.match(/Rute\s*(\d+[A-Z]?)/i);
-                            
-                            if (filterMatch && ruteMatch) {
-                                // Compare route numbers only (e.g., "1" === "1", "4A" === "4A")
-                                return filterMatch[1].toLowerCase() === ruteMatch[1].toLowerCase();
-                            }
-                            
-                            return false;
+                            // ONLY exact match (case insensitive)
+                            const match = ruteName.toLowerCase() === filter.toLowerCase();
+                            console.log('loadDashboardData SLA - Comparing:', ruteName, 'with', filter, 'Match:', match);
+                            return match;
                         });
-                        console.log('loadDashboardData SLA - Data after route filter:', finalSlaData.length);
+                        console.log('loadDashboardData SLA - Data after EXACT filter:', finalSlaData.length);
                     }
                     slaData = finalSlaData; // Store SLA data globally
                     updateRankings(slaData); // Update rankings list
@@ -3827,23 +3791,12 @@
                             const ruteName = (r.rute || '').trim();
                             const filter = routeFilter.trim();
                             
-                            // Exact match (case insensitive)
-                            if (ruteName.toLowerCase() === filter.toLowerCase()) {
-                                return true;
-                            }
-                            
-                            // Extract route number from filter
-                            const filterMatch = filter.match(/Rute\s*(\d+[A-Z]?)/i);
-                            const ruteMatch = ruteName.match(/Rute\s*(\d+[A-Z]?)/i);
-                            
-                            if (filterMatch && ruteMatch) {
-                                // Compare route numbers only
-                                return filterMatch[1].toLowerCase() === ruteMatch[1].toLowerCase();
-                            }
-                            
-                            return false;
+                            // ONLY exact match (case insensitive)
+                            const match = ruteName.toLowerCase() === filter.toLowerCase();
+                            console.log('loadSLAData - Comparing:', ruteName, 'with', filter, 'Match:', match);
+                            return match;
                         });
-                        console.log('loadSLAData - Data after route filter:', finalData.length);
+                        console.log('loadSLAData - Data after EXACT filter:', finalData.length);
                     }
 
                     // Store in global variable and sort by order
