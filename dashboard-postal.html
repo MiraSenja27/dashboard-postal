@@ -2314,6 +2314,79 @@
                 weekFilter.value = 'ALL';
             }
         }
+        
+        // Calculate statistics from filtered volume data
+        function calculateStatsFromFilteredData(routeFilter) {
+            let rawData = window._volumeRawData || [];
+            
+            // Filter data by route
+            const filteredData = rawData.filter(function(r) {
+                const ruteName = (r.rute || '').trim();
+                const filter = routeFilter.trim();
+                
+                // Exact match
+                if (ruteName.toLowerCase() === filter.toLowerCase()) {
+                    return true;
+                }
+                
+                // Route number match
+                const filterMatch = filter.match(/Rute\s*(\d+[A-Z]?)/i);
+                const ruteMatch = ruteName.match(/Rute\s*(\d+[A-Z]?)/i);
+                
+                if (filterMatch && ruteMatch) {
+                    return filterMatch[1].toLowerCase() === ruteMatch[1].toLowerCase();
+                }
+                
+                return false;
+            });
+            
+            console.log('calculateStatsFromFilteredData - Filtered data count:', filteredData.length);
+            
+            // Parse number helper
+            function parseAngka(v) {
+                if (v === null || v === undefined || v === '') return 0;
+                if (typeof v === 'number') return v;
+                if (typeof v === 'string') {
+                    if (v.includes(',') || (v.includes('.') && v.split('.').length > 2)) {
+                        return parseFloat(v.replace(/\./g,'').replace(',','.')) || 0;
+                    }
+                    return parseFloat(v) || 0;
+                }
+                return 0;
+            }
+            
+            // Calculate totals
+            let totalPostal = 0;
+            let totalPoslog = 0;
+            let totalKapasitas = 0;
+            const uniqueRoutes = new Set();
+            
+            filteredData.forEach(function(r) {
+                totalPostal += parseAngka(r.postal);
+                totalPoslog += parseAngka(r.nonPostal);
+                totalKapasitas += parseAngka(r.kapasitas);
+                if (r.rute) uniqueRoutes.add(r.rute);
+            });
+            
+            const totalRoutes = uniqueRoutes.size;
+            const sisaKapasitas = Math.max(0, totalKapasitas - totalPostal - totalPoslog);
+            
+            console.log('calculateStatsFromFilteredData - Stats:', {
+                total_routes: totalRoutes,
+                postal_volume: totalPostal,
+                poslog_volume: totalPoslog,
+                total_capacity: totalKapasitas,
+                sisa_kapasitas: sisaKapasitas
+            });
+            
+            return {
+                total_routes: totalRoutes,
+                postal_volume: totalPostal,
+                poslog_volume: totalPoslog,
+                total_capacity: totalKapasitas,
+                sisa_kapasitas: sisaKapasitas
+            };
+        }
 
         // Dashboard Charts Function
         let _chartInstances = {};
@@ -2872,11 +2945,24 @@
                     console.log('loadDashboardData SLA - Data before route filter:', finalSlaData.length);
                     if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
                         finalSlaData = finalSlaData.filter(function(r) {
-                            const match = (r.rute || '').toLowerCase() === routeFilter.toLowerCase() ||
-                                         (r.rute || '').toLowerCase().includes(routeFilter.toLowerCase()) ||
-                                         routeFilter.toLowerCase().includes((r.rute || '').toLowerCase());
-                            console.log('loadDashboardData SLA - Comparing:', r.rute, 'with', routeFilter, 'Match:', match);
-                            return match;
+                            const ruteName = (r.rute || '').trim();
+                            const filter = routeFilter.trim();
+                            
+                            // Exact match (case insensitive)
+                            if (ruteName.toLowerCase() === filter.toLowerCase()) {
+                                return true;
+                            }
+                            
+                            // Extract route number from filter
+                            const filterMatch = filter.match(/Rute\s*(\d+[A-Z]?)/i);
+                            const ruteMatch = ruteName.match(/Rute\s*(\d+[A-Z]?)/i);
+                            
+                            if (filterMatch && ruteMatch) {
+                                // Compare route numbers only (e.g., "1" === "1", "4A" === "4A")
+                                return filterMatch[1].toLowerCase() === ruteMatch[1].toLowerCase();
+                            }
+                            
+                            return false;
                         });
                         console.log('loadDashboardData SLA - Data after route filter:', finalSlaData.length);
                     }
@@ -3178,6 +3264,15 @@
         function updateStatistics(stats) {
             // Simpan ke global untuk dipakai pie chart
             window._dashStats = stats;
+            
+            // Check if route filter is active - recalculate stats from filtered data
+            const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
+            if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute' && window._volumeRawData && window._volumeRawData.length > 0) {
+                console.log('updateStatistics - Recalculating stats for filtered route:', routeFilter);
+                stats = calculateStatsFromFilteredData(routeFilter);
+                window._dashStats = stats; // Update global with filtered stats
+            }
+            
             const statCards = document.querySelectorAll('.stat-card .stat-value');
             if (statCards.length >= 6) {
                 // 0: Total Rute
@@ -3729,11 +3824,24 @@
                     console.log('loadSLAData - Data before route filter:', finalData.length);
                     if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
                         finalData = finalData.filter(function(r) {
-                            const match = (r.rute || '').toLowerCase() === routeFilter.toLowerCase() ||
-                                         (r.rute || '').toLowerCase().includes(routeFilter.toLowerCase()) ||
-                                         routeFilter.toLowerCase().includes((r.rute || '').toLowerCase());
-                            console.log('loadSLAData - Comparing:', r.rute, 'with', routeFilter, 'Match:', match);
-                            return match;
+                            const ruteName = (r.rute || '').trim();
+                            const filter = routeFilter.trim();
+                            
+                            // Exact match (case insensitive)
+                            if (ruteName.toLowerCase() === filter.toLowerCase()) {
+                                return true;
+                            }
+                            
+                            // Extract route number from filter
+                            const filterMatch = filter.match(/Rute\s*(\d+[A-Z]?)/i);
+                            const ruteMatch = ruteName.match(/Rute\s*(\d+[A-Z]?)/i);
+                            
+                            if (filterMatch && ruteMatch) {
+                                // Compare route numbers only
+                                return filterMatch[1].toLowerCase() === ruteMatch[1].toLowerCase();
+                            }
+                            
+                            return false;
                         });
                         console.log('loadSLAData - Data after route filter:', finalData.length);
                     }
@@ -3984,11 +4092,24 @@
                     console.log('loadVolumeData - Data before route filter:', finalData.length);
                     if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
                         finalData = finalData.filter(function(r) {
-                            const match = (r.rute || '').toLowerCase() === routeFilter.toLowerCase() ||
-                                         (r.rute || '').toLowerCase().includes(routeFilter.toLowerCase()) ||
-                                         routeFilter.toLowerCase().includes((r.rute || '').toLowerCase());
-                            console.log('loadVolumeData - Comparing:', r.rute, 'with', routeFilter, 'Match:', match);
-                            return match;
+                            const ruteName = (r.rute || '').trim();
+                            const filter = routeFilter.trim();
+                            
+                            // Exact match (case insensitive)
+                            if (ruteName.toLowerCase() === filter.toLowerCase()) {
+                                return true;
+                            }
+                            
+                            // Extract route number from filter
+                            const filterMatch = filter.match(/Rute\s*(\d+[A-Z]?)/i);
+                            const ruteMatch = ruteName.match(/Rute\s*(\d+[A-Z]?)/i);
+                            
+                            if (filterMatch && ruteMatch) {
+                                // Compare route numbers only
+                                return filterMatch[1].toLowerCase() === ruteMatch[1].toLowerCase();
+                            }
+                            
+                            return false;
                         });
                         console.log('loadVolumeData - Data after route filter:', finalData.length);
                     }
@@ -5381,51 +5502,31 @@
                 const routeCards = document.querySelectorAll('.route-card');
                 let visibleCount = 0;
                 
-                // Extract route number from filter
-                const filterMatch = routeFilter.match(/^(Rute\s*\d+[A-Z]?|RUTE\s*B\d+|EXTRA)/i);
-                const filterRouteNum = filterMatch ? filterMatch[1].replace(/\s+/g, ' ').toLowerCase() : routeFilter.toLowerCase();
+                console.log('renderRoutes - Applying filter:', routeFilter);
+                console.log('renderRoutes - Total route cards:', routeCards.length);
                 
-                console.log('renderRoutes - Filter:', routeFilter, '| Route Num:', filterRouteNum);
-                
-                routeCards.forEach(card => {
+                routeCards.forEach((card, index) => {
                     let shouldShow = false;
                     
-                    // Check route sections (paired routes - chart bawah)
-                    const routeSections = card.querySelectorAll('.route-section h4');
-                    if (routeSections.length > 0) {
-                        routeSections.forEach(section => {
-                            const sectionText = section.textContent;
-                            // Extract route name from "Arah: (route name)"
-                            const arahMatch = sectionText.match(/Arah:\s*\(([^)]+)\)/i);
-                            if (arahMatch) {
-                                // For now, show card if it has paired routes (will implement better logic)
-                                // We need to check against actual route names in the card
-                                shouldShow = true;
-                            }
-                        });
-                        // Additional check: look for route names in the entire card HTML
-                        const cardHTML = card.innerHTML.toLowerCase();
-                        // Try to find exact route name matches
-                        shouldShow = cardHTML.includes(routeFilter.toLowerCase());
+                    // Get all text content from the card
+                    const cardText = card.textContent || '';
+                    
+                    // Check if filter text appears anywhere in the card
+                    if (cardText.includes(routeFilter)) {
+                        shouldShow = true;
+                        console.log('renderRoutes - Card', index, 'MATCH (contains filter text)');
                     } else {
-                        // Single route card - check route name
-                        const routeName = card.querySelector('.route-name');
-                        if (routeName) {
-                            const cardRouteName = routeName.textContent.trim();
-                            
-                            // Exact match (case insensitive)
-                            if (cardRouteName.toLowerCase() === routeFilter.toLowerCase()) {
+                        // Try route number matching
+                        const filterMatch = routeFilter.match(/Rute\s*(\d+[A-Z]?)/i);
+                        if (filterMatch) {
+                            const filterNum = filterMatch[1]; // e.g., "1", "4A"
+                            // Check if card contains this route number
+                            const cardMatch = cardText.match(new RegExp('Rute\\s*' + filterNum + '(?:\\s|$|\\)|:)', 'i'));
+                            if (cardMatch) {
                                 shouldShow = true;
+                                console.log('renderRoutes - Card', index, 'MATCH (route number', filterNum, ')');
                             } else {
-                                // Extract route number from card name
-                                const cardMatch = cardRouteName.match(/^(Rute\s*\d+[A-Z]?|RUTE\s*B\d+|EXTRA|Extra)/i);
-                                if (cardMatch) {
-                                    const cardRouteNum = cardMatch[1].replace(/\s+/g, ' ').toLowerCase();
-                                    // Match route numbers
-                                    if (cardRouteNum === filterRouteNum || (cardRouteNum === 'extra' && filterRouteNum.includes('extra'))) {
-                                        shouldShow = true;
-                                    }
-                                }
+                                console.log('renderRoutes - Card', index, 'NO MATCH');
                             }
                         }
                     }
@@ -5434,7 +5535,7 @@
                     if (shouldShow) visibleCount++;
                 });
                 
-                console.log('renderRoutes - Visible:', visibleCount, '/', routeCards.length);
+                console.log('renderRoutes - Visible cards:', visibleCount, '/', routeCards.length);
             } else {
                 // Show all cards if no filter
                 const routeCards = document.querySelectorAll('.route-card');
