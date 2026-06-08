@@ -5673,14 +5673,17 @@
                                 // Convert "JAT - CN - SB" format to "JAT-SB" (first-last) to match filter
                                 const parts = arahName.split(/\s*-\s*/).filter(p => p.trim());
                                 if (parts.length >= 2) {
-                                    const candidateRoute = `${cardRouteName} ${parts[0]}-${parts[parts.length - 1]}`;
+                                    const firstPoint = parts[0];
+                                    const lastPoint = parts[parts.length - 1];
+                                    const candidateRoute = `${cardRouteName} ${firstPoint}-${lastPoint}`;
                                     
-                                    // Check if this matches our filter
-                                    if (candidateRoute.toLowerCase() === routeFilter.toLowerCase() ||
-                                        normalizeRouteName(candidateRoute) === normalizeRouteName(routeFilter)) {
+                                    // EXACT directional match - harus urutan yang sama
+                                    if (candidateRoute.toLowerCase() === routeFilter.toLowerCase()) {
                                         shouldShow = true;
-                                        console.log('renderRoutes - Card', index, 'MATCH via Arah:', candidateRoute, 'matches filter:', routeFilter);
+                                        console.log('renderRoutes - Card', index, 'EXACT DIRECTIONAL MATCH:', candidateRoute, 'from arah:', arahName);
                                         break;
+                                    } else {
+                                        console.log('renderRoutes - Card', index, 'WRONG DIRECTION:', candidateRoute, 'vs filter:', routeFilter, 'from arah:', arahName);
                                     }
                                 }
                             }
