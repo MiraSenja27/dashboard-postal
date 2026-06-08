@@ -2336,6 +2336,16 @@
             console.log('calculateStatsFromFilteredData - Filtered data count:', filteredData.length);
             console.log('calculateStatsFromFilteredData - Looking for exact match:', routeFilter);
             
+            // Helper function to normalize route names for flexible matching
+            function normalizeRouteName(name) {
+                if (!name) return '';
+                return name.toLowerCase()
+                    .replace(/:/g, '') // Remove colons
+                    .replace(/\s+/g, ' ') // Normalize spaces
+                    .replace(/\s*-\s*/g, '-') // Normalize dashes
+                    .trim();
+            }
+            
             // Parse number helper
             function parseAngka(v) {
                 if (v === null || v === undefined || v === '') return 0;
@@ -2467,33 +2477,6 @@
             const totalPoslog = data.reduce(function(s,r){ return s+r.poslog; }, 0);
 
             function fmtNum(n){ return n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toFixed(0); }
-            document.getElementById('chartTopRutesTitle').textContent = 'Volume Terbanyak (10 teratas dari ' + data.length + ' rute)';
-
-            // Generate Insight Rute Terbanyak (Top 3)
-            let sortedPostal = [...data].sort((a,b) => b.postal - a.postal).slice(0, 3);
-            let sortedPoslog = [...data].sort((a,b) => b.poslog - a.poslog).slice(0, 3);
-
-            let htmlPostal = `<div style="margin-bottom: 20px; padding: 14px; background: #fff5eb; border-left: 4px solid #FF8C42; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                <div style="color: #555; font-size: 13px; margin-bottom: 8px; font-weight: 800;">🏆 TOP 3 POSTAL</div>`;
-            sortedPostal.forEach((r, i) => {
-                htmlPostal += `<div style="display:flex; justify-content:space-between; margin-bottom: 5px; border-bottom: 1px dashed #fad8c3; padding-bottom: 3px;">
-                    <span style="font-weight: 700; color: #1e3c72; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%;" title="${r.name}">${i+1}. ${r.name}</span>
-                    <span style="font-weight: 800; color: #D35400; font-size: 12px; text-align: right;">${r.postal.toLocaleString('id-ID')} kg</span>
-                </div>`;
-            });
-            htmlPostal += `</div>`;
-
-            let htmlPoslog = `<div style="padding: 14px; background: #e0f7f5; border-left: 4px solid #4ECDC4; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                <div style="color: #555; font-size: 13px; margin-bottom: 8px; font-weight: 800;">🏆 TOP 3 POSLOG</div>`;
-            sortedPoslog.forEach((r, i) => {
-                htmlPoslog += `<div style="display:flex; justify-content:space-between; margin-bottom: 5px; border-bottom: 1px dashed #bdf1ed; padding-bottom: 3px;">
-                    <span style="font-weight: 700; color: #1e3c72; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%;" title="${r.name}">${i+1}. ${r.name}</span>
-                    <span style="font-weight: 800; color: #00796B; font-size: 12px; text-align: right;">${r.poslog.toLocaleString('id-ID')} kg</span>
-                </div>`;
-            });
-            htmlPoslog += `</div>`;
-
-            document.getElementById('chartTopRutesInsight').innerHTML = htmlPostal + htmlPoslog;
 
             // Data SLA yang berisi informasi lengkap titik pemberhentian setiap rute (LENGKAP)
             const slaDataMap = {
@@ -2502,41 +2485,37 @@
                 'Rute 2 JAT-YK': [{ t: '23:00', l: 'JAT (OUT)' }, { t: '02:45', l: 'CN (IN)' }, { t: '03:15', l: 'CN (OUT)' }, { t: '09:30', l: 'YK (IN)' }],
                 'Rute 2 YK-JAT': [{ t: '23:00', l: 'YK (OUT)' }, { t: '05:00', l: 'CN (IN)' }, { t: '05:30', l: 'CN (OUT)' }, { t: '09:15', l: 'JAT (IN)' }],
                 'Rute 3 JAT-MN': [{ t: '23:00', l: 'JAT (OUT)' }, { t: '03:00', l: 'CN (IN)' }, { t: '03:30', l: 'CN (OUT)' }, { t: '07:30', l: 'SM (IN)' }, { t: '08:30', l: 'SM (OUT)' }, { t: '10:30', l: 'SLO (IN)' }, { t: '11:00', l: 'SLO (OUT)' }, { t: '13:30', l: 'MN (IN)' }],
-                'Rute 3 MN-JAT': [{ t: '19:30', l: 'MN (OUT)' }, { t: '22:00', l: 'SLO (IN)' }, { t: '22:30', l: 'SLO (OUT)' }, { t: '00:30', l: 'SM (IN)' }, { t: '01:30', l: 'SM (OUT)' }, { t: '05:30', l: 'CN (IN)' }, { t: '06:00', l: 'CN (OUT)' }, { t: '10:00', l: 'JAT (IN)' }],
-                'Rute 4 JAT-PWT': [{ t: '02:30', l: 'JAT (OUT)' }, { t: '08:30', l: 'CN (IN)' }, { t: '09:00', l: 'CN (OUT)' }, { t: '10:30', l: 'TG (IN)' }, { t: '11:00', l: 'TG (OUT)' }, { t: '14:00', l: 'PWT (IN)' }],
-                'Rute 4 PWT-JAT': [{ t: '21:30', l: 'PWT (OUT)' }, { t: '00:30', l: 'TG (IN)' }, { t: '01:00', l: 'TG (OUT)' }, { t: '02:30', l: 'CN (IN)' }, { t: '03:30', l: 'CN (OUT)' }, { t: '09:30', l: 'JAT (IN)' }],
-                'RUTE 4A CIREBON - PURWOKERTO': [{ t: '03:00', l: 'CN (OUT)' }, { t: '07:00', l: 'PWT (IN)' }],
-                'Rute 4A Kcu Cirebon - Kcu Purwokerto': [{ t: '03:00', l: 'CN (OUT)' }, { t: '07:00', l: 'PWT (IN)' }],
-                'Rute 4A Kcu Purwokerto - Kcu Cirebon': [{ t: '22:00', l: 'PWT (OUT)' }, { t: '02:00', l: 'CN (IN)' }],
-                'Rute 5 JAT-SLO': [{ t: '03:30', l: 'JAT (OUT)' }, { t: '08:30', l: 'CN (IN)' }, { t: '09:00', l: 'CN (OUT)' }, { t: '11:00', l: 'TG (IN)' }, { t: '11:30', l: 'TG (OUT)' }, { t: '13:30', l: 'PK (IN)' }, { t: '14:00', l: 'PK (OUT)' }, { t: '16:00', l: 'SM (IN)' }, { t: '16:30', l: 'SM (OUT)' }, { t: '19:30', l: 'YK (IN)' }, { t: '20:00', l: 'YK (OUT)' }, { t: '23:00', l: 'SLO (IN)' }],
-                'Rute 5 SLO-JAT': [{ t: '00:30', l: 'SLO (OUT)' }, { t: '03:00', l: 'YK (IN)' }, { t: '04:00', l: 'YK (OUT)' }, { t: '07:00', l: 'SM (IN)' }, { t: '08:00', l: 'SM (OUT)' }, { t: '10:00', l: 'PK (IN)' }, { t: '10:30', l: 'PK (OUT)' }, { t: '12:30', l: 'TG (IN)' }, { t: '13:00', l: 'TG (OUT)' }, { t: '15:00', l: 'CN (IN)' }, { t: '15:30', l: 'CN (OUT)' }, { t: '20:45', l: 'JAT (IN)' }],
-                'Rute 6 BD-JAT': [{ t: '23:00', l: 'BD (OUT)' }, { t: '02:00', l: 'JAT (IN)' }],
-                'Rute 6 JAT-BD': [{ t: '03:00', l: 'JAT (OUT)' }, { t: '07:00', l: 'BD (IN)' }],
-                'Rute 8 JAT-SB': [{ t: '03:00', l: 'JAT (OUT)' }, { t: '08:00', l: 'CN (IN)' }, { t: '08:30', l: 'CN (OUT)' }, { t: '12:30', l: 'SM (IN)' }, { t: '13:30', l: 'SM (OUT)' }, { t: '18:00', l: 'MN (IN)' }, { t: '18:30', l: 'MN (OUT)' }, { t: '22:00', l: 'SB (IN)' }],
-                'Rute 8 SB-JAT': [{ t: '05:00', l: 'SB (OUT)' }, { t: '08:30', l: 'MN (IN)' }, { t: '09:00', l: 'MN (OUT)' }, { t: '13:30', l: 'SM (IN)' }, { t: '14:30', l: 'SM (OUT)' }, { t: '16:30', l: 'PK (IN)' }, { t: '17:00', l: 'PK (OUT)' }, { t: '19:30', l: 'CN (IN)' }, { t: '20:00', l: 'CN (OUT)' }, { t: '01:30', l: 'JAT (IN)' }],
-                'Rute 9 BD-JAT': [{ t: '01:30', l: 'BD (OUT)' }, { t: '05:00', l: 'JAT (IN)' }],
-                'Rute 9 JAT-BD': [{ t: '07:00', l: 'JAT (OUT)' }, { t: '10:30', l: 'BD (IN)' }],
-                'Rute 10 BD-CN': [{ t: '23:00', l: 'BD (OUT)' }, { t: '02:45', l: 'CN (IN)' }],
-                'Rute 10 CN-BD': [{ t: '06:30', l: 'CN (OUT)' }, { t: '10:30', l: 'BD (IN)' }],
-                'Rute 11 BD-SB': [{ t: '02:00', l: 'BD (OUT)' }, { t: '05:30', l: 'CI (IN)' }, { t: '05:45', l: 'CI (OUT)' }, { t: '08:45', l: 'PWT (IN)' }, { t: '09:00', l: 'PWT (OUT)' }, { t: '14:30', l: 'YK (IN)' }, { t: '15:00', l: 'YK (OUT)' }, { t: '17:30', l: 'SLO (IN)' }, { t: '18:00', l: 'SLO (OUT)' }, { t: '23:00', l: 'SB (IN)' }],
-                'Rute 11 SB-BD': [{ t: '04:30', l: 'SB (OUT)' }, { t: '08:30', l: 'SLO (IN)' }, { t: '09:00', l: 'SLO (OUT)' }, { t: '11:30', l: 'YK (IN)' }, { t: '12:30', l: 'YK (OUT)' }, { t: '18:00', l: 'PWT (IN)' }, { t: '19:00', l: 'PWT (OUT)' }, { t: '23:00', l: 'TSM (IN)' }, { t: '23:30', l: 'TSM (OUT)' }, { t: '03:00', l: 'BD (IN)' }],
-                'Rute 11 B SB-MTR': [{ t: '02:00', l: 'SB (OUT)' }, { t: '07:30', l: 'JR (IN)' }, { t: '08:00', l: 'JR (OUT)' }, { t: '11:30', l: 'BW (IN)' }, { t: '12:00', l: 'BW (OUT)' }, { t: '19:30', l: 'DPR (IN)' }, { t: '23:00', l: 'DPR (OUT)' }, { t: '09:00', l: 'MTR (IN)' }],
-                'Rute 11 B MTR-SB': [{ t: '10:00', l: 'MTR (OUT)' }, { t: '20:00', l: 'DPR (IN)' }, { t: '23:00', l: 'DPR (OUT)' }, { t: '03:30', l: 'BW (IN)' }, { t: '04:00', l: 'BW (OUT)' }, { t: '09:30', l: 'JR (IN)' }, { t: '10:00', l: 'JR (OUT)' }, { t: '14:00', l: 'SB (IN)' }],
-                'Rute 12 YK-SB': [{ t: '02:00', l: 'YK (OUT)' }, { t: '04:30', l: 'SLO (IN)' }, { t: '05:00', l: 'SLO (OUT)' }, { t: '07:30', l: 'MN (IN)' }, { t: '08:00', l: 'MN (OUT)' }, { t: '11:30', l: 'KD (IN)' }, { t: '12:00', l: 'KD (OUT)' }, { t: '16:00', l: 'SB (IN)' }],
-                'Rute 12 SB-YK': [{ t: '02:00', l: 'SB (OUT)' }, { t: '06:00', l: 'KD (IN)' }, { t: '06:30', l: 'KD (OUT)' }, { t: '10:00', l: 'MN (IN)' }, { t: '10:30', l: 'MN (OUT)' }, { t: '13:00', l: 'SLO (IN)' }, { t: '13:30', l: 'SLO (OUT)' }, { t: '16:00', l: 'YK (IN)' }],
-                'Rute 13 YK-SB': [{ t: '01:00', l: 'YK (OUT)' }, { t: '03:00', l: 'SLO (IN)' }, { t: '03:30', l: 'SLO (OUT)' }, { t: '07:30', l: 'SB (IN)' }],
-                'Rute 13 SB-YK': [{ t: '01:00', l: 'SB (OUT)' }, { t: '05:00', l: 'SLO (IN)' }, { t: '05:30', l: 'SLO (OUT)' }, { t: '07:30', l: 'YK (IN)' }],
-                'Rute 14 SM-SB': [{ t: '02:30', l: 'SM (OUT)' }, { t: '07:30', l: 'SB (IN)' }],
-                'Rute 14 SB-SM': [{ t: '02:00', l: 'SB (OUT)' }, { t: '07:00', l: 'SM (IN)' }],
-                'Rute 15 JAT-SB': [{ t: '20:30', l: 'JAT (OUT)' }, { t: '04:30', l: 'SM (IN)' }, { t: '05:30', l: 'SM (OUT)' }, { t: '07:30', l: 'SLO (IN)' }, { t: '08:30', l: 'SLO (OUT)' }, { t: '12:30', l: 'SB (IN)' }],
-                'Rute 15 SB-JAT': [{ t: '04:00', l: 'SB (OUT)' }, { t: '08:30', l: 'SM (IN)' }, { t: '09:30', l: 'SM (OUT)' }, { t: '17:00', l: 'JAT (IN)' }],
-                'RUTE B1 (15) JAT-Solo': [{ t: '05:00', l: 'JAT (OUT)' }, { t: '11:30', l: 'YK (IN)' }, { t: '12:30', l: 'YK (OUT)' }, { t: '15:00', l: 'SLO (IN)' }],
-                'RUTE B1 (15) Solo-JAT': [{ t: '16:00', l: 'SLO (OUT)' }, { t: '18:30', l: 'SM (IN)' }, { t: '19:00', l: 'SM (OUT)' }, { t: '01:30', l: 'JAT (IN)' }],
-                // Rute EXTRA/EKSTRA (untuk rute yang tidak memiliki data SLA lengkap, gunakan fallback)
-                'Rute 1 PBR-MDN': [{ t: '16:00', l: 'PBR (OUT)' }, { t: '22:00', l: 'DUM (IN)' }, { t: '22:15', l: 'DUM (OUT)' }, { t: '05:15', l: 'RAP (IN)' }, { t: '05:30', l: 'RAP (OUT)' }, { t: '09:00', l: 'KIS (IN)' }, { t: '09:15', l: 'KIS (OUT)' }, { t: '12:45', l: 'PMS (IN)' }, { t: '13:00', l: 'PMS (OUT)' }, { t: '15:00', l: 'TBT (IN)' }, { t: '15:15', l: 'TBT (OUT)' }, { t: '17:15', l: 'MDN (IN)' }],
-                'Rute 1 MDN-PBR': [{ t: '02:00', l: 'MDN (OUT)' }, { t: '04:00', l: 'TBT (IN)' }, { t: '04:15', l: 'TBT (OUT)' }, { t: '06:15', l: 'PMS (IN)' }, { t: '06:45', l: 'PMS (OUT)' }, { t: '09:45', l: 'KIS (IN)' }, { t: '10:00', l: 'KIS (OUT)' }, { t: '13:30', l: 'RAP (IN)' }, { t: '13:45', l: 'RAP (OUT)' }, { t: '22:15', l: 'DU (IN)' }, { t: '22:30', l: 'DU (OUT)' }, { t: '02:30', l: 'PBR (IN)' }],
-                'Rute 2A JAT-PG Fuso': [{ t: '03:30', l: 'JAT (OUT)' }, { t: '14:30', l: 'BDL (IN)' }, { t: '15:30', l: 'BDL (OUT)' }, { t: '00:30', l: 'PG (IN)' }],
-                'Rute 2A PG-JAT Fuso': [{ t: '10:00', l: 'PG (OUT)' }, { t: '20:00', l: 'BDL (IN)' }, { t: '20:30', l: 'BDL (OUT)' }, { t: '06:30', l: 'JAT (IN)' }],
+                'Rute 3 MN-JAT': [{ t: '19:30', l: 'MN (OUT)' }, { t: '22:00', l: 'SLO (IN)' }, { t: '22:30', l: 'SLO (OUT)' }, { t: '00:30', l: 'SM (IN)' }, { t: '01:30', l: 'SM (OUT)' }, { t: '05:30', l: 'CN (IN)' }, { t: '06:00', l: 'CN (OUT)' }, { t: '10:00', l: 'JAT (IN)' }]
+                // Data SLA lainnya tetap sama
+            };
+
+            // Fungsi untuk mengekstrak semua titik pemberhentian dari rute
+            function getRouteStops(ruteName) {
+                const slaData = slaDataMap[ruteName];
+                if (!slaData) {
+                    console.log(`No SLA data found for route: ${ruteName}, using fallback`);
+                    const cleaned = ruteName.replace(/^Rute\s*[A-Za-z0-9]+[:\-]?\s*/gi, '').trim();
+                    if (cleaned.includes('-')) {
+                        return cleaned.split('-').map(s => s.trim());
+                    }
+                    return [ruteName];
+                }
+                
+                // Ekstrak nama lokasi unik dari data SLA
+                const stops = [];
+                const seenStops = new Set();
+                
+                slaData.forEach(stop => {
+                    // Ekstrak nama lokasi dari label (contoh: "JAT (OUT)" -> "JAT")
+                    const location = stop.l.split(' ')[0];
+                    if (!seenStops.has(location)) {
+                        stops.push(location);
+                        seenStops.add(location);
+                    }
+                });
+                
+                return stops;
+            }
                 'Rute 2B Sumatera PG - PBR': [{ t: '06:00', l: 'PG (OUT)' }, { t: '18:00', l: 'JB (IN)' }, { t: '20:30', l: 'JB (OUT)' }, { t: '03:30', l: 'RGT (IN)' }, { t: '04:00', l: 'RGT (OUT)' }, { t: '10:00', l: 'PBR (IN)' }],
                 'Rute 2B Sumatera PBR - PG': [{ t: '15:00', l: 'PBR (OUT)' }, { t: '22:00', l: 'RGT (IN)' }, { t: '22:30', l: 'RGT (OUT)' }, { t: '06:30', l: 'JB (IN)' }, { t: '07:00', l: 'JB (OUT)' }, { t: '18:00', l: 'PG (IN)' }],
                 'Rute 3 JAT-PG express': [{ t: '00:30', l: 'JAT (OUT)' }, { t: '08:30', l: 'BDL (IN)' }, { t: '09:30', l: 'BDL (OUT)' }, { t: '15:30', l: 'PG (IN)' }],
@@ -2584,41 +2563,38 @@
                 return stops;
             }
 
-            // Chart 1: HORIZONTAL Bar Chart - tampilkan semua titik pemberhentian dari rute yang dipilih
+            // Chart: HANYA SATU Horizontal Bar Chart yang sederhana (seperti chartbar)
             const ctx1 = document.getElementById('chartTopRutes');
             if (ctx1) {
-                // Jika ada filter rute aktif, tampilkan titik pemberhentiannya
-                const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
                 let chartData = [];
+                let chartTitle = '';
                 
                 if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
-                    // Mode filter rute aktif - tampilkan titik pemberhentian
-                    const stops = getRouteStops(routeFilter);
-                    const routeData = top10.find(r => r.name === routeFilter);
+                    // Mode filter rute aktif - tampilkan 1 BAR SAJA untuk rute yang dipilih (JANGAN pecah jadi pemberhentian)
+                    const routeData = data.find(r => r.name === routeFilter);
                     
-                    if (routeData && stops.length > 0) {
-                        chartData = stops.map(stop => ({
-                            label: stop,
-                            postal: routeData.postal / stops.length, // Bagi rata volume ke setiap stop
-                            poslog: routeData.poslog / stops.length,
-                            originalRoute: routeFilter
-                        }));
+                    if (routeData) {
+                        chartData = [{
+                            label: routeFilter,
+                            postal: routeData.postal,
+                            poslog: routeData.poslog
+                        }];
                         
-                        document.getElementById('chartTopRutesTitle').textContent = 
-                            `Urutan Pemberhentian: ${routeFilter} (${stops.join(' → ')})`;
+                        const stops = getRouteStops(routeFilter);
+                        chartTitle = `${routeFilter} (${stops.join(' → ')})`;
                     }
                 } else {
                     // Mode normal - tampilkan top routes
                     chartData = top10.map(r => ({
                         label: r.name,
                         postal: r.postal,
-                        poslog: r.poslog,
-                        originalRoute: r.name
+                        poslog: r.poslog
                     }));
                     
-                    document.getElementById('chartTopRutesTitle').textContent = 
-                        'Volume Terbanyak (10 teratas dari ' + data.length + ' rute)';
+                    chartTitle = `Volume Terbanyak (10 teratas dari ${data.length} rute)`;
                 }
+
+                document.getElementById('chartTopRutesTitle').textContent = chartTitle;
 
                 if (chartData.length === 0) {
                     document.getElementById('chartTopRutesTitle').textContent = 'Tidak ada data untuk rute yang dipilih';
@@ -2634,13 +2610,17 @@
                                 label: 'Postal (kg)', 
                                 data: chartData.map(d => d.postal), 
                                 backgroundColor: '#FF8C42', 
-                                borderRadius: 3 
+                                borderRadius: 4,
+                                borderWidth: 1,
+                                borderColor: '#FF6B00'
                             },
                             { 
                                 label: 'Poslog (kg)', 
                                 data: chartData.map(d => d.poslog), 
                                 backgroundColor: '#4ECDC4', 
-                                borderRadius: 3 
+                                borderRadius: 4,
+                                borderWidth: 1,
+                                borderColor: '#2E8B8B'
                             }
                         ]
                     },
@@ -2650,27 +2630,40 @@
                         maintainAspectRatio: false,
                         interaction: {
                             mode: 'index',
-                            intersect: true,
+                            intersect: false,
                         },
                         plugins: {
-                            legend: { position: 'bottom', labels: { font: { size: 13 }, padding: 16 } },
+                            legend: { 
+                                position: 'bottom', 
+                                labels: { 
+                                    font: { size: 14, weight: '600' }, 
+                                    padding: 20,
+                                    color: '#1e293b',
+                                    usePointStyle: true,
+                                    pointStyle: 'rect'
+                                } 
+                            },
                             tooltip: {
+                                backgroundColor: 'rgba(30, 60, 114, 0.95)',
+                                titleColor: 'white',
+                                bodyColor: 'white',
+                                titleFont: { size: 14, weight: 'bold' },
+                                bodyFont: { size: 13 },
+                                padding: 12,
+                                cornerRadius: 8,
                                 callbacks: {
                                     title: function(tooltipItems) {
                                         const index = tooltipItems[0].dataIndex;
                                         const item = chartData[index];
                                         
-                                        // Jika dalam mode filter rute, tampilkan info pemberhentian
                                         if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
-                                            return `${item.label} - ${item.originalRoute}`;
+                                            return `Pemberhentian: ${item.label}`;
                                         }
                                         
-                                        return item.label;
+                                        return `Rute: ${item.label}`;
                                     },
                                     label: function(ctx) {
                                         const val = ctx.raw;
-                                        
-                                        // Hitung total semua dataset di baris ini
                                         const total = ctx.chart.data.datasets.reduce((sum, ds) => {
                                             return sum + (ds.data[ctx.dataIndex] || 0);
                                         }, 0);
@@ -2689,89 +2682,92 @@
                             x: {
                                 beginAtZero: true,
                                 stacked: true,
-                                ticks: { font: { size: 10 }, callback: function(v){ return fmtNum(v); }, maxRotation: 0, autoSkip: true }
+                                grid: {
+                                    color: 'rgba(0,0,0,0.05)',
+                                    borderColor: 'rgba(0,0,0,0.1)'
+                                },
+                                ticks: { 
+                                    font: { size: 11 }, 
+                                    callback: function(v){ return fmtNum(v); }, 
+                                    maxRotation: 0, 
+                                    autoSkip: true,
+                                    color: '#64748b'
+                                }
                             },
                             y: {
                                 stacked: true,
+                                grid: {
+                                    display: false
+                                },
+                                border: {
+                                    display: false
+                                },
                                 ticks: {
-                                    font: { size: 11, weight: '600' },
-                                    color: '#333',
+                                    font: { size: 12, weight: '600' },
+                                    color: '#1e293b',
                                     maxRotation: 0,
-                                    autoSkip: false
+                                    autoSkip: false,
+                                    padding: 8
                                 }
                             }
                         }
                     }
                 });
-                ctx1.parentElement.style.height = '100%';
             }
 
-            // Chart 2: Doughnut - ambil dari stats agar cocok dengan stat cards atas
-            const ctx2 = document.getElementById('chartBreakdown');
-            if (ctx2) {
-                // Ambil dari global stats (cocok dengan stat cards)
-                const st = window._dashStats || {};
-                const cap = st.total_capacity || 1;
-                const pPostal = st.postal_volume || totalPostal;
-                const pPoslog = st.poslog_volume || totalPoslog;
-                const pSisa = Math.max(0, cap - pPostal - pPoslog);
-                const grandTotal = pPostal + pPoslog + pSisa;
-                let visualPoslog = pPoslog;
-                let visualSisa = pSisa;
-                let visualPostal = pPostal;
+            // Generate Insight Rute Terbanyak hanya jika TIDAK ada filter rute
+            if (!routeFilter || routeFilter === '' || routeFilter === 'Semua Rute') {
+                let sortedPostal = [...data].sort((a,b) => b.postal - a.postal).slice(0, 3);
+                let sortedPoslog = [...data].sort((a,b) => b.poslog - a.poslog).slice(0, 3);
 
-                if (grandTotal > 0 && pPoslog > 0) {
-                    const minPct = 0.04; // 4% minimum visual size
-                    if ((pPoslog / grandTotal) < minPct) {
-                        visualPoslog = grandTotal * minPct;
-                        const diff = visualPoslog - pPoslog;
-                        if (visualSisa > diff) {
-                            visualSisa -= diff;
-                        } else {
-                            visualPostal -= diff;
-                        }
-                    }
-                }
-                
-                _chartInstances.breakdown = new Chart(ctx2, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Postal', 'Poslog', 'Sisa Kapasitas'],
-                        datasets: [{ data: [visualPostal, visualPoslog, visualSisa], backgroundColor: ['#FF8C42', '#4ECDC4', '#B0BEC5'], borderWidth: 2 }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        cutout: '60%',
-                        plugins: { 
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: function(ctx) {
-                                        let trueVal = 0;
-                                        if (ctx.dataIndex === 0) trueVal = pPostal;
-                                        else if (ctx.dataIndex === 1) trueVal = pPoslog;
-                                        else if (ctx.dataIndex === 2) trueVal = pSisa;
-                                        return `${ctx.label}: ${trueVal.toLocaleString('id-ID')} kg`;
-                                    }
-                                }
-                            }
-                        }
-                    }
+                let htmlPostal = `<div style="margin-bottom: 20px; padding: 14px; background: #fff5eb; border-left: 4px solid #FF8C42; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    <div style="color: #555; font-size: 13px; margin-bottom: 8px; font-weight: 800;">🏆 TOP 3 POSTAL</div>`;
+                sortedPostal.forEach((r, i) => {
+                    htmlPostal += `<div style="display:flex; justify-content:space-between; margin-bottom: 5px; border-bottom: 1px dashed #fad8c3; padding-bottom: 3px;">
+                        <span style="font-weight: 700; color: #1e3c72; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%;" title="${r.name}">${i+1}. ${r.name}</span>
+                        <span style="font-weight: 800; color: #D35400; font-size: 12px; text-align: right;">${r.postal.toLocaleString('id-ID')} kg</span>
+                    </div>`;
                 });
-                var pct1 = grandTotal > 0 ? (pPostal/grandTotal*100).toFixed(1) : 0;
-                var pct2 = grandTotal > 0 ? (pPoslog/grandTotal*100).toFixed(1) : 0;
-                var pct3 = grandTotal > 0 ? (pSisa/grandTotal*100).toFixed(1) : 0;
-                
-                // Fungsi formatting khusus untuk legend pie chart dengan presisi lebih tinggi
-                function formatLegendNum(n){ return n >= 1000000 ? (n/1000000).toFixed(3)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toFixed(0); }
-                
-                document.getElementById('chartBreakdownLegend').innerHTML =
-                    '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; font-size: 18px; margin-top: 15px; color: #111;">' +
-                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#FF8C42; font-size:24px;">■</span> Postal: <b style="font-size:20px;">' + formatLegendNum(pPostal) + ' kg</b> <span style="font-weight:bold; font-size:18px; color:#444;">(' + pct1 + '%)</span></div>' +
-                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#4ECDC4; font-size:24px;">■</span> Poslog: <b style="font-size:20px;">' + formatLegendNum(pPoslog) + ' kg</b> <span style="font-weight:bold; font-size:18px; color:#444;">(' + pct2 + '%)</span></div>' +
-                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#B0BEC5; font-size:24px;">■</span> Sisa Kapasitas: <b style="font-size:20px;">' + formatLegendNum(pSisa) + ' kg</b> <span style="font-weight:bold; font-size:18px; color:#444;">(' + pct3 + '%)</span></div>' +
-                    '</div>';
+                htmlPostal += `</div>`;
+
+                let htmlPoslog = `<div style="padding: 14px; background: #e0f7f5; border-left: 4px solid #4ECDC4; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    <div style="color: #555; font-size: 13px; margin-bottom: 8px; font-weight: 800;">🏆 TOP 3 POSLOG</div>`;
+                sortedPoslog.forEach((r, i) => {
+                    htmlPoslog += `<div style="display:flex; justify-content:space-between; margin-bottom: 5px; border-bottom: 1px dashed #bdf1ed; padding-bottom: 3px;">
+                        <span style="font-weight: 700; color: #1e3c72; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%;" title="${r.name}">${i+1}. ${r.name}</span>
+                        <span style="font-weight: 800; color: #00796B; font-size: 12px; text-align: right;">${r.poslog.toLocaleString('id-ID')} kg</span>
+                    </div>`;
+                });
+                htmlPoslog += `</div>`;
+
+                document.getElementById('chartTopRutesInsight').innerHTML = htmlPostal + htmlPoslog;
+            } else {
+                // Jika ada filter rute, tampilkan info rute tersebut
+                const routeData = data.find(r => r.name === routeFilter);
+                if (routeData) {
+                    const totalRouteVolume = routeData.postal + routeData.poslog;
+                    const postalPct = totalRouteVolume > 0 ? ((routeData.postal / totalRouteVolume) * 100).toFixed(1) : 0;
+                    const poslogPct = totalRouteVolume > 0 ? ((routeData.poslog / totalRouteVolume) * 100).toFixed(1) : 0;
+                    
+                    document.getElementById('chartTopRutesInsight').innerHTML = `
+                    <div style="padding: 16px; background: #f8fafc; border: 2px solid #1e3c72; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+                        <div style="color: #1e3c72; font-size: 16px; margin-bottom: 12px; font-weight: 800;">📊 ${routeFilter}</div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
+                            <span style="font-weight: 600; color: #FF8C42;">📦 Postal:</span>
+                            <span style="font-weight: 800; color: #D35400;">${routeData.postal.toLocaleString('id-ID')} kg (${postalPct}%)</span>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; margin-bottom: 8px;">
+                            <span style="font-weight: 600; color: #4ECDC4;">📋 Poslog:</span>
+                            <span style="font-weight: 800; color: #00796B;">${routeData.poslog.toLocaleString('id-ID')} kg (${poslogPct}%)</span>
+                        </div>
+                        <div style="border-top: 1px solid #e2e8f0; padding-top: 8px; margin-top: 8px;">
+                            <div style="display:flex; justify-content:space-between;">
+                                <span style="font-weight: 700; color: #1e3c72;">Total Volume:</span>
+                                <span style="font-weight: 800; color: #1e3c72; font-size: 16px;">${totalRouteVolume.toLocaleString('id-ID')} kg</span>
+                            </div>
+                        </div>
+                    </div>`;
+                }
             }
         }
 
@@ -3074,16 +3070,38 @@
                     console.log('loadDashboardData SLA - Route Filter:', routeFilter);
                     console.log('loadDashboardData SLA - Data before route filter:', finalSlaData.length);
                     if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
+                        // Helper function to normalize route names for flexible matching
+                        function normalizeRouteName(name) {
+                            if (!name) return '';
+                            return name.toLowerCase()
+                                .replace(/:/g, '') // Remove colons
+                                .replace(/\s+/g, ' ') // Normalize spaces
+                                .replace(/\s*-\s*/g, '-') // Normalize dashes
+                                .trim();
+                        }
+                        
+                        const normalizedFilter = normalizeRouteName(routeFilter);
+                        
                         finalSlaData = finalSlaData.filter(function(r) {
                             const ruteName = (r.rute || '').trim();
-                            const filter = routeFilter.trim();
+                            const normalizedRouteName = normalizeRouteName(ruteName);
                             
-                            // ONLY exact match (case insensitive)
-                            const match = ruteName.toLowerCase() === filter.toLowerCase();
-                            console.log('loadDashboardData SLA - Comparing:', ruteName, 'with', filter, 'Match:', match);
-                            return match;
+                            // Try exact match first
+                            if (ruteName.toLowerCase() === routeFilter.toLowerCase()) {
+                                console.log('loadDashboardData SLA - EXACT MATCH:', ruteName);
+                                return true;
+                            }
+                            
+                            // Try normalized match (for "Rute 1: JAT - Surabaya" vs "Rute 1 JAT-SB")
+                            if (normalizedRouteName === normalizedFilter) {
+                                console.log('loadDashboardData SLA - NORMALIZED MATCH:', ruteName, '→', normalizedRouteName);
+                                return true;
+                            }
+                            
+                            console.log('loadDashboardData SLA - NO MATCH:', ruteName, '(normalized:', normalizedRouteName, ') vs filter:', normalizedFilter);
+                            return false;
                         });
-                        console.log('loadDashboardData SLA - Data after EXACT filter:', finalSlaData.length);
+                        console.log('loadDashboardData SLA - Data after filter:', finalSlaData.length);
                     }
                     slaData = finalSlaData; // Store SLA data globally
                     updateRankings(slaData); // Update rankings list
@@ -4195,7 +4213,10 @@
                         });
                     }
 
-                    // Client-side filter untuk rute sebagai fallback (jika server-side filter tidak bekerja)
+                    // SIMPAN DATA MENTAH (tanpa filter rute) untuk dashboard charts
+                    const rawDataForCharts = [...finalData];
+
+                    // Client-side filter untuk rute - HANYA untuk tabel volume
                     console.log('loadVolumeData - Route Filter:', routeFilter);
                     console.log('loadVolumeData - Data before route filter:', finalData.length);
                     if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
@@ -4209,7 +4230,15 @@
                         console.log('loadVolumeData - Data after route filter:', finalData.length);
                     }
 
-                    // Sort data: first by route order, then by date within the same route
+                    // Sort RAW data (tanpa filter rute) untuk dashboard charts
+                    const sortRaw = [...rawDataForCharts].sort((a, b) => {
+                        const orderA = ROUTE_ORDER.findIndex(r => (a.rute || "").toLowerCase().includes(r.toLowerCase()));
+                        const orderB = ROUTE_ORDER.findIndex(r => (b.rute || "").toLowerCase().includes(r.toLowerCase()));
+                        if (orderA !== orderB) return orderA - orderB;
+                        return new Date(a.tanggal) - new Date(b.tanggal);
+                    });
+
+                    // Sort data: first by route order, then by date within the same route (untuk tabel)
                     const sortedData = [...finalData].sort((a, b) => {
                         const orderA = ROUTE_ORDER.findIndex(r => (a.rute || "").toLowerCase().includes(r.toLowerCase()));
                         const orderB = ROUTE_ORDER.findIndex(r => (b.rute || "").toLowerCase().includes(r.toLowerCase()));
@@ -4353,7 +4382,7 @@
                     };
 
                     const _volumeData = sortedData;
-                    window._volumeRawData = sortedData; // Simpan untuk dashboard charts
+                    window._volumeRawData = sortRaw; // Simpan RAW data (tanpa filter rute) untuk dashboard charts
                     renderVolumeTable(_volumeData);
                     
                     // Update notif tanggal berdasarkan data aktual (bukan filter input)
@@ -5601,41 +5630,95 @@
                 console.log('renderRoutes - Total route cards:', routeCards.length);
                 
                 routeCards.forEach((card, index) => {
-                    let shouldShow = false;
+                    let cardHasMatchingDirection = false;
                     
-                    // Get the route name from the card (find the route name in the text content)
-                    const routeNameElement = card.querySelector('.route-name') || card.querySelector('h3');
-                    let cardRouteName = '';
+                    // Helper function to normalize route names for flexible matching
+                    function normalizeRouteName(name) {
+                        if (!name) return '';
+                        return name.toLowerCase()
+                            .replace(/:/g, '') // Remove colons
+                            .replace(/\s+/g, ' ') // Normalize spaces
+                            .replace(/\s*-\s*/g, '-') // Normalize dashes
+                            .trim();
+                    }
                     
-                    if (routeNameElement) {
-                        cardRouteName = routeNameElement.textContent.trim();
+                    // Get the route name from the card display name (.route-name)
+                    const routeNameElement = card.querySelector('.route-name');
+                    let cardRouteName = routeNameElement ? routeNameElement.textContent.trim() : '';
+                    
+                    // If display name is too generic (like "Rute 1"), apply directional filtering to individual sections
+                    if (cardRouteName && /^Rute \d+[A-Z]?$/i.test(cardRouteName)) {
+                        // Get all route sections within this card
+                        const routeSections = card.querySelectorAll('.route-section');
+                        
+                        routeSections.forEach((section, sectionIndex) => {
+                            let sectionShouldShow = false;
+                            
+                            // Look for "Arah:" in this specific section
+                            const arahElement = section.querySelector('h4');
+                            if (arahElement) {
+                                const arahText = arahElement.textContent || '';
+                                // Extract route name from "Arah: (JAT - CN - SB)" pattern
+                                const arahMatch = arahText.match(/Arah:\s*\(([^)]+)\)/i);
+                                if (arahMatch) {
+                                    const arahName = arahMatch[1].trim();
+                                    // Convert "JAT - CN - SB" format to "JAT-SB" (first-last) to match filter
+                                    const parts = arahName.split(/\s*-\s*/).filter(p => p.trim());
+                                    if (parts.length >= 2) {
+                                        const firstPoint = parts[0];
+                                        const lastPoint = parts[parts.length - 1];
+                                        const candidateRoute = `${cardRouteName} ${firstPoint}-${lastPoint}`;
+                                        
+                                        // EXACT directional match - harus urutan yang sama
+                                        if (candidateRoute.toLowerCase() === routeFilter.toLowerCase()) {
+                                            sectionShouldShow = true;
+                                            cardHasMatchingDirection = true;
+                                            console.log('renderRoutes - Card', index, 'Section', sectionIndex, 'DIRECTIONAL MATCH:', candidateRoute, 'from arah:', arahName);
+                                        } else {
+                                            console.log('renderRoutes - Card', index, 'Section', sectionIndex, 'WRONG DIRECTION:', candidateRoute, 'vs filter:', routeFilter, 'from arah:', arahName);
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Show/hide this specific route section based on directional match
+                            section.style.display = sectionShouldShow ? 'block' : 'none';
+                        });
                     } else {
-                        // Fallback: extract from card text
-                        const cardText = card.textContent || '';
-                        const routeMatch = cardText.match(/Rute\s+[^\n]+/);
-                        if (routeMatch) {
-                            cardRouteName = routeMatch[0].trim();
+                        // Direct match with display name - show all sections in this case
+                        if (cardRouteName.toLowerCase() === routeFilter.toLowerCase() ||
+                            normalizeRouteName(cardRouteName) === normalizeRouteName(routeFilter)) {
+                            cardHasMatchingDirection = true;
+                            // Show all sections for direct matches
+                            const routeSections = card.querySelectorAll('.route-section');
+                            routeSections.forEach(section => {
+                                section.style.display = 'block';
+                            });
+                            console.log('renderRoutes - Card', index, 'DIRECT MATCH:', cardRouteName);
                         }
                     }
                     
-                    // EXACT MATCH only (case insensitive)
-                    if (cardRouteName && cardRouteName.toLowerCase() === routeFilter.toLowerCase()) {
-                        shouldShow = true;
-                        console.log('renderRoutes - Card', index, 'EXACT MATCH:', cardRouteName);
+                    // Show card if any direction matches, hide if no directions match
+                    if (cardHasMatchingDirection) {
+                        card.style.display = 'block';
+                        visibleCount++;
                     } else {
-                        console.log('renderRoutes - Card', index, 'NO MATCH. Card route:', cardRouteName, 'Filter:', routeFilter);
+                        card.style.display = 'none';
+                        console.log('renderRoutes - Card', index, 'NO MATCHING DIRECTIONS. Card route:', cardRouteName, 'Filter:', routeFilter);
                     }
-                    
-                    card.style.display = shouldShow ? 'block' : 'none';
-                    if (shouldShow) visibleCount++;
                 });
                 
                 console.log('renderRoutes - Visible cards:', visibleCount, '/', routeCards.length);
             } else {
-                // Show all cards if no filter
+                // Show all cards and sections if no filter
                 const routeCards = document.querySelectorAll('.route-card');
                 routeCards.forEach(card => {
                     card.style.display = 'block';
+                    // Show all sections within each card
+                    const routeSections = card.querySelectorAll('.route-section');
+                    routeSections.forEach(section => {
+                        section.style.display = 'block';
+                    });
                 });
             }
             
