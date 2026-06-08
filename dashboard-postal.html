@@ -2342,7 +2342,20 @@
 
         function _renderDashboardCharts() {
             // Ambil langsung dari raw data API - field name: postal dan nonPostal
-            const rawData = window._volumeRawData || [];
+            let rawData = window._volumeRawData || [];
+            
+            // Terapkan filter rute jika ada
+            const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
+            if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
+                rawData = rawData.filter(function(r) {
+                    const ruteName = (r.rute || '').toLowerCase();
+                    const filter = routeFilter.toLowerCase();
+                    return ruteName === filter || 
+                           ruteName.includes(filter) || 
+                           filter.includes(ruteName);
+                });
+                console.log('_renderDashboardCharts - Data after route filter:', rawData.length);
+            }
             
             function parseAngka(v) {
                 if (v === null || v === undefined || v === '') return 0;
@@ -5282,6 +5295,35 @@
                 html += `</div>`;
             }
             container.innerHTML = html;
+            
+            // Apply route filter if active
+            const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
+            if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
+                const routeCards = document.querySelectorAll('.route-card');
+                routeCards.forEach(card => {
+                    const routeName = card.querySelector('.route-name');
+                    if (routeName) {
+                        const cardRouteName = routeName.textContent.trim().toLowerCase();
+                        const filterValue = routeFilter.toLowerCase();
+                        
+                        // Check if card contains the filtered route
+                        // Card may contain multiple routes (paired routes), so check inner HTML
+                        const cardHTML = card.innerHTML.toLowerCase();
+                        const shouldShow = cardHTML.includes(filterValue) || 
+                                         filterValue.includes(cardRouteName) ||
+                                         cardRouteName.includes(filterValue);
+                        
+                        card.style.display = shouldShow ? 'block' : 'none';
+                    }
+                });
+                console.log('renderRoutes - Applied route filter:', routeFilter);
+            } else {
+                // Show all cards if no filter
+                const routeCards = document.querySelectorAll('.route-card');
+                routeCards.forEach(card => {
+                    card.style.display = 'block';
+                });
+            }
             
             // Apply current visibility state
             applySLAVisibility();
