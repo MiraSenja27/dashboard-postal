@@ -2773,15 +2773,16 @@
                 const startDate = document.getElementById('startDate').value;
                 const endDate = document.getElementById('endDate').value;
 
-
                 // Build query params untuk stats (HAPUS routeFilter karena server-side filter tidak bekerja)
                 const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
+                console.log('loadDashboardData - Building statsQueryParams with weekKey:', weekKey, 'startDate:', startDate, 'endDate:', endDate);
                 let statsQueryParams = `category=${currentMenu}`;
                 if (weekKey && weekKey !== 'ALL') {
                     statsQueryParams += `&weekKey=${weekKey}`;
                 } else {
                     statsQueryParams += `&startDate=${startDate}&endDate=${endDate}`;
                 }
+                console.log('loadDashboardData - statsQueryParams:', statsQueryParams);
 
                 // Build query params untuk SLA (HAPUS routeFilter karena server-side filter tidak bekerja)
                 let slaQueryParams = `category=${currentMenu}`;
@@ -2790,6 +2791,7 @@
                 } else {
                     slaQueryParams += `&startDate=${startDate}&endDate=${endDate}`;
                 }
+                console.log('loadDashboardData - slaQueryParams:', slaQueryParams);
 
                 // Load statistics (DENGAN routeFilter)
                 const statsResponse = await fetch(`${API_URL}/stats?${statsQueryParams}`);
@@ -3642,6 +3644,7 @@
                 } else if (startDate && endDate) {
                     url += `&startDate=${startDate}&endDate=${endDate}`;
                 }
+                console.log('loadSLAData - URL:', url);
 
                 // Fetch SLA data from backend with filters
                 const response = await fetch(url);
@@ -3885,6 +3888,7 @@
                 } else if (startDate && endDate) {
                     url += `&startDate=${startDate}&endDate=${endDate}`;
                 }
+                console.log('loadVolumeData - URL:', url);
 
                 // Fetch volume data from backend with filters
                 const response = await fetch(url);
