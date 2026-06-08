@@ -1290,7 +1290,7 @@
             </div>
         </div>
         <!-- New date range notification (top‑left) -->
-        <div id="week-range" style="position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,0.9); color: #1e3c72; padding: 5px 10px; border-radius: 6px; font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">&#8203;</div>
+        <div id="week-range" style="position: absolute; top: 10px; left: 200px; background: rgba(255,255,255,0.9); color: #1e3c72; padding: 5px 10px; border-radius: 6px; font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">&#8203;</div>
 
         <div class="submenu-container" style="background: white; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; padding: 0 10px; gap: 5px;">
             <div id="submenu-primer" class="submenu show" style="padding: 5px 0; border: none; flex: none;">
@@ -2692,13 +2692,7 @@
 
             // If dashboard charts are visible, redraw them
             if (document.getElementById('dashboardChartsSection').style.display !== 'none') {
-                // Simpan nilai routeFilter sementara
-                const originalRouteFilter = document.getElementById('routeFilter').value;
-                // Kosongkan routeFilter agar grafik menggunakan data lengkap
-                document.getElementById('routeFilter').value = '';
                 await loadVolumeData(weekKey);
-                // Kembalikan nilai routeFilter
-                document.getElementById('routeFilter').value = originalRouteFilter;
                 setTimeout(() => { _renderDashboardCharts(); }, 300);
             }
         }
@@ -2777,8 +2771,9 @@
                 const endDate = document.getElementById('endDate').value;
 
 
-                // Build query params untuk stats (TANPA routeFilter agar piechart tidak terpengaruh)
-                let statsQueryParams = `category=${currentMenu}`;
+                // Build query params untuk stats (DENGAN routeFilter agar piechart terpengaruh filter rute)
+                const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
+                let statsQueryParams = `category=${currentMenu}&routeFilter=${encodeURIComponent(routeFilter)}`;
                 if (weekKey && weekKey !== 'ALL') {
                     statsQueryParams += `&weekKey=${weekKey}`;
                 } else {
@@ -2786,7 +2781,6 @@
                 }
 
                 // Build query params untuk SLA (DENGAN routeFilter agar ranking terpengaruh filter rute)
-                const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
                 let slaQueryParams = `category=${currentMenu}&routeFilter=${encodeURIComponent(routeFilter)}`;
                 if (weekKey && weekKey !== 'ALL') {
                     slaQueryParams += `&weekKey=${weekKey}`;
@@ -2817,7 +2811,7 @@
                 // Update period label - ambil min/max dari data volume aktual
                 const currentWeekKey = document.getElementById('weekFilter').value;
                 try {
-                    let volUrl = `${API_URL}/volume?category=${currentMenu}`;
+                    let volUrl = `${API_URL}/volume?category=${currentMenu}&routeFilter=${encodeURIComponent(routeFilter)}`;
                     if (currentWeekKey && currentWeekKey !== 'ALL') {
                         volUrl += `&weekKey=${currentWeekKey}`;
                     } else if (startDate && endDate) {
