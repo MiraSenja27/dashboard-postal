@@ -4203,21 +4203,8 @@
                             const ruteName = (r.rute || '').trim();
                             const filter = routeFilter.trim();
                             
-                            // Exact match (case insensitive)
-                            if (ruteName.toLowerCase() === filter.toLowerCase()) {
-                                return true;
-                            }
-                            
-                            // Extract route number from filter
-                            const filterMatch = filter.match(/Rute\s*(\d+[A-Z]?)/i);
-                            const ruteMatch = ruteName.match(/Rute\s*(\d+[A-Z]?)/i);
-                            
-                            if (filterMatch && ruteMatch) {
-                                // Compare route numbers only
-                                return filterMatch[1].toLowerCase() === ruteMatch[1].toLowerCase();
-                            }
-                            
-                            return false;
+                            // ONLY exact match (case insensitive)
+                            return ruteName.toLowerCase() === filter.toLowerCase();
                         });
                         console.log('loadVolumeData - Data after route filter:', finalData.length);
                     }
