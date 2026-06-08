@@ -142,13 +142,17 @@
             border-radius: 10px;
             cursor: pointer;
             font-size: 15px;
-            font-weight: 800;
-            color: #1e3c72;
+            font-weight: 900;
+            color: #1a3568;
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
             position: relative;
             white-space: nowrap;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
+            text-shadow: none;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
         }
 
         .menu-btn:hover {
@@ -159,6 +163,7 @@
         .menu-btn.active {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
         }
 
         .submenu {
@@ -2490,16 +2495,153 @@
 
             document.getElementById('chartTopRutesInsight').innerHTML = htmlPostal + htmlPoslog;
 
-            // Chart 1: HORIZONTAL Bar Chart - setiap rute tampil terpisah dengan postal & poslog
+            // Data SLA yang berisi informasi lengkap titik pemberhentian setiap rute (LENGKAP)
+            const slaDataMap = {
+                'Rute 1 JAT-SB': [{ t: '23:00', l: 'JAT (OUT)' }, { t: '02:45', l: 'CN (IN)' }, { t: '03:15', l: 'CN (OUT)' }, { t: '12:00', l: 'SB (IN)' }],
+                'Rute 1 SB-JAT': [{ t: '21:00', l: 'SB (OUT)' }, { t: '05:30', l: 'CN (IN)' }, { t: '06:00', l: 'CN (OUT)' }, { t: '09:45', l: 'JAT (IN)' }],
+                'Rute 2 JAT-YK': [{ t: '23:00', l: 'JAT (OUT)' }, { t: '02:45', l: 'CN (IN)' }, { t: '03:15', l: 'CN (OUT)' }, { t: '09:30', l: 'YK (IN)' }],
+                'Rute 2 YK-JAT': [{ t: '23:00', l: 'YK (OUT)' }, { t: '05:00', l: 'CN (IN)' }, { t: '05:30', l: 'CN (OUT)' }, { t: '09:15', l: 'JAT (IN)' }],
+                'Rute 3 JAT-MN': [{ t: '23:00', l: 'JAT (OUT)' }, { t: '03:00', l: 'CN (IN)' }, { t: '03:30', l: 'CN (OUT)' }, { t: '07:30', l: 'SM (IN)' }, { t: '08:30', l: 'SM (OUT)' }, { t: '10:30', l: 'SLO (IN)' }, { t: '11:00', l: 'SLO (OUT)' }, { t: '13:30', l: 'MN (IN)' }],
+                'Rute 3 MN-JAT': [{ t: '19:30', l: 'MN (OUT)' }, { t: '22:00', l: 'SLO (IN)' }, { t: '22:30', l: 'SLO (OUT)' }, { t: '00:30', l: 'SM (IN)' }, { t: '01:30', l: 'SM (OUT)' }, { t: '05:30', l: 'CN (IN)' }, { t: '06:00', l: 'CN (OUT)' }, { t: '10:00', l: 'JAT (IN)' }],
+                'Rute 4 JAT-PWT': [{ t: '02:30', l: 'JAT (OUT)' }, { t: '08:30', l: 'CN (IN)' }, { t: '09:00', l: 'CN (OUT)' }, { t: '10:30', l: 'TG (IN)' }, { t: '11:00', l: 'TG (OUT)' }, { t: '14:00', l: 'PWT (IN)' }],
+                'Rute 4 PWT-JAT': [{ t: '21:30', l: 'PWT (OUT)' }, { t: '00:30', l: 'TG (IN)' }, { t: '01:00', l: 'TG (OUT)' }, { t: '02:30', l: 'CN (IN)' }, { t: '03:30', l: 'CN (OUT)' }, { t: '09:30', l: 'JAT (IN)' }],
+                'RUTE 4A CIREBON - PURWOKERTO': [{ t: '03:00', l: 'CN (OUT)' }, { t: '07:00', l: 'PWT (IN)' }],
+                'Rute 4A Kcu Cirebon - Kcu Purwokerto': [{ t: '03:00', l: 'CN (OUT)' }, { t: '07:00', l: 'PWT (IN)' }],
+                'Rute 4A Kcu Purwokerto - Kcu Cirebon': [{ t: '22:00', l: 'PWT (OUT)' }, { t: '02:00', l: 'CN (IN)' }],
+                'Rute 5 JAT-SLO': [{ t: '03:30', l: 'JAT (OUT)' }, { t: '08:30', l: 'CN (IN)' }, { t: '09:00', l: 'CN (OUT)' }, { t: '11:00', l: 'TG (IN)' }, { t: '11:30', l: 'TG (OUT)' }, { t: '13:30', l: 'PK (IN)' }, { t: '14:00', l: 'PK (OUT)' }, { t: '16:00', l: 'SM (IN)' }, { t: '16:30', l: 'SM (OUT)' }, { t: '19:30', l: 'YK (IN)' }, { t: '20:00', l: 'YK (OUT)' }, { t: '23:00', l: 'SLO (IN)' }],
+                'Rute 5 SLO-JAT': [{ t: '00:30', l: 'SLO (OUT)' }, { t: '03:00', l: 'YK (IN)' }, { t: '04:00', l: 'YK (OUT)' }, { t: '07:00', l: 'SM (IN)' }, { t: '08:00', l: 'SM (OUT)' }, { t: '10:00', l: 'PK (IN)' }, { t: '10:30', l: 'PK (OUT)' }, { t: '12:30', l: 'TG (IN)' }, { t: '13:00', l: 'TG (OUT)' }, { t: '15:00', l: 'CN (IN)' }, { t: '15:30', l: 'CN (OUT)' }, { t: '20:45', l: 'JAT (IN)' }],
+                'Rute 6 BD-JAT': [{ t: '23:00', l: 'BD (OUT)' }, { t: '02:00', l: 'JAT (IN)' }],
+                'Rute 6 JAT-BD': [{ t: '03:00', l: 'JAT (OUT)' }, { t: '07:00', l: 'BD (IN)' }],
+                'Rute 8 JAT-SB': [{ t: '03:00', l: 'JAT (OUT)' }, { t: '08:00', l: 'CN (IN)' }, { t: '08:30', l: 'CN (OUT)' }, { t: '12:30', l: 'SM (IN)' }, { t: '13:30', l: 'SM (OUT)' }, { t: '18:00', l: 'MN (IN)' }, { t: '18:30', l: 'MN (OUT)' }, { t: '22:00', l: 'SB (IN)' }],
+                'Rute 8 SB-JAT': [{ t: '05:00', l: 'SB (OUT)' }, { t: '08:30', l: 'MN (IN)' }, { t: '09:00', l: 'MN (OUT)' }, { t: '13:30', l: 'SM (IN)' }, { t: '14:30', l: 'SM (OUT)' }, { t: '16:30', l: 'PK (IN)' }, { t: '17:00', l: 'PK (OUT)' }, { t: '19:30', l: 'CN (IN)' }, { t: '20:00', l: 'CN (OUT)' }, { t: '01:30', l: 'JAT (IN)' }],
+                'Rute 9 BD-JAT': [{ t: '01:30', l: 'BD (OUT)' }, { t: '05:00', l: 'JAT (IN)' }],
+                'Rute 9 JAT-BD': [{ t: '07:00', l: 'JAT (OUT)' }, { t: '10:30', l: 'BD (IN)' }],
+                'Rute 10 BD-CN': [{ t: '23:00', l: 'BD (OUT)' }, { t: '02:45', l: 'CN (IN)' }],
+                'Rute 10 CN-BD': [{ t: '06:30', l: 'CN (OUT)' }, { t: '10:30', l: 'BD (IN)' }],
+                'Rute 11 BD-SB': [{ t: '02:00', l: 'BD (OUT)' }, { t: '05:30', l: 'CI (IN)' }, { t: '05:45', l: 'CI (OUT)' }, { t: '08:45', l: 'PWT (IN)' }, { t: '09:00', l: 'PWT (OUT)' }, { t: '14:30', l: 'YK (IN)' }, { t: '15:00', l: 'YK (OUT)' }, { t: '17:30', l: 'SLO (IN)' }, { t: '18:00', l: 'SLO (OUT)' }, { t: '23:00', l: 'SB (IN)' }],
+                'Rute 11 SB-BD': [{ t: '04:30', l: 'SB (OUT)' }, { t: '08:30', l: 'SLO (IN)' }, { t: '09:00', l: 'SLO (OUT)' }, { t: '11:30', l: 'YK (IN)' }, { t: '12:30', l: 'YK (OUT)' }, { t: '18:00', l: 'PWT (IN)' }, { t: '19:00', l: 'PWT (OUT)' }, { t: '23:00', l: 'TSM (IN)' }, { t: '23:30', l: 'TSM (OUT)' }, { t: '03:00', l: 'BD (IN)' }],
+                'Rute 11 B SB-MTR': [{ t: '02:00', l: 'SB (OUT)' }, { t: '07:30', l: 'JR (IN)' }, { t: '08:00', l: 'JR (OUT)' }, { t: '11:30', l: 'BW (IN)' }, { t: '12:00', l: 'BW (OUT)' }, { t: '19:30', l: 'DPR (IN)' }, { t: '23:00', l: 'DPR (OUT)' }, { t: '09:00', l: 'MTR (IN)' }],
+                'Rute 11 B MTR-SB': [{ t: '10:00', l: 'MTR (OUT)' }, { t: '20:00', l: 'DPR (IN)' }, { t: '23:00', l: 'DPR (OUT)' }, { t: '03:30', l: 'BW (IN)' }, { t: '04:00', l: 'BW (OUT)' }, { t: '09:30', l: 'JR (IN)' }, { t: '10:00', l: 'JR (OUT)' }, { t: '14:00', l: 'SB (IN)' }],
+                'Rute 12 YK-SB': [{ t: '02:00', l: 'YK (OUT)' }, { t: '04:30', l: 'SLO (IN)' }, { t: '05:00', l: 'SLO (OUT)' }, { t: '07:30', l: 'MN (IN)' }, { t: '08:00', l: 'MN (OUT)' }, { t: '11:30', l: 'KD (IN)' }, { t: '12:00', l: 'KD (OUT)' }, { t: '16:00', l: 'SB (IN)' }],
+                'Rute 12 SB-YK': [{ t: '02:00', l: 'SB (OUT)' }, { t: '06:00', l: 'KD (IN)' }, { t: '06:30', l: 'KD (OUT)' }, { t: '10:00', l: 'MN (IN)' }, { t: '10:30', l: 'MN (OUT)' }, { t: '13:00', l: 'SLO (IN)' }, { t: '13:30', l: 'SLO (OUT)' }, { t: '16:00', l: 'YK (IN)' }],
+                'Rute 13 YK-SB': [{ t: '01:00', l: 'YK (OUT)' }, { t: '03:00', l: 'SLO (IN)' }, { t: '03:30', l: 'SLO (OUT)' }, { t: '07:30', l: 'SB (IN)' }],
+                'Rute 13 SB-YK': [{ t: '01:00', l: 'SB (OUT)' }, { t: '05:00', l: 'SLO (IN)' }, { t: '05:30', l: 'SLO (OUT)' }, { t: '07:30', l: 'YK (IN)' }],
+                'Rute 14 SM-SB': [{ t: '02:30', l: 'SM (OUT)' }, { t: '07:30', l: 'SB (IN)' }],
+                'Rute 14 SB-SM': [{ t: '02:00', l: 'SB (OUT)' }, { t: '07:00', l: 'SM (IN)' }],
+                'Rute 15 JAT-SB': [{ t: '20:30', l: 'JAT (OUT)' }, { t: '04:30', l: 'SM (IN)' }, { t: '05:30', l: 'SM (OUT)' }, { t: '07:30', l: 'SLO (IN)' }, { t: '08:30', l: 'SLO (OUT)' }, { t: '12:30', l: 'SB (IN)' }],
+                'Rute 15 SB-JAT': [{ t: '04:00', l: 'SB (OUT)' }, { t: '08:30', l: 'SM (IN)' }, { t: '09:30', l: 'SM (OUT)' }, { t: '17:00', l: 'JAT (IN)' }],
+                'RUTE B1 (15) JAT-Solo': [{ t: '05:00', l: 'JAT (OUT)' }, { t: '11:30', l: 'YK (IN)' }, { t: '12:30', l: 'YK (OUT)' }, { t: '15:00', l: 'SLO (IN)' }],
+                'RUTE B1 (15) Solo-JAT': [{ t: '16:00', l: 'SLO (OUT)' }, { t: '18:30', l: 'SM (IN)' }, { t: '19:00', l: 'SM (OUT)' }, { t: '01:30', l: 'JAT (IN)' }],
+                // Rute EXTRA/EKSTRA (untuk rute yang tidak memiliki data SLA lengkap, gunakan fallback)
+                'Rute 1 PBR-MDN': [{ t: '16:00', l: 'PBR (OUT)' }, { t: '22:00', l: 'DUM (IN)' }, { t: '22:15', l: 'DUM (OUT)' }, { t: '05:15', l: 'RAP (IN)' }, { t: '05:30', l: 'RAP (OUT)' }, { t: '09:00', l: 'KIS (IN)' }, { t: '09:15', l: 'KIS (OUT)' }, { t: '12:45', l: 'PMS (IN)' }, { t: '13:00', l: 'PMS (OUT)' }, { t: '15:00', l: 'TBT (IN)' }, { t: '15:15', l: 'TBT (OUT)' }, { t: '17:15', l: 'MDN (IN)' }],
+                'Rute 1 MDN-PBR': [{ t: '02:00', l: 'MDN (OUT)' }, { t: '04:00', l: 'TBT (IN)' }, { t: '04:15', l: 'TBT (OUT)' }, { t: '06:15', l: 'PMS (IN)' }, { t: '06:45', l: 'PMS (OUT)' }, { t: '09:45', l: 'KIS (IN)' }, { t: '10:00', l: 'KIS (OUT)' }, { t: '13:30', l: 'RAP (IN)' }, { t: '13:45', l: 'RAP (OUT)' }, { t: '22:15', l: 'DU (IN)' }, { t: '22:30', l: 'DU (OUT)' }, { t: '02:30', l: 'PBR (IN)' }],
+                'Rute 2A JAT-PG Fuso': [{ t: '03:30', l: 'JAT (OUT)' }, { t: '14:30', l: 'BDL (IN)' }, { t: '15:30', l: 'BDL (OUT)' }, { t: '00:30', l: 'PG (IN)' }],
+                'Rute 2A PG-JAT Fuso': [{ t: '10:00', l: 'PG (OUT)' }, { t: '20:00', l: 'BDL (IN)' }, { t: '20:30', l: 'BDL (OUT)' }, { t: '06:30', l: 'JAT (IN)' }],
+                'Rute 2B Sumatera PG - PBR': [{ t: '06:00', l: 'PG (OUT)' }, { t: '18:00', l: 'JB (IN)' }, { t: '20:30', l: 'JB (OUT)' }, { t: '03:30', l: 'RGT (IN)' }, { t: '04:00', l: 'RGT (OUT)' }, { t: '10:00', l: 'PBR (IN)' }],
+                'Rute 2B Sumatera PBR - PG': [{ t: '15:00', l: 'PBR (OUT)' }, { t: '22:00', l: 'RGT (IN)' }, { t: '22:30', l: 'RGT (OUT)' }, { t: '06:30', l: 'JB (IN)' }, { t: '07:00', l: 'JB (OUT)' }, { t: '18:00', l: 'PG (IN)' }],
+                'Rute 3 JAT-PG express': [{ t: '00:30', l: 'JAT (OUT)' }, { t: '08:30', l: 'BDL (IN)' }, { t: '09:30', l: 'BDL (OUT)' }, { t: '15:30', l: 'PG (IN)' }],
+                'Rute 3 PG-JAT express': [{ t: '21:00', l: 'PG (OUT)' }, { t: '03:00', l: 'BDL (IN)' }, { t: '04:00', l: 'BDL (OUT)' }, { t: '11:30', l: 'JAT (IN)' }]
+            };
+
+            // Fungsi untuk mengekstrak semua titik pemberhentian dari rute
+            function getRouteStops(ruteName) {
+                const slaData = slaDataMap[ruteName];
+                if (!slaData) {
+                    // Fallback untuk rute yang tidak ada di mapping (seperti rute EXTRA)
+                    console.log(`No SLA data found for route: ${ruteName}, using fallback`);
+                    
+                    // Coba ekstrak dari nama rute untuk rute EXTRA/Ekstra
+                    if (/^(EXTRA|Ekstra|Exstra)/i.test(ruteName)) {
+                        const cleanName = ruteName.replace(/^(EXTRA|Ekstra|Exstra)\s*/i, '').trim();
+                        if (cleanName.includes('-')) {
+                            return cleanName.split('-').map(s => s.trim());
+                        }
+                        return [cleanName];
+                    }
+                    
+                    // Fallback umum - ekstrak dari nama rute
+                    const cleaned = ruteName.replace(/^Rute\s*[A-Za-z0-9]+[:\-]?\s*/gi, '').trim();
+                    if (cleaned.includes('-')) {
+                        return cleaned.split('-').map(s => s.trim());
+                    }
+                    
+                    return [ruteName]; // Return nama rute asli jika tidak bisa diparsing
+                }
+                
+                // Ekstrak nama lokasi unik dari data SLA
+                const stops = [];
+                const seenStops = new Set();
+                
+                slaData.forEach(stop => {
+                    // Ekstrak nama lokasi dari label (contoh: "JAT (OUT)" -> "JAT")
+                    const location = stop.l.split(' ')[0];
+                    if (!seenStops.has(location)) {
+                        stops.push(location);
+                        seenStops.add(location);
+                    }
+                });
+                
+                return stops;
+            }
+
+            // Chart 1: HORIZONTAL Bar Chart - tampilkan semua titik pemberhentian dari rute yang dipilih
             const ctx1 = document.getElementById('chartTopRutes');
             if (ctx1) {
+                // Jika ada filter rute aktif, tampilkan titik pemberhentiannya
+                const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
+                let chartData = [];
+                
+                if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
+                    // Mode filter rute aktif - tampilkan titik pemberhentian
+                    const stops = getRouteStops(routeFilter);
+                    const routeData = top10.find(r => r.name === routeFilter);
+                    
+                    if (routeData && stops.length > 0) {
+                        chartData = stops.map(stop => ({
+                            label: stop,
+                            postal: routeData.postal / stops.length, // Bagi rata volume ke setiap stop
+                            poslog: routeData.poslog / stops.length,
+                            originalRoute: routeFilter
+                        }));
+                        
+                        document.getElementById('chartTopRutesTitle').textContent = 
+                            `Urutan Pemberhentian: ${routeFilter} (${stops.join(' → ')})`;
+                    }
+                } else {
+                    // Mode normal - tampilkan top routes
+                    chartData = top10.map(r => ({
+                        label: r.name,
+                        postal: r.postal,
+                        poslog: r.poslog,
+                        originalRoute: r.name
+                    }));
+                    
+                    document.getElementById('chartTopRutesTitle').textContent = 
+                        'Volume Terbanyak (10 teratas dari ' + data.length + ' rute)';
+                }
+
+                if (chartData.length === 0) {
+                    document.getElementById('chartTopRutesTitle').textContent = 'Tidak ada data untuk rute yang dipilih';
+                    return;
+                }
+
                 _chartInstances.top = new Chart(ctx1, {
                     type: 'bar',
                     data: {
-                        labels: top10.map(function(r){ return r.name; }),
+                        labels: chartData.map(d => d.label),
                         datasets: [
-                            { label: 'Postal (kg)', data: top10.map(function(r){ return r.postal; }), backgroundColor: '#FF8C42', borderRadius: 3 },
-                            { label: 'Poslog (kg)', data: top10.map(function(r){ return r.poslog; }), backgroundColor: '#4ECDC4', borderRadius: 3 }
+                            { 
+                                label: 'Postal (kg)', 
+                                data: chartData.map(d => d.postal), 
+                                backgroundColor: '#FF8C42', 
+                                borderRadius: 3 
+                            },
+                            { 
+                                label: 'Poslog (kg)', 
+                                data: chartData.map(d => d.poslog), 
+                                backgroundColor: '#4ECDC4', 
+                                borderRadius: 3 
+                            }
                         ]
                     },
                     options: {
@@ -2514,8 +2656,20 @@
                             legend: { position: 'bottom', labels: { font: { size: 13 }, padding: 16 } },
                             tooltip: {
                                 callbacks: {
+                                    title: function(tooltipItems) {
+                                        const index = tooltipItems[0].dataIndex;
+                                        const item = chartData[index];
+                                        
+                                        // Jika dalam mode filter rute, tampilkan info pemberhentian
+                                        if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
+                                            return `${item.label} - ${item.originalRoute}`;
+                                        }
+                                        
+                                        return item.label;
+                                    },
                                     label: function(ctx) {
                                         const val = ctx.raw;
+                                        
                                         // Hitung total semua dataset di baris ini
                                         const total = ctx.chart.data.datasets.reduce((sum, ds) => {
                                             return sum + (ds.data[ctx.dataIndex] || 0);
