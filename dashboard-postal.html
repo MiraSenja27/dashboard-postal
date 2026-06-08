@@ -2566,6 +2566,8 @@
             // Chart: HANYA SATU Horizontal Bar Chart yang sederhana (seperti chartbar)
             const ctx1 = document.getElementById('chartTopRutes');
             if (ctx1) {
+                // Ambil filter rute yang aktif
+                const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
                 let chartData = [];
                 let chartTitle = '';
                 
