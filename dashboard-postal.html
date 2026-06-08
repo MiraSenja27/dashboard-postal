@@ -2336,6 +2336,16 @@
             console.log('calculateStatsFromFilteredData - Filtered data count:', filteredData.length);
             console.log('calculateStatsFromFilteredData - Looking for exact match:', routeFilter);
             
+            // Helper function to normalize route names for flexible matching
+            function normalizeRouteName(name) {
+                if (!name) return '';
+                return name.toLowerCase()
+                    .replace(/:/g, '') // Remove colons
+                    .replace(/\s+/g, ' ') // Normalize spaces
+                    .replace(/\s*-\s*/g, '-') // Normalize dashes
+                    .trim();
+            }
+            
             // Parse number helper
             function parseAngka(v) {
                 if (v === null || v === undefined || v === '') return 0;
@@ -3074,16 +3084,38 @@
                     console.log('loadDashboardData SLA - Route Filter:', routeFilter);
                     console.log('loadDashboardData SLA - Data before route filter:', finalSlaData.length);
                     if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
+                        // Helper function to normalize route names for flexible matching
+                        function normalizeRouteName(name) {
+                            if (!name) return '';
+                            return name.toLowerCase()
+                                .replace(/:/g, '') // Remove colons
+                                .replace(/\s+/g, ' ') // Normalize spaces
+                                .replace(/\s*-\s*/g, '-') // Normalize dashes
+                                .trim();
+                        }
+                        
+                        const normalizedFilter = normalizeRouteName(routeFilter);
+                        
                         finalSlaData = finalSlaData.filter(function(r) {
                             const ruteName = (r.rute || '').trim();
-                            const filter = routeFilter.trim();
+                            const normalizedRouteName = normalizeRouteName(ruteName);
                             
-                            // ONLY exact match (case insensitive)
-                            const match = ruteName.toLowerCase() === filter.toLowerCase();
-                            console.log('loadDashboardData SLA - Comparing:', ruteName, 'with', filter, 'Match:', match);
-                            return match;
+                            // Try exact match first
+                            if (ruteName.toLowerCase() === routeFilter.toLowerCase()) {
+                                console.log('loadDashboardData SLA - EXACT MATCH:', ruteName);
+                                return true;
+                            }
+                            
+                            // Try normalized match (for "Rute 1: JAT - Surabaya" vs "Rute 1 JAT-SB")
+                            if (normalizedRouteName === normalizedFilter) {
+                                console.log('loadDashboardData SLA - NORMALIZED MATCH:', ruteName, '→', normalizedRouteName);
+                                return true;
+                            }
+                            
+                            console.log('loadDashboardData SLA - NO MATCH:', ruteName, '(normalized:', normalizedRouteName, ') vs filter:', normalizedFilter);
+                            return false;
                         });
-                        console.log('loadDashboardData SLA - Data after EXACT filter:', finalSlaData.length);
+                        console.log('loadDashboardData SLA - Data after filter:', finalSlaData.length);
                     }
                     slaData = finalSlaData; // Store SLA data globally
                     updateRankings(slaData); // Update rankings list
@@ -4195,7 +4227,10 @@
                         });
                     }
 
-                    // Client-side filter untuk rute sebagai fallback (jika server-side filter tidak bekerja)
+                    // SIMPAN DATA MENTAH (tanpa filter rute) untuk dashboard charts
+                    const rawDataForCharts = [...finalData];
+
+                    // Client-side filter untuk rute - HANYA untuk tabel volume
                     console.log('loadVolumeData - Route Filter:', routeFilter);
                     console.log('loadVolumeData - Data before route filter:', finalData.length);
                     if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
@@ -4209,7 +4244,15 @@
                         console.log('loadVolumeData - Data after route filter:', finalData.length);
                     }
 
-                    // Sort data: first by route order, then by date within the same route
+                    // Sort RAW data (tanpa filter rute) untuk dashboard charts
+                    const sortRaw = [...rawDataForCharts].sort((a, b) => {
+                        const orderA = ROUTE_ORDER.findIndex(r => (a.rute || "").toLowerCase().includes(r.toLowerCase()));
+                        const orderB = ROUTE_ORDER.findIndex(r => (b.rute || "").toLowerCase().includes(r.toLowerCase()));
+                        if (orderA !== orderB) return orderA - orderB;
+                        return new Date(a.tanggal) - new Date(b.tanggal);
+                    });
+
+                    // Sort data: first by route order, then by date within the same route (untuk tabel)
                     const sortedData = [...finalData].sort((a, b) => {
                         const orderA = ROUTE_ORDER.findIndex(r => (a.rute || "").toLowerCase().includes(r.toLowerCase()));
                         const orderB = ROUTE_ORDER.findIndex(r => (b.rute || "").toLowerCase().includes(r.toLowerCase()));
@@ -4353,7 +4396,7 @@
                     };
 
                     const _volumeData = sortedData;
-                    window._volumeRawData = sortedData; // Simpan untuk dashboard charts
+                    window._volumeRawData = sortRaw; // Simpan RAW data (tanpa filter rute) untuk dashboard charts
                     renderVolumeTable(_volumeData);
                     
                     // Update notif tanggal berdasarkan data aktual (bukan filter input)
@@ -5603,26 +5646,55 @@
                 routeCards.forEach((card, index) => {
                     let shouldShow = false;
                     
-                    // Get the route name from the card (find the route name in the text content)
-                    const routeNameElement = card.querySelector('.route-name') || card.querySelector('h3');
-                    let cardRouteName = '';
+                    // Helper function to normalize route names for flexible matching
+                    function normalizeRouteName(name) {
+                        if (!name) return '';
+                        return name.toLowerCase()
+                            .replace(/:/g, '') // Remove colons
+                            .replace(/\s+/g, ' ') // Normalize spaces
+                            .replace(/\s*-\s*/g, '-') // Normalize dashes
+                            .trim();
+                    }
                     
-                    if (routeNameElement) {
-                        cardRouteName = routeNameElement.textContent.trim();
+                    // Get the route name from the card display name (.route-name)
+                    const routeNameElement = card.querySelector('.route-name');
+                    let cardRouteName = routeNameElement ? routeNameElement.textContent.trim() : '';
+                    
+                    // If display name is too generic (like "Rute 1"), look for full route names in card content
+                    if (cardRouteName && /^Rute \d+[A-Z]?$/i.test(cardRouteName)) {
+                        // Look for route names in "Arah:" sections
+                        const arahElements = card.querySelectorAll('h4');
+                        for (let arahEl of arahElements) {
+                            const arahText = arahEl.textContent || '';
+                            // Extract route name from "Arah: (JAT - CN - SB)" pattern
+                            const arahMatch = arahText.match(/Arah:\s*\(([^)]+)\)/i);
+                            if (arahMatch) {
+                                const arahName = arahMatch[1].trim();
+                                // Convert "JAT - CN - SB" format to "JAT-SB" (first-last) to match filter
+                                const parts = arahName.split(/\s*-\s*/).filter(p => p.trim());
+                                if (parts.length >= 2) {
+                                    const candidateRoute = `${cardRouteName} ${parts[0]}-${parts[parts.length - 1]}`;
+                                    
+                                    // Check if this matches our filter
+                                    if (candidateRoute.toLowerCase() === routeFilter.toLowerCase() ||
+                                        normalizeRouteName(candidateRoute) === normalizeRouteName(routeFilter)) {
+                                        shouldShow = true;
+                                        console.log('renderRoutes - Card', index, 'MATCH via Arah:', candidateRoute, 'matches filter:', routeFilter);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     } else {
-                        // Fallback: extract from card text
-                        const cardText = card.textContent || '';
-                        const routeMatch = cardText.match(/Rute\s+[^\n]+/);
-                        if (routeMatch) {
-                            cardRouteName = routeMatch[0].trim();
+                        // Direct match with display name
+                        if (cardRouteName.toLowerCase() === routeFilter.toLowerCase() ||
+                            normalizeRouteName(cardRouteName) === normalizeRouteName(routeFilter)) {
+                            shouldShow = true;
+                            console.log('renderRoutes - Card', index, 'DIRECT MATCH:', cardRouteName);
                         }
                     }
                     
-                    // EXACT MATCH only (case insensitive)
-                    if (cardRouteName && cardRouteName.toLowerCase() === routeFilter.toLowerCase()) {
-                        shouldShow = true;
-                        console.log('renderRoutes - Card', index, 'EXACT MATCH:', cardRouteName);
-                    } else {
+                    if (!shouldShow) {
                         console.log('renderRoutes - Card', index, 'NO MATCH. Card route:', cardRouteName, 'Filter:', routeFilter);
                     }
                     
