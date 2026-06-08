@@ -1290,7 +1290,7 @@
             </div>
         </div>
         <!-- New date range notification (top‑left) -->
-        <div id="week-range" style="position: absolute; top: 10px; left: 200px; background: rgba(255,255,255,0.9); color: #1e3c72; padding: 5px 10px; border-radius: 6px; font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">&#8203;</div>
+        <div id="week-range" style="position: absolute; top: 10px; left: 250px; background: rgba(255,255,255,0.9); color: #1e3c72; padding: 5px 10px; border-radius: 6px; font-size: 13px; box-shadow: 0 2px 6px rgba(0,0,0,0.1);">&#8203;</div>
 
         <div class="submenu-container" style="background: white; border-bottom: 1px solid #e2e8f0; display: flex; align-items: center; padding: 0 10px; gap: 5px;">
             <div id="submenu-primer" class="submenu show" style="padding: 5px 0; border: none; flex: none;">
@@ -2690,11 +2690,13 @@
                 await loadVolumeData(weekKey);
             }
 
-            // If dashboard charts are visible, redraw them
-            if (document.getElementById('dashboardChartsSection').style.display !== 'none') {
+            // Load volume data for dashboard charts if not already loaded
+            if (currentView !== 'volume') {
                 await loadVolumeData(weekKey);
-                setTimeout(() => { _renderDashboardCharts(); }, 300);
             }
+
+            // Always redraw dashboard charts when route filter changes
+            _renderDashboardCharts();
         }
 
         // Set filter ke bulan berjalan
@@ -2788,12 +2790,21 @@
                     slaQueryParams += `&startDate=${startDate}&endDate=${endDate}`;
                 }
 
-                // Load statistics (TANPA routeFilter)
+                // Load statistics (DENGAN routeFilter)
                 const statsResponse = await fetch(`${API_URL}/stats?${statsQueryParams}`);
                 const statsData = await statsResponse.json();
 
                 if (statsData.success) {
-                    updateStatistics(statsData.data);
+                    // Client-side filter untuk rute sebagai fallback
+                    let filteredStats = statsData.data;
+                    if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
+                        // Filter stats berdasarkan rute yang dipilih
+                        filteredStats = {
+                            ...statsData.data,
+                            total_routes: 1 // Jika filter rute aktif, total routes = 1
+                        };
+                    }
+                    updateStatistics(filteredStats);
                 }
 
                 // Load SLA data (DENGAN routeFilter)
@@ -2801,7 +2812,14 @@
                 const slaResult = await slaResponse.json();
 
                 if (slaResult.success) {
-                    slaData = slaResult.data; // Store SLA data globally
+                    let finalSlaData = slaResult.data;
+                    // Client-side filter untuk rute sebagai fallback
+                    if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
+                        finalSlaData = finalSlaData.filter(function(r) {
+                            return r.rute === routeFilter;
+                        });
+                    }
+                    slaData = finalSlaData; // Store SLA data globally
                     updateRankings(slaData); // Update rankings list
                 }
 
@@ -3042,7 +3060,7 @@
                 // If dashboard charts are visible, redraw them (same as applyFilter)
                 if (document.getElementById('dashboardChartsSection').style.display !== 'none') {
                     await loadVolumeData(weekKey);
-                    setTimeout(() => { _renderDashboardCharts(); }, 300);
+                    _renderDashboardCharts();
                 }
                 
                 // Note: The period label will be updated inside each load function 
@@ -3621,7 +3639,14 @@
                     let finalData = result.data;
                     // Server-side filtering is now used, so client-side filter is optional fallback
                     // Keep for extra safety or remove if confident
-                    
+
+                    // Client-side filter untuk rute sebagai fallback (jika server-side filter tidak bekerja)
+                    if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
+                        finalData = finalData.filter(function(r) {
+                            return r.rute === routeFilter;
+                        });
+                    }
+
                     // Store in global variable and sort by order
                     slaData = sortRoutesByOrder(finalData);
 
@@ -3857,6 +3882,13 @@
                             const start = new Date(startDate);
                             const end = new Date(endDate);
                             return recordDate >= start && recordDate <= end;
+                        });
+                    }
+
+                    // Client-side filter untuk rute sebagai fallback (jika server-side filter tidak bekerja)
+                    if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
+                        finalData = finalData.filter(function(r) {
+                            return r.rute === routeFilter;
                         });
                     }
 
