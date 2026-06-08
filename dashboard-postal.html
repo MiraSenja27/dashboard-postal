@@ -141,13 +141,14 @@
             padding: 12px 20px;
             border-radius: 10px;
             cursor: pointer;
-            font-size: 13px;
-            font-weight: bold;
+            font-size: 15px;
+            font-weight: 800;
             color: #1e3c72;
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
             position: relative;
             white-space: nowrap;
+            letter-spacing: 0.5px;
         }
 
         .menu-btn:hover {
@@ -1326,7 +1327,7 @@
                     <input type="date" class="filter-input" id="startDate" onchange="clearWeekFilter()" style="height: 32px; font-size: 12px;">
                     <span style="font-size: 11px; color: #64748b;">s/d</span>
                     <input type="date" class="filter-input" id="endDate" onchange="clearWeekFilter()" style="height: 32px; font-size: 12px;">
-                    <select class="filter-input" id="weekFilter" onchange="applyWeeklyFilter()" style="width: 120px; height: 32px; font-size: 12px;">
+                    <select class="filter-input" id="weekFilter" onchange="applyWeeklyFilter()" style="width: 150px; height: 32px; font-size: 12px;">
                         <option value="">📅 Pilih Minggu</option>
                     </select>
                     <select class="filter-input" id="routeFilter" onchange="applyFilter()" style="width: 100px; height: 32px; font-size: 12px;">
