@@ -3450,6 +3450,8 @@
         }
 
         function updateRankings(data) {
+            console.log('🔍 updateRankings called with data:', data);
+            
             const ruteList = document.getElementById('ranking-rute');
             const nopolList = document.getElementById('ranking-nopol');
             if (!ruteList || !nopolList) return;
@@ -3458,46 +3460,62 @@
             const ruteDelays = [];
             const nopolDelays = [];
 
-            data.forEach(item => {
+            data.forEach((item, idx) => {
+                console.log(`📊 Processing item ${idx}:`, item.rute, item.titik?.length, 'titik');
+                
                 const titikList = item.titik || [];
-                titikList.forEach(t => {
-                    const statusLower = (t.status || '').toLowerCase();
-                    if (statusLower.includes('delay') || statusLower.includes('keterlambatan') || statusLower.includes('terlambat')) {
-                        let minutes = parseInt(t.selisih) || 0;
-                        let delayText = t.selisih || 'Delay';
-                        
-                        // Hitung selisih jika tidak ada di data
-                        if (!t.selisih && t.target && t.realisasi && t.target !== '-' && t.realisasi !== '-') {
-                            const tParts = t.target.split(':');
-                            const rParts = t.realisasi.split(':');
-                            if (tParts.length === 2 && rParts.length === 2) {
-                                let diff = (parseInt(rParts[0])*60 + parseInt(rParts[1])) - (parseInt(tParts[0])*60 + parseInt(tParts[1]));
-                                if (diff < 0) diff += 1440; // Jika lewat tengah malam
-                                minutes = diff;
-                                delayText = diff + ' menit';
+                titikList.forEach((t, tIdx) => {
+                    console.log(`  📍 Titik ${tIdx}:`, t.label, 'Target:', t.target, 'Realisasi:', t.realisasi);
+                    
+                    // Hitung delay berdasarkan selisih waktu APAPUN statusnya
+                    if (t.target && t.realisasi && t.target !== '-' && t.realisasi !== '-') {
+                        const tParts = t.target.split(':');
+                        const rParts = t.realisasi.split(':');
+                        if (tParts.length >= 2 && rParts.length >= 2) {
+                            const tMin = parseInt(tParts[0]) * 60 + parseInt(tParts[1]);
+                            const rMin = parseInt(rParts[0]) * 60 + parseInt(rParts[1]);
+                            
+                            console.log(`    ⏰ Target: ${tMin} min, Realisasi: ${rMin} min, Selisih: ${rMin - tMin} min`);
+                            
+                            // Hanya masukkan jika ada delay (realisasi > target)
+                            if (rMin > tMin) {
+                                const diffMin = rMin - tMin;
+                                const dH = Math.floor(diffMin / 60);
+                                const dM = Math.round(diffMin % 60);
+                                const delayText = `${dH} jam ${dM} menit`;
+
+                                console.log(`    ❌ DELAY DETECTED: ${delayText}`);
+
+                                // Masukkan ke kategori Rute
+                                ruteDelays.push({
+                                    name: item.rute,
+                                    delay: diffMin,
+                                    delayText: delayText,
+                                    date: item.tanggal,
+                                    time: t.realisasi,
+                                    titik: t.label
+                                });
+
+                                // Masukkan ke kategori NOPOL
+                                nopolDelays.push({
+                                    name: item.nopol || 'Tanpa Nopol',
+                                    delay: diffMin,
+                                    delayText: delayText,
+                                    date: item.tanggal,
+                                    time: t.realisasi,
+                                    titik: t.label
+                                });
+                            } else {
+                                console.log(`    ✅ ON TIME or EARLY`);
                             }
                         }
-
-                        // Masukkan ke kategori Rute
-                        ruteDelays.push({
-                            name: item.rute,
-                            delay: minutes,
-                            delayText: delayText,
-                            date: item.tanggal,
-                            time: t.realisasi
-                        });
-
-                        // Masukkan ke kategori NOPOL
-                        nopolDelays.push({
-                            name: item.nopol || 'Tanpa Nopol',
-                            delay: minutes,
-                            delayText: delayText,
-                            date: item.tanggal,
-                            time: t.realisasi
-                        });
+                    } else {
+                        console.log(`    ⚠️ Missing target/realisasi data`);
                     }
                 });
             });
+
+            console.log(`🏆 FINAL DELAYS - Rute: ${ruteDelays.length}, NOPOL: ${nopolDelays.length}`);
 
             // Render fungsi helper
             const renderList = (listElement, delays, type) => {
@@ -5619,8 +5637,11 @@
                         }
                     }
                     
-                    // EXACT MATCH only (case insensitive)
-                    if (cardRouteName && cardRouteName.toLowerCase() === routeFilter.toLowerCase()) {
+                    // EXACT MATCH (case insensitive)
+                    const filterLower = routeFilter.toLowerCase().trim();
+                    const cardNameLower = cardRouteName.toLowerCase().trim();
+                    
+                    if (cardNameLower === filterLower) {
                         shouldShow = true;
                         console.log('renderRoutes - Card', index, 'EXACT MATCH:', cardRouteName);
                     } else {
