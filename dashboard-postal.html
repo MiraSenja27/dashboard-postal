@@ -2396,8 +2396,23 @@
                 // Hide route cards dan rankings
                 var ranking = document.querySelector('.ranking-container');
                 var routesGrid = document.getElementById('routesContainer');
+                
+                // Check if route filter is active
+                const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
+                const isRouteFilterActive = routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute';
+                
                 if (ranking) ranking.style.display = 'none';
-                if (routesGrid) routesGrid.style.display = 'none';
+                
+                // Only hide routes grid if no route filter is active
+                if (routesGrid) {
+                    if (isRouteFilterActive) {
+                        // Keep routes visible when filter is active
+                        routesGrid.style.display = 'grid';
+                        console.log('Keeping routesContainer visible due to active route filter:', routeFilter);
+                    } else {
+                        routesGrid.style.display = 'none';
+                    }
+                }
                 document.querySelectorAll('.route-toolbar, [onclick*="tambahRute"], [onclick*="toggleSLA"]').forEach(function(el){ el.style.display='none'; });
                 document.querySelectorAll('.add-route-btn, button[onclick*="tambah"], .toggle-sla-btn').forEach(function(el){ el.style.display='none'; });
                 document.querySelectorAll('button').forEach(function(btn){
@@ -2774,6 +2789,13 @@
                     '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#B0BEC5; font-size:24px;">■</span> Sisa Kapasitas: <b style="font-size:20px;">' + formatLegendNum(pSisa) + ' kg</b> <span style="font-weight:bold; font-size:18px; color:#444;">(' + pct3 + '%)</span></div>' +
                     '</div>';
             }
+            
+            // Render routes when route filter is active
+            const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
+            if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
+                console.log('_renderDashboardCharts: Rendering routes for filter:', routeFilter);
+                renderRoutes();
+            }
         }
 
         function goToDashboardDefault() {
@@ -2931,6 +2953,22 @@
 
             // Always redraw dashboard charts when route filter changes
             _renderDashboardCharts();
+            
+            // Handle routesContainer visibility based on route filter
+            const routesGrid = document.getElementById('routesContainer');
+            if (routesGrid) {
+                if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
+                    // Show routes when filter is active
+                    routesGrid.style.display = 'grid';
+                    console.log('Showing routesContainer due to active route filter:', routeFilter);
+                } else {
+                    // Hide routes when no filter (in dashboard/chart mode)
+                    if (currentView === 'dashboard') {
+                        routesGrid.style.display = 'none';
+                        console.log('Hiding routesContainer in dashboard mode with no route filter');
+                    }
+                }
+            }
         }
 
         // Set filter ke bulan berjalan
@@ -5411,7 +5449,7 @@
                     .map(([jenis, jumlah]) => `<span style="background:#e2e8f0; color:#1e293b; padding:6px 14px; border-radius:20px; font-size:14px; font-weight:800; box-shadow:0 1px 4px rgba(0,0,0,0.08); display:inline-flex; align-items:center; gap:4px; letter-spacing:0.2px;">${jumlah} ${jenis}</span>`)
                     .join('');
 
-                html += `<div class="route-card"><div class="route-header" style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
+                html += `<div class="route-card" data-route-names="${route1.name}${isSamePair && route2 ? '|' + route2.name : ''}"><div class="route-header" style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
                     <div class="route-name" style="flex:1; min-width:0;">${displayName}</div>
                     <div class="total-unit-display" style="display:${slaVisible ? 'flex' : 'none'}; gap:8px; align-items:center;">
                         ${combinedUnitsBadges}
@@ -5610,51 +5648,102 @@
             }
             container.innerHTML = html;
             
+            // Debug: log semua route cards yang dibuat
+            const allRouteCards = document.querySelectorAll('.route-card');
+            console.log('=== RENDER ROUTES DEBUG ===');
+            console.log('Total route cards created:', allRouteCards.length);
+            allRouteCards.forEach((card, idx) => {
+                const routeName = card.querySelector('.route-name')?.textContent || 'N/A';
+                console.log(`Card ${idx}: ${routeName}`);
+            });
+            
             // Apply route filter if active
             const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
+            console.log('Current route filter:', routeFilter);
+            
             if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
                 const routeCards = document.querySelectorAll('.route-card');
                 let visibleCount = 0;
                 
-                console.log('renderRoutes - Applying filter:', routeFilter);
-                console.log('renderRoutes - Total route cards:', routeCards.length);
+                console.log('=== FILTER ACTIVE ===');
+                console.log('Filter value:', routeFilter);
+                console.log('Total route cards to filter:', routeCards.length);
                 
                 routeCards.forEach((card, index) => {
                     let shouldShow = false;
                     
-                    // Get the route name from the card (find the route name in the text content)
-                    const routeNameElement = card.querySelector('.route-name') || card.querySelector('h3');
-                    let cardRouteName = '';
+                    // Get ALL route names from this card (could be 1 or 2 routes)
+                    const routeNames = card.getAttribute('data-route-names') || '';
+                    const allRouteNames = routeNames.split('|').filter(name => name.trim());
                     
-                    if (routeNameElement) {
-                        cardRouteName = routeNameElement.textContent.trim();
-                    } else {
-                        // Fallback: extract from card text
-                        const cardText = card.textContent || '';
-                        const routeMatch = cardText.match(/Rute\s+[^\n]+/);
-                        if (routeMatch) {
-                            cardRouteName = routeMatch[0].trim();
+                    console.log(`Renderroutes - Card ${index}: Route Names: [${allRouteNames.join(', ')}] vs Filter: "${routeFilter}"`);
+                    
+                    // Check if ANY of the routes in this card match the filter
+                    allRouteNames.forEach((routeName, routeIndex) => {
+                        const filterLower = routeFilter.toLowerCase().trim();
+                        const routeNameLower = routeName.toLowerCase().trim();
+                        
+                        console.log(`  Checking route ${routeIndex}: "${routeName}"`);
+                        
+                        // Strategy 1: Exact match
+                        if (routeNameLower === filterLower) {
+                            shouldShow = true;
+                            console.log(`    ✓ EXACT MATCH!`);
+                            return;
                         }
-                    }
+                        
+                        // Strategy 2: Extract route number and check match
+                        const filterRouteMatch = filterLower.match(/rute\s*(\d+[a-z]?)/);
+                        const routeRouteMatch = routeNameLower.match(/rute\s*(\d+[a-z]?)/);
+                        
+                        if (filterRouteMatch && routeRouteMatch) {
+                            const filterNum = filterRouteMatch[1];
+                            const routeNum = routeRouteMatch[1];
+                            
+                            if (filterNum === routeNum) {
+                                // Same route number - now check endpoints
+                                const filterEndpoints = filterLower.replace(/rute\s*\d+[a-z]?[\s\-:]*/, '');
+                                const routeEndpoints = routeNameLower.replace(/rute\s*\d+[a-z]?[\s\-:]*/, '');
+                                
+                                console.log(`    Route ${filterNum}: Filter endpoints "${filterEndpoints}" vs Route endpoints "${routeEndpoints}"`);
+                                
+                                // Extract city codes (2-3 letter codes)
+                                const filterCities = filterEndpoints.match(/[a-z]{2,3}/g) || [];
+                                const routeCities = routeEndpoints.match(/[a-z]{2,3}/g) || [];
+                                
+                                if (filterCities.length >= 2 && routeCities.length >= 2) {
+                                    const filterStart = filterCities[0];
+                                    const filterEnd = filterCities[filterCities.length - 1];
+                                    const routeStart = routeCities[0];
+                                    const routeEnd = routeCities[routeCities.length - 1];
+                                    
+                                    console.log(`    Cities: Filter(${filterStart}-${filterEnd}) vs Route(${routeStart}-${routeEnd})`);
+                                    
+                                    // Check if start and end match
+                                    if (filterStart === routeStart && filterEnd === routeEnd) {
+                                        shouldShow = true;
+                                        console.log(`    ✓ ROUTE & ENDPOINTS MATCH!`);
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        console.log(`    ✗ No match for this route`);
+                    });
                     
-                    // EXACT MATCH (case insensitive)
-                    const filterLower = routeFilter.toLowerCase().trim();
-                    const cardNameLower = cardRouteName.toLowerCase().trim();
-                    
-                    if (cardNameLower === filterLower) {
-                        shouldShow = true;
-                        console.log('renderRoutes - Card', index, 'EXACT MATCH:', cardRouteName);
-                    } else {
-                        console.log('renderRoutes - Card', index, 'NO MATCH. Card route:', cardRouteName, 'Filter:', routeFilter);
+                    if (!shouldShow) {
+                        console.log(`  ✗ No match for any route in card`);
                     }
                     
                     card.style.display = shouldShow ? 'block' : 'none';
                     if (shouldShow) visibleCount++;
                 });
                 
-                console.log('renderRoutes - Visible cards:', visibleCount, '/', routeCards.length);
+                console.log('Visible cards after filter:', visibleCount, '/', routeCards.length);
             } else {
                 // Show all cards if no filter
+                console.log('=== NO FILTER - SHOWING ALL ===');
                 const routeCards = document.querySelectorAll('.route-card');
                 routeCards.forEach(card => {
                     card.style.display = 'block';
