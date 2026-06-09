@@ -2396,23 +2396,8 @@
                 // Hide route cards dan rankings
                 var ranking = document.querySelector('.ranking-container');
                 var routesGrid = document.getElementById('routesContainer');
-                
-                // Check if route filter is active
-                const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
-                const isRouteFilterActive = routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute';
-                
                 if (ranking) ranking.style.display = 'none';
-                
-                // Only hide routes grid if no route filter is active
-                if (routesGrid) {
-                    if (isRouteFilterActive) {
-                        // Keep routes visible when filter is active
-                        routesGrid.style.display = 'grid';
-                        console.log('Keeping routesContainer visible due to active route filter:', routeFilter);
-                    } else {
-                        routesGrid.style.display = 'none';
-                    }
-                }
+                if (routesGrid) routesGrid.style.display = 'none';
                 document.querySelectorAll('.route-toolbar, [onclick*="tambahRute"], [onclick*="toggleSLA"]').forEach(function(el){ el.style.display='none'; });
                 document.querySelectorAll('.add-route-btn, button[onclick*="tambah"], .toggle-sla-btn').forEach(function(el){ el.style.display='none'; });
                 document.querySelectorAll('button').forEach(function(btn){
@@ -2789,13 +2774,6 @@
                     '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#B0BEC5; font-size:24px;">■</span> Sisa Kapasitas: <b style="font-size:20px;">' + formatLegendNum(pSisa) + ' kg</b> <span style="font-weight:bold; font-size:18px; color:#444;">(' + pct3 + '%)</span></div>' +
                     '</div>';
             }
-            
-            // Render routes when route filter is active
-            const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
-            if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
-                console.log('_renderDashboardCharts: Rendering routes for filter:', routeFilter);
-                renderRoutes();
-            }
         }
 
         function goToDashboardDefault() {
@@ -2954,21 +2932,8 @@
             // Always redraw dashboard charts when route filter changes
             _renderDashboardCharts();
             
-            // Handle routesContainer visibility based on route filter
-            const routesGrid = document.getElementById('routesContainer');
-            if (routesGrid) {
-                if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
-                    // Show routes when filter is active
-                    routesGrid.style.display = 'grid';
-                    console.log('Showing routesContainer due to active route filter:', routeFilter);
-                } else {
-                    // Hide routes when no filter (in dashboard/chart mode)
-                    if (currentView === 'dashboard') {
-                        routesGrid.style.display = 'none';
-                        console.log('Hiding routesContainer in dashboard mode with no route filter');
-                    }
-                }
-            }
+            // Show routes if route filter is active
+            handleRouteFilterVisibility();
         }
 
         // Set filter ke bulan berjalan
@@ -7097,6 +7062,7 @@
 
         // Alias untuk backward compatibility
         async function saveRouteSettings() { await applyRouteSettings(); }
+
     </script>
 </body>
 </html>
