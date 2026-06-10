@@ -5476,7 +5476,7 @@
 
                 let arahLabel1 = getFullRoutePath(route1.name);
                 if (/Rute\s*4A/i.test(route1.name)) {
-                    arahLabel1 = 'CN- PWT';
+                    arahLabel1 = 'PWT-CN';
                 }
                 if (/^(Ekstra|Exstra)\s*/i.test(arahLabel1)) {
                     arahLabel1 = arahLabel1.replace(/^(Ekstra|Exstra)\s*/i, '').trim();
@@ -5569,7 +5569,7 @@
                     
                     let arahLabel2 = getFullRoutePath(route2.name);
                     if (/Rute\s*4A/i.test(route2.name)) {
-                        arahLabel2 = 'PWT-CN';
+                        arahLabel2 = 'CN- PWT';
                     }
                     if (/^(Ekstra|Exstra)\s*/i.test(arahLabel2)) {
                         arahLabel2 = arahLabel2.replace(/^(Ekstra|Exstra)\s*/i, '').trim();
