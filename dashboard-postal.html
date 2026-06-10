@@ -5226,15 +5226,21 @@
             let i = 0;
 
             while (i < routesData.length) {
-                const route1 = routesData[i];
-                
+                let route1 = routesData[i];
+                let route2 = routesData[i + 1];
+
+                // Untuk Rute 4A, tukar posisi route1 dan route2 agar posisi chartbar sesuai
+                if (/Rute\s*4A/i.test(route1.name) && route2 && /Rute\s*4A/i.test(route2.name)) {
+                    const temp = route1;
+                    route1 = route2;
+                    route2 = temp;
+                }
+
                 // Jangan tampilkan Rute Ekstra jika tidak ada datanya (kosong)
                 if (/^(EXTRA|Ekstra|Exstra)/i.test(route1.name) && (!route1.postal && !route1.nonPostal)) {
                     i += 1;
                     continue;
                 }
-
-                const route2 = routesData[i + 1];
 
                 // Extract route number from first route
                 const match1 = route1.name.match(/^(Rute \d+[A-Z]?|RUTE B\d+|EXTRA.*?)\s/i);
@@ -5470,7 +5476,7 @@
 
                 let arahLabel1 = getFullRoutePath(route1.name);
                 if (/Rute\s*4A/i.test(route1.name)) {
-                    arahLabel1 = 'PWT-CN';
+                    arahLabel1 = 'CN- PWT';
                 }
                 if (/^(Ekstra|Exstra)\s*/i.test(arahLabel1)) {
                     arahLabel1 = arahLabel1.replace(/^(Ekstra|Exstra)\s*/i, '').trim();
@@ -5563,7 +5569,7 @@
                     
                     let arahLabel2 = getFullRoutePath(route2.name);
                     if (/Rute\s*4A/i.test(route2.name)) {
-                        arahLabel2 = 'CN- PWT';
+                        arahLabel2 = 'PWT-CN';
                     }
                     if (/^(Ekstra|Exstra)\s*/i.test(arahLabel2)) {
                         arahLabel2 = arahLabel2.replace(/^(Ekstra|Exstra)\s*/i, '').trim();
