@@ -5475,9 +5475,12 @@
                 }
 
                 let arahLabel1 = getFullRoutePath(route1.name);
+                console.log('Route 4A Debug - route1.name:', route1.name);
+                console.log('Route 4A Debug - arahLabel1 before:', arahLabel1);
                 if (/Rute\s*4A/i.test(route1.name)) {
                     arahLabel1 = 'PWT-CN';
                 }
+                console.log('Route 4A Debug - arahLabel1 after:', arahLabel1);
                 if (/^(Ekstra|Exstra)\s*/i.test(arahLabel1)) {
                     arahLabel1 = arahLabel1.replace(/^(Ekstra|Exstra)\s*/i, '').trim();
                 }
@@ -5568,9 +5571,12 @@
                     }
                     
                     let arahLabel2 = getFullRoutePath(route2.name);
+                    console.log('Route 4A Debug - route2.name:', route2.name);
+                    console.log('Route 4A Debug - arahLabel2 before:', arahLabel2);
                     if (/Rute\s*4A/i.test(route2.name)) {
                         arahLabel2 = 'CN- PWT';
                     }
+                    console.log('Route 4A Debug - arahLabel2 after:', arahLabel2);
                     if (/^(Ekstra|Exstra)\s*/i.test(arahLabel2)) {
                         arahLabel2 = arahLabel2.replace(/^(Ekstra|Exstra)\s*/i, '').trim();
                     }
