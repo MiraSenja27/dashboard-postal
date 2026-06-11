@@ -5229,6 +5229,13 @@
                 let route1 = routesData[i];
                 let route2 = routesData[i + 1];
 
+                // Untuk Rute 4A, tukar posisi route1 dan route2 agar chartbar atas dan bawah tertukar
+                if (/Rute\s*4A/i.test(route1.name) && route2 && /Rute\s*4A/i.test(route2.name)) {
+                    const temp = route1;
+                    route1 = route2;
+                    route2 = temp;
+                }
+
                 // Jangan tampilkan Rute Ekstra jika tidak ada datanya (kosong)
                 if (/^(EXTRA|Ekstra|Exstra)/i.test(route1.name) && (!route1.postal && !route1.nonPostal)) {
                     i += 1;
