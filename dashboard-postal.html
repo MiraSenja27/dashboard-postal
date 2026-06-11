@@ -2027,7 +2027,7 @@
                     const cardsCount = statCards.length;
                     const spacingX = 0.15;
                     const maxSlideWidth = 9.5; // Leaving 0.25 margin on each side for a 10-inch slide
-                    
+
                     // Calculate dynamic width based on number of cards to fit in one row
                     const cardWidth = (maxSlideWidth - (spacingX * (cardsCount - 1))) / cardsCount;
                     const cardHeight = cardWidth * 0.6; // Maintain an aesthetic aspect ratio
@@ -2041,7 +2041,7 @@
                             scale: 2
                         });
                         const imgData = canvas.toDataURL('image/png');
-                        
+
                         slide2.addImage({
                             data: imgData,
                             x: startX + (i * (cardWidth + spacingX)),
@@ -2050,6 +2050,24 @@
                             h: cardHeight
                         });
                     }
+                }
+
+                // Tambahkan Piechart, Tabel, dan Label di bawah stat cards
+                const breakdownContainer = document.querySelector('.doughnut-chart-container') || document.querySelector('#chartBreakdown')?.parentElement?.parentElement?.parentElement;
+                if (breakdownContainer) {
+                    const canvas = await html2canvas(breakdownContainer, {
+                        backgroundColor: '#ffffff',
+                        scale: 2
+                    });
+                    const imgData = canvas.toDataURL('image/png');
+
+                    slide2.addImage({
+                        data: imgData,
+                        x: 0.25,
+                        y: 2.5,
+                        w: 9.5,
+                        h: 3.5
+                    });
                 }
 
                 // Slide 3: Top 5 Rankings - Screenshot
@@ -2631,17 +2649,17 @@
                     data: {
                         labels: chartData.map(d => d.label),
                         datasets: [
-                            { 
-                                label: 'Postal (kg)', 
-                                data: chartData.map(d => d.postal), 
-                                backgroundColor: '#FF8C42', 
-                                borderRadius: 3 
+                            {
+                                label: 'Postal (kg)',
+                                data: chartData.map(d => d.postal),
+                                backgroundColor: '#FF8C42',
+                                borderRadius: 3
                             },
-                            { 
-                                label: 'Poslog (kg)', 
-                                data: chartData.map(d => d.poslog), 
-                                backgroundColor: '#4ECDC4', 
-                                borderRadius: 3 
+                            {
+                                label: 'Poslog (kg)',
+                                data: chartData.map(d => d.poslog > 0 ? d.poslog : 0.1), // Minimum value untuk visibility
+                                backgroundColor: '#4ECDC4',
+                                borderRadius: 3
                             }
                         ]
                     },
