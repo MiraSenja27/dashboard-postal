@@ -2117,23 +2117,23 @@
                             x: 0.5, y: 3.2, w: 12.33, h: 0.6, fontSize: 18, color: '94A3B8', align: 'center'
                         });
                     } else {
-                        // ── Grafik batang bertingkat (Postal + Poslog + Sisa Kapasitas) ──
+                        // ── Grafik batang horizontal bertingkat (Postal + Poslog) mirip dengan tampilan web ──
                         const sortedAll = [...rdAll].sort((a, b) => (b.postal + b.poslog) - (a.postal + a.poslog));
                         const topN = sortedAll.slice(0, 10);
                         const chartRows = [...topN].reverse(); // biar nilai terbesar di atas
                         const labels = chartRows.map(r => r.name);
                         const chartData = [
                             { name: 'Postal (kg)', labels, values: chartRows.map(r => Math.round(r.postal)) },
-                            { name: 'Poslog (kg)', labels, values: chartRows.map(r => Math.round(r.poslog)) },
-                            { name: 'Sisa Kapasitas (kg)', labels, values: chartRows.map(r => Math.round(r.kapasitas - r.postal - r.poslog)) }
+                            { name: 'Poslog (kg)', labels, values: chartRows.map(r => Math.round(r.poslog)) }
                         ];
                         const chartTitle = sortedAll.length > 10
                             ? `Volume per Rute (10 teratas dari ${sortedAll.length} rute)`
                             : 'Volume per Rute';
                         summary.addChart(pptx.ChartType.bar, chartData, {
                             x: 0.5, y: 1.4, w: 12.33, h: 5.2,
-                            barDir: 'bar', barGrouping: 'stacked',
-                            chartColors: ['F59E0B', '14B8A6', 'E2E8F0'],
+                            barDir: 'bar', // Horizontal bar chart
+                            barGrouping: 'stacked',
+                            chartColors: ['F59E0B', '14B8A6'],
                             showTitle: true, title: chartTitle, titleFontSize: 18, titleColor: '1E3C72',
                             showLegend: true, legendPos: 'b', legendFontSize: 12,
                             catAxisLabelFontSize: 10, valAxisLabelFontSize: 10,
@@ -2143,7 +2143,7 @@
 
                         // Catatan cara membaca
                         summary.addText(
-                            'Cara membaca: tiap batang = total kapasitas satu rute; bagian oranye = Postal, hijau-toska = Poslog, abu-abu = Sisa Kapasitas. Rute diurutkan dari volume terbesar.',
+                            'Cara membaca: tiap batang = total kiriman satu rute; bagian oranye = Postal, hijau-toska = Poslog. Rute diurutkan dari volume terbesar.',
                             { x: 0.5, y: 6.75, w: 12.33, h: 0.5, fontSize: 11, italic: true, color: '64748B' }
                         );
                     }
