@@ -2030,7 +2030,7 @@
 
                     // Calculate dynamic width based on number of cards to fit in one row
                     const cardWidth = (maxSlideWidth - (spacingX * (cardsCount - 1))) / cardsCount;
-                    const cardHeight = cardWidth * 0.6; // Maintain an aesthetic aspect ratio
+                    const cardHeight = cardWidth * 0.8; // Increase aspect ratio for better content visibility
                     const startX = 0.25;
                     const startY = 1.5;
 
@@ -2038,7 +2038,7 @@
                         const card = statCards[i];
                         const canvas = await html2canvas(card, {
                             backgroundColor: null, // Transparent background for rounded corners
-                            scale: 2
+                            scale: 3 // Increase scale for better clarity
                         });
                         const imgData = canvas.toDataURL('image/png');
 
@@ -2117,79 +2117,33 @@
                             x: 0.5, y: 3.2, w: 12.33, h: 0.6, fontSize: 18, color: '94A3B8', align: 'center'
                         });
                     } else {
-                        const totalPostal = rdAll.reduce((s, r) => s + r.postal, 0);
-                        const totalPoslog = rdAll.reduce((s, r) => s + r.poslog, 0);
-                        const totalVol = totalPostal + totalPoslog;
-                        const topPostal = rdAll.reduce((a, b) => (b.postal > a.postal ? b : a), rdAll[0]);
-                        const topPoslog = rdAll.reduce((a, b) => (b.poslog > a.poslog ? b : a), rdAll[0]);
-                        const pctP = totalPostal > 0 ? Math.round(topPostal.postal / totalPostal * 100) : 0;
-                        const pctL = totalPoslog > 0 ? Math.round(topPoslog.poslog / totalPoslog * 100) : 0;
-
-                        // ── Kolom kiri: kartu juara Postal & Poslog + agregat ──
-                        // Kartu Postal Terbanyak
-                        summary.addShape(pptx.ShapeType.roundRect, {
-                            x: 0.5, y: 1.4, w: 4.3, h: 1.5, fill: { color: 'FFF7ED' },
-                            line: { color: 'F59E0B', width: 1.25 }, rectRadius: 0.08
-                        });
-                        summary.addText('🏆 POSTAL TERBANYAK', { x: 0.7, y: 1.5, w: 3.9, h: 0.3, fontSize: 11, bold: true, color: 'B45309' });
-                        summary.addText(topPostal.name, { x: 0.7, y: 1.82, w: 3.9, h: 0.4, fontSize: 18, bold: true, color: '1E293B' });
-                        summary.addText(`${fmt(topPostal.postal)} kg  (${pctP}% dari total Postal)`, { x: 0.7, y: 2.28, w: 3.9, h: 0.5, fontSize: 16, bold: true, color: 'EA580C' });
-
-                        // Kartu Poslog Terbanyak
-                        summary.addShape(pptx.ShapeType.roundRect, {
-                            x: 0.5, y: 3.05, w: 4.3, h: 1.5, fill: { color: 'F0FDFA' },
-                            line: { color: '14B8A6', width: 1.25 }, rectRadius: 0.08
-                        });
-                        summary.addText('🏆 POSLOG TERBANYAK', { x: 0.7, y: 3.15, w: 3.9, h: 0.3, fontSize: 11, bold: true, color: '0F766E' });
-                        summary.addText(topPoslog.name, { x: 0.7, y: 3.47, w: 3.9, h: 0.4, fontSize: 18, bold: true, color: '1E293B' });
-                        summary.addText(`${fmt(topPoslog.poslog)} kg  (${pctL}% dari total Poslog)`, { x: 0.7, y: 3.93, w: 3.9, h: 0.5, fontSize: 16, bold: true, color: '0D9488' });
-
-                        // Strip agregat (2x2)
-                        const aggY = 4.7;
-                        summary.addShape(pptx.ShapeType.roundRect, {
-                            x: 0.5, y: aggY, w: 4.3, h: 1.9, fill: { color: 'F8FAFC' },
-                            line: { color: 'E2E8F0', width: 1 }, rectRadius: 0.08
-                        });
-                        const aggItems = [
-                            { l: 'Total Postal', v: `${fmt(totalPostal)} kg`, c: 'EA580C' },
-                            { l: 'Total Poslog', v: `${fmt(totalPoslog)} kg`, c: '0D9488' },
-                            { l: 'Total Volume', v: `${fmt(totalVol)} kg`, c: '1E3C72' },
-                            { l: 'Rute Aktif', v: `${rdAll.length} rute`, c: '1E3C72' }
-                        ];
-                        aggItems.forEach((it, idx) => {
-                            const col = idx % 2, row = Math.floor(idx / 2);
-                            const ax = 0.7 + col * 2.05;
-                            const ay = aggY + 0.18 + row * 0.85;
-                            summary.addText(it.l, { x: ax, y: ay, w: 1.95, h: 0.3, fontSize: 10, color: '64748B' });
-                            summary.addText(it.v, { x: ax, y: ay + 0.28, w: 1.95, h: 0.4, fontSize: 15, bold: true, color: it.c });
-                        });
-
-                        // ── Kolom kanan: grafik batang bertingkat (Postal + Poslog) ──
+                        // ── Grafik batang bertingkat (Postal + Poslog + Sisa Kapasitas) ──
                         const sortedAll = [...rdAll].sort((a, b) => (b.postal + b.poslog) - (a.postal + a.poslog));
                         const topN = sortedAll.slice(0, 10);
                         const chartRows = [...topN].reverse(); // biar nilai terbesar di atas
                         const labels = chartRows.map(r => r.name);
                         const chartData = [
                             { name: 'Postal (kg)', labels, values: chartRows.map(r => Math.round(r.postal)) },
-                            { name: 'Poslog (kg)', labels, values: chartRows.map(r => Math.round(r.poslog)) }
+                            { name: 'Poslog (kg)', labels, values: chartRows.map(r => Math.round(r.poslog)) },
+                            { name: 'Sisa Kapasitas (kg)', labels, values: chartRows.map(r => Math.round(r.kapasitas - r.postal - r.poslog)) }
                         ];
                         const chartTitle = sortedAll.length > 10
                             ? `Volume per Rute (10 teratas dari ${sortedAll.length} rute)`
                             : 'Volume per Rute';
                         summary.addChart(pptx.ChartType.bar, chartData, {
-                            x: 5.1, y: 1.4, w: 7.7, h: 5.2,
+                            x: 0.5, y: 1.4, w: 12.33, h: 5.2,
                             barDir: 'bar', barGrouping: 'stacked',
-                            chartColors: ['F59E0B', '14B8A6'],
-                            showTitle: true, title: chartTitle, titleFontSize: 14, titleColor: '1E3C72',
-                            showLegend: true, legendPos: 'b', legendFontSize: 11,
-                            catAxisLabelFontSize: 9, valAxisLabelFontSize: 9,
+                            chartColors: ['F59E0B', '14B8A6', 'E2E8F0'],
+                            showTitle: true, title: chartTitle, titleFontSize: 18, titleColor: '1E3C72',
+                            showLegend: true, legendPos: 'b', legendFontSize: 12,
+                            catAxisLabelFontSize: 10, valAxisLabelFontSize: 10,
                             valAxisLabelFormatCode: '#,##0',
                             showValue: false, barGapWidthPct: 40
                         });
 
                         // Catatan cara membaca
                         summary.addText(
-                            'Cara membaca: tiap batang = total kiriman satu rute; bagian oranye = Postal, hijau-toska = Poslog. Rute diurutkan dari volume terbesar.',
+                            'Cara membaca: tiap batang = total kapasitas satu rute; bagian oranye = Postal, hijau-toska = Poslog, abu-abu = Sisa Kapasitas. Rute diurutkan dari volume terbesar.',
                             { x: 0.5, y: 6.75, w: 12.33, h: 0.5, fontSize: 11, italic: true, color: '64748B' }
                         );
                     }
