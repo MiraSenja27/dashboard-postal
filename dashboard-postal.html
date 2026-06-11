@@ -2657,7 +2657,14 @@
                             },
                             {
                                 label: 'Poslog (kg)',
-                                data: chartData.map(d => d.poslog > 0 ? d.poslog : 0.1), // Minimum value untuk visibility
+                                data: chartData.map(d => {
+                                    if (d.poslog > 0) {
+                                        // Minimum 5% dari postal agar terlihat
+                                        const minVisible = Math.max(d.postal * 0.05, 10);
+                                        return Math.max(d.poslog, minVisible);
+                                    }
+                                    return 0;
+                                }),
                                 backgroundColor: '#4ECDC4',
                                 borderRadius: 3
                             }
