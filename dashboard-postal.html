@@ -5468,9 +5468,9 @@
                 }
 
                 let arahLabel1 = getFullRoutePath(route1.name);
-                // Untuk Rute 4A, tukar label arah
+                // Untuk Rute 4A, hanya ubah label arah tanpa menukar data
                 if (/Rute\s*4A/i.test(route1.name)) {
-                    arahLabel1 = 'PWT-CN';
+                    arahLabel1 = 'CN- PWT';
                 }
                 if (/^(Ekstra|Exstra)\s*/i.test(arahLabel1)) {
                     arahLabel1 = arahLabel1.replace(/^(Ekstra|Exstra)\s*/i, '').trim();
@@ -5562,8 +5562,9 @@
                     }
                     
                     let arahLabel2 = getFullRoutePath(route2.name);
+                    // Untuk Rute 4A, hanya ubah label arah tanpa menukar data
                     if (/Rute\s*4A/i.test(route2.name)) {
-                        arahLabel2 = 'CN- PWT';
+                        arahLabel2 = 'PWT-CN';
                     }
                     if (/^(Ekstra|Exstra)\s*/i.test(arahLabel2)) {
                         arahLabel2 = arahLabel2.replace(/^(Ekstra|Exstra)\s*/i, '').trim();
