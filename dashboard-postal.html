@@ -5309,7 +5309,7 @@
 
                 const getDummySLACardsHTML = (routeName, postalVal, postalPct, nonPostalVal, nonPostalPct, spacePct) => {
                     // 1. Selalu render Legend Volume terlebih dahulu
-                    const isExtraKcuSolo = /EXTRA.*KCU SOLO.*SPP YOGYAKARTA.*SPP SURABAYA/i.test(routeName);
+                    const isExtraKcuSolo = /KCU SOLO.*SPP YOGYAKARTA.*SPP SURABAYA/i.test(routeName);
                     const legendHtml = `
                     <div class="volume-legend" style="margin-bottom: ${isExtraKcuSolo ? '5px' : '25px'}; display: flex; flex-wrap: wrap; gap: 20px; background: #f0f4f8; padding: 15px; border-radius: 12px; border: 1px solid #d1d9e6;">
                         <div class="legend-item" style="display: flex; align-items: center; gap: 10px;">
@@ -5400,8 +5400,27 @@
                     .map(([jenis, jumlah]) => `<span style="background:#e2e8f0; color:#1e293b; padding:6px 14px; border-radius:20px; font-size:14px; font-weight:800; box-shadow:0 1px 4px rgba(0,0,0,0.08); display:inline-flex; align-items:center; gap:4px; letter-spacing:0.2px;">${jumlah} ${jenis}</span>`)
                     .join('');
 
-                html += `<div class="route-card" data-route-names="${route1.name}${isSamePair && route2 ? '|' + route2.name : ''}" style="padding: ${/EXTRA.*KCU SOLO.*SPP YOGYAKARTA.*SPP SURABAYA/i.test(route1.name) ? '15px' : '25px'};"><div class="route-header" style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
+                // Hitung total persentase volume gabungan dan sisa kapasitas untuk semua arah dalam Rute
+                let totalPostal = route1.postal || 0;
+                let totalNonPostal = route1.nonPostal || 0;
+                let totalKapasitas = route1.kapasitas || 0;
+                
+                if (isSamePair && route2) {
+                    totalPostal += (route2.postal || 0);
+                    totalNonPostal += (route2.nonPostal || 0);
+                    totalKapasitas += (route2.kapasitas || 0);
+                }
+                
+                const totalVolume = totalPostal + totalNonPostal;
+                const totalVolumePct = totalKapasitas > 0 ? ((totalVolume / totalKapasitas) * 100).toFixed(1) : 0;
+                const sisaKapasitasPct = totalKapasitas > 0 ? (100 - totalVolumePct).toFixed(1) : 0;
+
+                html += `<div class="route-card" data-route-names="${route1.name}${isSamePair && route2 ? '|' + route2.name : ''}" style="padding: ${/KCU SOLO.*SPP YOGYAKARTA.*SPP SURABAYA/i.test(route1.name) ? '15px' : '25px'};"><div class="route-header" style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
                     <div class="route-name" style="flex:1; min-width:0;">${displayName}</div>
+                    <div style="display:flex; align-items:center; gap:12px; margin-left:auto;">
+                        <span style="background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:white; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:800; box-shadow:0 2px 8px rgba(59,130,246,0.3);">Vol: ${totalVolumePct}%</span>
+                        <span style="background:linear-gradient(135deg,#10b981,#059669); color:white; padding:6px 14px; border-radius:20px; font-size:13px; font-weight:800; box-shadow:0 2px 8px rgba(16,185,129,0.3);">Sisa: ${sisaKapasitasPct}%</span>
+                    </div>
                     <div class="total-unit-display" style="display:${slaVisible ? 'flex' : 'none'}; gap:8px; align-items:center;">
                         ${combinedUnitsBadges}
                     </div>
@@ -5468,7 +5487,7 @@
                 const visualSpace1 = vSpace;
 
                 html += `
-                <div class="route-section" style="margin-bottom: ${/EXTRA.*KCU SOLO.*SPP YOGYAKARTA.*SPP SURABAYA/i.test(route1.name) ? '5px' : '15px'};">
+                <div class="route-section" style="margin-bottom: ${/KCU SOLO.*SPP YOGYAKARTA.*SPP SURABAYA/i.test(route1.name) ? '5px' : '15px'};">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 15px;">
                         <h4 style="color: #1e3c72; margin: 0; font-size: 20px; font-weight: 900; letter-spacing:0.2px;">Arah: (${arahLabel1})</h4>
                         <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
@@ -5487,7 +5506,7 @@
                             ${route1.totalUnits ? route1.totalUnits.filter(tu => tu.jumlah > 0).map(tu => `<span style="background:#e2e8f0; color:#1e293b; padding:6px 14px; border-radius:20px; font-size:14px; font-weight:800; box-shadow:0 1px 4px rgba(0,0,0,0.08); display:inline-flex; align-items:center; gap:4px; letter-spacing:0.2px;">${tu.jumlah} ${tu.jenis}</span>`).join('') : ''}
                         </div>
                     </div>
-                    <div class="route-visual" style="margin-bottom: ${/EXTRA.*KCU SOLO.*SPP YOGYAKARTA.*SPP SURABAYA/i.test(route1.name) ? '5px' : '25px'};">
+                    <div class="route-visual" style="margin-bottom: ${/KCU SOLO.*SPP YOGYAKARTA.*SPP SURABAYA/i.test(route1.name) ? '5px' : '25px'};">
                         <div class="truck-icon truck-right">🚛</div>
                         <div class="volume-bar" style="position: relative; width: 100%; height: 40px; border-radius: 10px; overflow: hidden; box-shadow: inset 0 2px 10px rgba(0,0,0,0.15); border: 1px solid #ccc;">
                             <div class="volume-fill" style="display: flex; width: 100%; height: 100%;">
