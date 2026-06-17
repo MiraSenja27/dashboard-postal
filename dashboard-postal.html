@@ -5486,7 +5486,7 @@
                             ${route1.totalUnits ? route1.totalUnits.filter(tu => tu.jumlah > 0).map(tu => `<span style="background:#e2e8f0; color:#1e293b; padding:6px 14px; border-radius:20px; font-size:14px; font-weight:800; box-shadow:0 1px 4px rgba(0,0,0,0.08); display:inline-flex; align-items:center; gap:4px; letter-spacing:0.2px;">${tu.jumlah} ${tu.jenis}</span>`).join('') : ''}
                         </div>
                     </div>
-                    <div class="route-visual" style="margin-bottom: ${/^(EXTRA|Ekstra|Exstra)/i.test(route1.name) ? '5px' : '25px'};">
+                    <div class="route-visual" style="margin-bottom: ${/EXTRA.*KCU SOLO.*SPP YOGYAKARTA.*SPP SURABAYA/i.test(route1.name) ? '5px' : '25px'};">
                         <div class="truck-icon truck-right">🚛</div>
                         <div class="volume-bar" style="position: relative; width: 100%; height: 40px; border-radius: 10px; overflow: hidden; box-shadow: inset 0 2px 10px rgba(0,0,0,0.15); border: 1px solid #ccc;">
                             <div class="volume-fill" style="display: flex; width: 100%; height: 100%;">
