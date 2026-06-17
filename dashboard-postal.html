@@ -5309,8 +5309,9 @@
 
                 const getDummySLACardsHTML = (routeName, postalVal, postalPct, nonPostalVal, nonPostalPct, spacePct) => {
                     // 1. Selalu render Legend Volume terlebih dahulu
+                    const isExtraKcuSolo = /EXTRA.*KCU SOLO.*SPP YOGYAKARTA.*SPP SURABAYA/i.test(routeName);
                     const legendHtml = `
-                    <div class="volume-legend" style="margin-bottom: 25px; display: flex; flex-wrap: wrap; gap: 20px; background: #f0f4f8; padding: 15px; border-radius: 12px; border: 1px solid #d1d9e6;">
+                    <div class="volume-legend" style="margin-bottom: ${isExtraKcuSolo ? '5px' : '25px'}; display: flex; flex-wrap: wrap; gap: 20px; background: #f0f4f8; padding: 15px; border-radius: 12px; border: 1px solid #d1d9e6;">
                         <div class="legend-item" style="display: flex; align-items: center; gap: 10px;">
                             <div class="legend-color legend-postal" style="width: 16px; height: 16px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
                             <span style="font-size: 15px; color: #e67e22; font-weight: 800;">Postal: </span>
