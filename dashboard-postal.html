@@ -5361,14 +5361,14 @@
                         }
 
                         const pointsHtml = routePoints.map(pt => `
-                        <div class="sla-point">
+                        <div class="sla-point" style="padding: ${isExtraKcuSolo ? '5px 8px' : '10px 14px'};">
                             <div class="sla-time" style="font-size: 16px; font-weight: 800;">${pt.t}</div>
                             <div class="sla-label" style="font-size: 14px; font-weight: 600;">${pt.l}</div>
                             <div class="sla-target" style="font-size: 12px;">N22: ${pt.t}</div>
                         </div>`).join('');
 
                         slaTimelineHtml = `
-                        <div class="sla-timeline" style="background: transparent; padding: 0; margin-top: ${isExtraKcuSolo ? '5px' : '20px'};">
+                        <div class="sla-timeline" style="background: transparent; padding: ${isExtraKcuSolo ? '5px' : '15px'}; margin-top: ${isExtraKcuSolo ? '5px' : '20px'}; margin-bottom: ${isExtraKcuSolo ? '0' : '0'}; gap: ${isExtraKcuSolo ? '8px' : '15px'};">
                             ${pointsHtml}
                         </div>`;
                     }
