@@ -2488,8 +2488,15 @@
 
             const data = Object.values(ruteMap).filter(function(r){ return r.postal > 0 || r.poslog > 0; });
 
-            // Sort all routes by total volume (highest to lowest)
-            const sortedData = data.sort(function(a,b){ return (b.postal+b.poslog)-(a.postal+a.poslog); });
+            // Sort all routes based on active mode
+            let sortedData;
+            if (_chartPagination.mode === 'ALL') {
+                sortedData = data.sort(function(a,b){ return (b.postal+b.poslog)-(a.postal+a.poslog); });
+            } else if (_chartPagination.mode === 'POSTAL') {
+                sortedData = data.sort(function(a,b){ return b.postal - a.postal; });
+            } else if (_chartPagination.mode === 'POSLOG') {
+                sortedData = data.sort(function(a,b){ return b.poslog - a.poslog; });
+            }
 
             // Validate pagination
             const totalPages = Math.ceil(sortedData.length / _chartPagination.pageSize);
