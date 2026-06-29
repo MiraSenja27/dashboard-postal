@@ -1376,6 +1376,7 @@
             <div id="volume-action-btns" style="display:none; width:100%; align-items:center; flex-wrap:nowrap;">
                 <div style="display:flex; gap:10px; align-items:center; flex-shrink:0;">
                     <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadVolume(currentMenu)">📤 Upload Volume</button>
+                    <button style="padding: 8px 16px; background: #9333ea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadPendapatan(currentMenu)">💰 Upload Pendapatan</button>
                     <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedVolume()">🗑️ Hapus Terpilih</button>
                     <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadVolumeExcel()">Excel 📊</button>
                 </div>
@@ -1757,6 +1758,42 @@
                             await loadDashboardData();
                             if (currentView === 'volume') await loadVolumeData();
                             if (currentView === 'sla') await loadSLAData();
+                        } else {
+                            alert(`❌ Error: ${result.message}`);
+                        }
+                    } catch (error) {
+                        alert(`❌ Error uploading file: ${error.message}`);
+                    }
+                }
+            };
+            input.click();
+        }
+
+        async function showUploadPendapatan(category) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.xlsx,.xls';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+                    formData.append('category', category);
+
+                    try {
+                        const response = await fetch(`${API_URL}/upload-pendapatan`, {
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        const result = await response.json();
+
+                        if (result.success) {
+                            alert(`✅ ${result.message}\n\nData pendapatan berhasil diupload dan tabel volume akan diperbarui.`);
+                            // Refresh ALL views after upload to ensure data appears
+                            await loadAvailableWeeks();
+                            await loadDashboardData();
+                            if (currentView === 'volume') await loadVolumeData();
                         } else {
                             alert(`❌ Error: ${result.message}`);
                         }
@@ -4583,6 +4620,10 @@
                 const sisaColorHari = sisaPercentHari < 0 ? '#f44336' : '#4CAF50';
                 rowsHTML += `<td style="color: ${sisaColorHari}; font-weight: bold;">${sisaDisplayHari}</td>`;
 
+                // Pendapatan column
+                const pendapatanValue = record.pendapatan != null ? record.pendapatan.toLocaleString('id-ID') : '-';
+                rowsHTML += `<td style="text-align: left;">${pendapatanValue}</td>`;
+
                 // Aksi column
                 if (isAdmin()) {
                     rowsHTML += `<td style="text-align: center;">
@@ -4596,6 +4637,7 @@
             // Calculate totals
             const totalPostal = volumeData.reduce((sum, r) => sum + (parseFloat(r.postal) || 0), 0);
             const totalPoslog = volumeData.reduce((sum, r) => sum + (parseFloat(r.nonPostal) || 0), 0);
+            const totalPendapatan = volumeData.reduce((sum, r) => sum + (parseFloat(r.pendapatan) || 0), 0);
 
             return `
                 <div class="table-scroll-wrapper">
@@ -4618,6 +4660,7 @@
                             <th style="width: 130px; white-space: nowrap;">Kapasitas/hari</th>
                             <th style="width: 120px; white-space: nowrap;">Sisa/minggu</th>
                             <th style="width: 120px; white-space: nowrap;">Sisa/hari</th>
+                            <th style="width: 120px; white-space: nowrap;">Pendapatan</th>
                             ${isAdmin() ? '<th style="width: 70px; white-space: nowrap;">Aksi</th>' : ''}
                         </tr>
                     </thead>
@@ -4633,7 +4676,7 @@
                             <td>-</td>
                             <td>-</td>
                             <td>-</td>
-                            <td></td>
+                            <td style="color: #9333ea; font-weight: bold;">${totalPendapatan.toLocaleString('id-ID')}</td>
                             <td></td>
                         </tr>
                     </tfoot>
