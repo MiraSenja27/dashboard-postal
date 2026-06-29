@@ -1428,7 +1428,14 @@
                         
                         <!-- Horizontal Bar Chart -->
                         <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); display:flex; flex-direction:column;">
-                            <h4 id="chartTopRutesTitle" style="color:#1e3c72; margin-bottom:15px; font-weight:700; font-size:14px;">Volume per Rute (10 teratas)</h4>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                                <h4 id="chartTopRutesTitle" style="color:#1e3c72; margin:0; font-weight:700; font-size:14px;">Volume per Rute (10 teratas)</h4>
+                                <div style="display:flex; gap:8px; align-items:center;">
+                                    <button onclick="setChartMode('ALL')" style="padding:6px 12px; background:#1e3c72; color:white; border:none; border-radius:4px; cursor:pointer; font-size:12px; font-weight:700;">ALL</button>
+                                    <button onclick="prevPage()" style="padding:6px 12px; background:#e2e8f0; color:#1e3c72; border:none; border-radius:4px; cursor:pointer; font-size:12px; font-weight:700;">◀ Prev</button>
+                                    <button onclick="nextPage()" style="padding:6px 12px; background:#e2e8f0; color:#1e3c72; border:none; border-radius:4px; cursor:pointer; font-size:12px; font-weight:700;">Next ▶</button>
+                                </div>
+                            </div>
                             <div class="chart-container-left">
                                 <canvas id="chartTopRutes"></canvas>
                             </div>
@@ -2393,6 +2400,25 @@
 
         // Dashboard Charts Function
         let _chartInstances = {};
+        let _chartPagination = { currentPage: 0, pageSize: 10, mode: 'ALL' }; // mode: ALL, POSTAL, POSLOG
+
+        function setChartMode(mode) {
+            _chartPagination.mode = mode;
+            _chartPagination.currentPage = 0;
+            _renderDashboardCharts();
+        }
+
+        function prevPage() {
+            if (_chartPagination.currentPage > 0) {
+                _chartPagination.currentPage--;
+                _renderDashboardCharts();
+            }
+        }
+
+        function nextPage() {
+            _chartPagination.currentPage++;
+            _renderDashboardCharts();
+        }
 
         function showDashboardCharts() {
             goToDashboardDefault();
@@ -2461,7 +2487,19 @@
             });
 
             const data = Object.values(ruteMap).filter(function(r){ return r.postal > 0 || r.poslog > 0; });
-            
+
+            // Sort all routes by total volume (highest to lowest)
+            const sortedData = data.sort(function(a,b){ return (b.postal+b.poslog)-(a.postal+a.poslog); });
+
+            // Validate pagination
+            const totalPages = Math.ceil(sortedData.length / _chartPagination.pageSize);
+            if (_chartPagination.currentPage >= totalPages) {
+                _chartPagination.currentPage = totalPages - 1;
+            }
+            if (_chartPagination.currentPage < 0) {
+                _chartPagination.currentPage = 0;
+            }
+
             // Destroy existing charts to clear them if no data or re-rendering
             if (_chartInstances.top) { _chartInstances.top.destroy(); _chartInstances.top = null; }
             if (_chartInstances.breakdown) { _chartInstances.breakdown.destroy(); _chartInstances.breakdown = null; }
@@ -2471,12 +2509,16 @@
                 return;
             }
 
-            const top10 = data.sort(function(a,b){ return (b.postal+b.poslog)-(a.postal+a.poslog); }).slice(0,10);
             const totalPostal = data.reduce(function(s,r){ return s+r.postal; }, 0);
             const totalPoslog = data.reduce(function(s,r){ return s+r.poslog; }, 0);
 
             function fmtNum(n){ return n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toFixed(0); }
-            document.getElementById('chartTopRutesTitle').textContent = 'Volume Terbanyak (10 teratas dari ' + data.length + ' rute)';
+
+            // Update title based on pagination
+            const startIdx = _chartPagination.currentPage * _chartPagination.pageSize;
+            const endIdx = Math.min(startIdx + _chartPagination.pageSize, sortedData.length);
+            document.getElementById('chartTopRutesTitle').textContent =
+                `Volume Rute (${startIdx + 1}-${endIdx} dari ${sortedData.length} rute) - Halaman ${_chartPagination.currentPage + 1}/${totalPages}`;
 
             // Generate Insight Rute Terbanyak (Top 3)
             let sortedPostal = [...data].sort((a,b) => b.postal - a.postal).slice(0, 3);
@@ -2603,7 +2645,7 @@
                 if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
                     // Mode filter rute aktif - tampilkan titik pemberhentian
                     const stops = getRouteStops(routeFilter);
-                    const routeData = top10.find(r => r.name === routeFilter);
+                    const routeData = sortedData.find(r => r.name === routeFilter);
                     
                     if (routeData && stops.length > 0) {
                         // HANYA 1 BAR untuk rute yang dipilih (BUKAN 3 bar terpisah)
@@ -2618,16 +2660,14 @@
                             `Urutan Pemberhentian: ${routeFilter} (${stops.join(' → ')})`;
                     }
                 } else {
-                    // Mode normal - tampilkan top routes
-                    chartData = top10.map(r => ({
+                    // Mode normal - tampilkan routes dengan pagination
+                    const pagedData = sortedData.slice(startIdx, endIdx);
+                    chartData = pagedData.map(r => ({
                         label: r.name,
                         postal: r.postal,
                         poslog: r.poslog,
                         originalRoute: r.name
                     }));
-                    
-                    document.getElementById('chartTopRutesTitle').textContent = 
-                        'Volume Terbanyak (10 teratas dari ' + data.length + ' rute)';
                 }
 
                 if (chartData.length === 0) {
@@ -2635,31 +2675,54 @@
                     return;
                 }
 
+                // Build datasets based on mode
+                let datasets = [];
+                if (_chartPagination.mode === 'ALL') {
+                    datasets = [
+                        {
+                            label: 'Postal (kg)',
+                            data: chartData.map(d => d.postal),
+                            backgroundColor: '#FF8C42',
+                            borderRadius: 3
+                        },
+                        {
+                            label: 'Poslog (kg)',
+                            data: chartData.map(d => {
+                                if (d.poslog > 0) {
+                                    const minVisible = Math.max(d.postal * 0.05, 10);
+                                    return Math.max(d.poslog, minVisible);
+                                }
+                                return 0;
+                            }),
+                            backgroundColor: '#4ECDC4',
+                            borderRadius: 3
+                        }
+                    ];
+                } else if (_chartPagination.mode === 'POSTAL') {
+                    datasets = [
+                        {
+                            label: 'Postal (kg)',
+                            data: chartData.map(d => d.postal),
+                            backgroundColor: '#FF8C42',
+                            borderRadius: 3
+                        }
+                    ];
+                } else if (_chartPagination.mode === 'POSLOG') {
+                    datasets = [
+                        {
+                            label: 'Poslog (kg)',
+                            data: chartData.map(d => d.poslog),
+                            backgroundColor: '#4ECDC4',
+                            borderRadius: 3
+                        }
+                    ];
+                }
+
                 _chartInstances.top = new Chart(ctx1, {
                     type: 'bar',
                     data: {
                         labels: chartData.map(d => d.label),
-                        datasets: [
-                            {
-                                label: 'Postal (kg)',
-                                data: chartData.map(d => d.postal),
-                                backgroundColor: '#FF8C42',
-                                borderRadius: 3
-                            },
-                            {
-                                label: 'Poslog (kg)',
-                                data: chartData.map(d => {
-                                    if (d.poslog > 0) {
-                                        // Minimum 5% dari postal agar terlihat
-                                        const minVisible = Math.max(d.postal * 0.05, 10);
-                                        return Math.max(d.poslog, minVisible);
-                                    }
-                                    return 0;
-                                }),
-                                backgroundColor: '#4ECDC4',
-                                borderRadius: 3
-                            }
-                        ]
+                        datasets: datasets
                     },
                     options: {
                         indexAxis: 'y',
@@ -2670,7 +2733,20 @@
                             intersect: true,
                         },
                         plugins: {
-                            legend: { position: 'bottom', labels: { font: { size: 13 }, padding: 16 } },
+                            legend: { 
+                                position: 'bottom', 
+                                labels: { font: { size: 13 }, padding: 16 },
+                                onClick: function(e, legendItem, legend) {
+                                    const label = legendItem.text;
+                                    if (label.includes('Postal')) {
+                                        _chartPagination.mode = 'POSTAL';
+                                    } else if (label.includes('Poslog')) {
+                                        _chartPagination.mode = 'POSLOG';
+                                    }
+                                    _chartPagination.currentPage = 0;
+                                    _renderDashboardCharts();
+                                }
+                            },
                             tooltip: {
                                 callbacks: {
                                     title: function(tooltipItems) {
