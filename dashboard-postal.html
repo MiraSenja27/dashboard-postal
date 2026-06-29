@@ -5423,15 +5423,14 @@
                 const cardIdx1 = i;
                 let displayName = routeKey1;
                 
-                // Simple display name mapping for Rute 11
-                const routeNameMapping = {
-                    'Rute 11 BD-SB': 'Rute 11A BD-SB',
-                    'Rute 11 SB-BD': 'Rute 11A SB-BD',
-                    'Rute 11 SB-MTR': 'Rute 11B SB-MTR',
-                    'Rute 11 MTR-SB': 'Rute 11B MTR-SB'
-                };
-                if (routeNameMapping[routeKey1]) {
-                    displayName = routeNameMapping[routeKey1];
+                // Simple display name mapping for Rute 11 based on direction
+                if (routeKey1 === 'Rute 11') {
+                    // Check the direction from route1.name
+                    if (route1.name.includes('BD-SB') || route1.name.includes('SB-BD')) {
+                        displayName = 'Rute 11A';
+                    } else if (route1.name.includes('SB-MTR') || route1.name.includes('MTR-SB')) {
+                        displayName = 'Rute 11B';
+                    }
                 }
                 if (/^(EXTRA|Ekstra|Exstra)/i.test(route1.name)) {
                     displayName = 'Extra';
