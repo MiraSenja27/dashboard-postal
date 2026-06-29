@@ -1335,7 +1335,6 @@
                     <select class="filter-input" id="weekFilter" onchange="applyWeeklyFilter()" style="width: 150px; height: 32px; font-size: 12px;">
                         <option value="">📅 Pilih Minggu</option>
                     </select>
-                    <button onclick="updateRouteNames()" style="padding: 4px 8px; background: #9333ea; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;">Update Rute 11</button>
                     <select class="filter-input" id="routeFilter" onchange="applyFilter()" style="width: 160px; height: 32px; font-size: 12px;">
                         <option value="">Semua Rute</option>
                         <option value="Rute 1 JAT-SB">Rute 1 JAT-SB</option>
@@ -4858,6 +4857,17 @@
             // applyFixedHeader dipanggil setelah data render
             // Initialize filter states for each view
             initDefaultDates();
+
+            // Auto-update route names on first load (only once)
+            const routeUpdateDone = localStorage.getItem('route11UpdateDone');
+            if (!routeUpdateDone) {
+                try {
+                    await updateRouteNames();
+                    localStorage.setItem('route11UpdateDone', 'true');
+                } catch (error) {
+                    console.error('Error updating route names:', error);
+                }
+            }
 
             // Check if user is already logged in
             const savedUser = sessionStorage.getItem('currentUser');
