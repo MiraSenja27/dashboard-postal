@@ -1335,6 +1335,7 @@
                     <select class="filter-input" id="weekFilter" onchange="applyWeeklyFilter()" style="width: 150px; height: 32px; font-size: 12px;">
                         <option value="">📅 Pilih Minggu</option>
                     </select>
+                    <button onclick="updateRouteNames()" style="padding: 4px 8px; background: #9333ea; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;">Update Rute 11</button>
                     <select class="filter-input" id="routeFilter" onchange="applyFilter()" style="width: 160px; height: 32px; font-size: 12px;">
                         <option value="">Semua Rute</option>
                         <option value="Rute 1 JAT-SB">Rute 1 JAT-SB</option>
@@ -2015,6 +2016,32 @@
                     alert(`❌ Error: ${error.message}`);
                 }
             }
+        }
+
+        async function updateRouteNames() {
+            const updates = [
+                { oldName: "Rute 11 BD-SB", newName: "Rute 11A BD-SB" },
+                { oldName: "Rute 11 SB-BD", newName: "Rute 11A SB-BD" },
+                { oldName: "Rute 11 SB-MTR", newName: "Rute 11B SB-MTR" },
+                { oldName: "Rute 11 MTR-SB", newName: "Rute 11B MTR-SB" }
+            ];
+
+            for (const update of updates) {
+                try {
+                    const response = await fetch(`${API_URL}/routes/rename`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(update)
+                    });
+                    const result = await response.json();
+                    console.log(result.message);
+                } catch (error) {
+                    console.error(`Error updating ${update.oldName}:`, error);
+                }
+            }
+
+            alert('✅ Route names updated in database. Refreshing dashboard...');
+            await loadDashboardData();
         }
 
         function showDownload(category) {
