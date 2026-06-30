@@ -2812,18 +2812,55 @@
                             backgroundColor: '#4ECDC4',
                             borderRadius: 3
                         }
-                    ];
-                } else if (_chartPagination.mode === 'POSTAL') {
+// Build both datasets always so legends stay visible
+                const zeroData = new Array(chartData.length).fill(0);
+                if (_chartPagination.mode === 'ALL') {
                     datasets = [
                         {
                             label: 'Postal (kg)',
                             data: chartData.map(d => d.postal),
                             backgroundColor: '#FF8C42',
                             borderRadius: 3
+                        },
+                        {
+                            label: 'Poslog (kg)',
+                            data: chartData.map(d => {
+                                if (d.poslog > 0) {
+                                    const minVisible = Math.max(d.postal * 0.05, 10);
+                                    return Math.max(d.poslog, minVisible);
+                                }
+                                return 0;
+                            }),
+                            backgroundColor: '#4ECDC4',
+                            borderRadius: 3
+                        }
+                    ];
+                } else if (_chartPagination.mode === 'POSTAL') {
+                    // Show only Postal data, hide Poslog by zeroing it
+                    datasets = [
+                        {
+                            label: 'Postal (kg)',
+                            data: chartData.map(d => d.postal),
+                            backgroundColor: '#FF8C42',
+                            borderRadius: 3
+                        },
+                        {
+                            label: 'Poslog (kg)',
+                            data: zeroData,
+                            backgroundColor: '#4ECDC4',
+                            borderRadius: 3
                         }
                     ];
                 } else if (_chartPagination.mode === 'POSLOG') {
+                    // Show only Poslog data, hide Postal by zeroing it
                     datasets = [
+                        {
+                            label: 'Postal (kg)',
+                            data: zeroData,
+                            backgroundColor: '#FF8C42',
+                            borderRadius: 3,
+
+                        },
                         {
                             label: 'Poslog (kg)',
                             data: chartData.map(d => {
@@ -2861,8 +2898,11 @@
                                     generateLabels: function(chart) {
                                         const original = Chart.defaults.plugins.legend.labels.generateLabels(chart);
                                         const gradient = chart.ctx.createLinearGradient(0, 0, 20, 0);
-                                        gradient.addColorStop(0, '#FF8C42'); // orange
-                                        gradient.addColorStop(1, '#4ECDC4'); // green
+                                        // half orange (left), half green (right)
+                                        gradient.addColorStop(0, '#FF8C42');
+                                        gradient.addColorStop(0.5, '#FF8C42');
+                                        gradient.addColorStop(0.5, '#4ECDC4');
+                                        gradient.addColorStop(1, '#4ECDC4');
                                         const totalLabel = {
                                             text: 'Total',
                                             fillStyle: gradient,
