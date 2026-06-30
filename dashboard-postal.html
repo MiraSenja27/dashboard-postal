@@ -2827,12 +2827,27 @@
                             intersect: true,
                         },
                         plugins: {
-                            legend: { 
-                                position: 'bottom', 
-                                labels: { font: { size: 13 }, padding: 16 },
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    // generate default dataset labels and add a custom "Total" label
+                                    generateLabels: function(chart) {
+                                        const original = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+                                        const totalLabel = {
+                                            text: 'Total',
+                                            fillStyle: '#888', // gray color for legend box
+                                            hidden: false,
+                                        };
+                                        return [...original, totalLabel];
+                                    },
+                                    font: { size: 13 },
+                                    padding: 16
+                                },
                                 onClick: function(e, legendItem, legend) {
                                     const label = legendItem.text;
-                                    if (label.includes('Postal')) {
+                                    if (label === 'Total') {
+                                        _chartPagination.mode = 'ALL';
+                                    } else if (label.includes('Postal')) {
                                         _chartPagination.mode = 'POSTAL';
                                     } else if (label.includes('Poslog')) {
                                         _chartPagination.mode = 'POSLOG';
