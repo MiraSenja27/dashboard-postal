@@ -5088,7 +5088,12 @@
             initDefaultDates();
 
             // Check if user is already logged in
-            const savedUser = localStorage.getItem('currentUser');
+            let savedUser = null;
+            try {
+                savedUser = localStorage.getItem('currentUser');
+            } catch (e) {
+                console.warn('localStorage access denied:', e);
+            }
 
             if (savedUser) {
                 try {
@@ -5169,7 +5174,11 @@
                 currentUser = { username: username, id: 1, role: 'admin' };
 
                 // Save user to localStorage agar tetap login setelah refresh
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                try {
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                } catch (e) {
+                    console.warn('localStorage access denied:', e);
+                }
 
                 document.getElementById('login-page').style.display = 'none';
                 document.getElementById('dashboard-content').style.display = 'block';
@@ -5193,7 +5202,11 @@
             if (username.toLowerCase() === 'postal' && password === 'mirasenja') {
                 currentUser = { username: 'postal', id: 2, role: 'viewer' };
 
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                try {
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                } catch (e) {
+                    console.warn('localStorage access denied:', e);
+                }
 
                 document.getElementById('login-page').style.display = 'none';
                 document.getElementById('dashboard-content').style.display = 'block';
@@ -5225,7 +5238,11 @@
                     currentUser = result.user;
 
                     // Save user to localStorage agar tetap login setelah refresh
-                    localStorage.setItem('currentUser', JSON.stringify(result.user));
+                    try {
+                        localStorage.setItem('currentUser', JSON.stringify(result.user));
+                    } catch (e) {
+                        console.warn('localStorage access denied:', e);
+                    }
 
                     document.getElementById('login-page').style.display = 'none';
                     document.getElementById('dashboard-content').style.display = 'block';
@@ -5257,7 +5274,11 @@
         // Logout function
         function logout() {
             if (confirm('Apakah Anda yakin ingin logout?')) {
-                localStorage.removeItem('currentUser');
+                try {
+                    localStorage.removeItem('currentUser');
+                } catch (e) {
+                    console.warn('localStorage access denied:', e);
+                }
                 currentUser = null;
                 document.getElementById('login-page').style.display = 'flex';
                 document.getElementById('dashboard-content').style.display = 'none';
