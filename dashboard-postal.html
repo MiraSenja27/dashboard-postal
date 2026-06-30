@@ -1443,7 +1443,36 @@
                         
                         <!-- Horizontal Bar Chart -->
                         <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); display:flex; flex-direction:column;">
-                            <h4 id="chartTopRutesTitle" style="color:#1e3c72; margin-bottom:15px; font-weight:700; font-size:14px;">Volume per Rute (10 teratas)</h4>
+                            <!-- Legend Filter & Navigation Controls -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; gap: 15px; flex-wrap: wrap;">
+                                <!-- Title -->
+                                <h4 id="chartTopRutesTitle" style="color:#1e3c72; margin: 0; font-weight:700; font-size:14px;">Volume per Rute (Top 10)</h4>
+                                
+                                <!-- Legend Filter Buttons -->
+                                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                    <button class="chart-filter-btn active" data-chart-filter="all" onclick="filterChartVolume('all')" style="padding: 6px 14px; border: 2px solid #1e3c72; background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 12px; display: flex; align-items: center; gap: 6px; transition: all 0.3s;">
+                                        <span style="display: inline-block; width: 10px; height: 10px; background: #FF8C42; border-radius: 2px;"></span>
+                                        <span style="display: inline-block; width: 10px; height: 10px; background: #4ECDC4; border-radius: 2px; margin-left: -3px;"></span>
+                                        <span>ALL</span>
+                                    </button>
+                                    <button class="chart-filter-btn" data-chart-filter="postal" onclick="filterChartVolume('postal')" style="padding: 6px 14px; border: 2px solid #FF8C42; background: white; color: #FF8C42; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 12px; display: flex; align-items: center; gap: 6px; transition: all 0.3s;">
+                                        <span style="display: inline-block; width: 14px; height: 14px; background: linear-gradient(135deg, #FF8C42, #FFA500); border-radius: 2px;"></span>
+                                        <span>POSTAL</span>
+                                    </button>
+                                    <button class="chart-filter-btn" data-chart-filter="poslog" onclick="filterChartVolume('poslog')" style="padding: 6px 14px; border: 2px solid #4ECDC4; background: white; color: #4ECDC4; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 12px; display: flex; align-items: center; gap: 6px; transition: all 0.3s;">
+                                        <span style="display: inline-block; width: 14px; height: 14px; background: linear-gradient(135deg, #4ECDC4, #44A08D); border-radius: 2px;"></span>
+                                        <span>POSLOG</span>
+                                    </button>
+                                </div>
+                                
+                                <!-- Slider Controls -->
+                                <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
+                                    <button onclick="slideChart('prev')" style="padding: 6px 12px; background: #1e3c72; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 14px; transition: all 0.3s;">◀</button>
+                                    <span id="chartPageInfo" style="font-weight: 600; color: #64748b; min-width: 60px; text-align: center; font-size: 13px;">1 / 1</span>
+                                    <button onclick="slideChart('next')" style="padding: 6px 12px; background: #1e3c72; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 14px; transition: all 0.3s;">▶</button>
+                                </div>
+                            </div>
+                            
                             <div class="chart-container-left">
                                 <canvas id="chartTopRutes"></canvas>
                             </div>
@@ -1500,31 +1529,7 @@
                 </div>
 
                 <!-- Route Cards -->
-                <!-- Volume Filter Legend -->
-                <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; background: white; padding: 15px 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
-                    <div style="font-weight: 700; color: #1e3c72; font-size: 15px;">📊 Filter Volume:</div>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                        <button class="volume-filter-btn active" data-filter="all" onclick="filterVolumeDisplay('all')" style="padding: 10px 20px; border: 2px solid #1e3c72; background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px;">
-                            <span style="display: inline-block; width: 12px; height: 12px; background: #FF8C42; border-radius: 2px;"></span>
-                            <span style="display: inline-block; width: 12px; height: 12px; background: #4ECDC4; border-radius: 2px; margin-left: -4px;"></span>
-                            <span>ALL</span>
-                        </button>
-                        <button class="volume-filter-btn" data-filter="postal" onclick="filterVolumeDisplay('postal')" style="padding: 10px 20px; border: 2px solid #FF8C42; background: white; color: #FF8C42; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px;">
-                            <span style="display: inline-block; width: 16px; height: 16px; background: linear-gradient(135deg, #FF8C42, #FFA500); border-radius: 3px;"></span>
-                            <span>POSTAL</span>
-                        </button>
-                        <button class="volume-filter-btn" data-filter="poslog" onclick="filterVolumeDisplay('poslog')" style="padding: 10px 20px; border: 2px solid #4ECDC4; background: white; color: #4ECDC4; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px;">
-                            <span style="display: inline-block; width: 16px; height: 16px; background: linear-gradient(135deg, #4ECDC4, #44A08D); border-radius: 3px;"></span>
-                            <span>POSLOG</span>
-                        </button>
-                    </div>
-                    <div style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
-                        <button onclick="slideRoutes('prev')" style="padding: 8px 16px; background: #1e3c72; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 16px; transition: all 0.3s;">◀ Prev</button>
-                        <span id="routePageInfo" style="font-weight: 600; color: #64748b; min-width: 80px; text-align: center;">1 / 1</span>
-                        <button onclick="slideRoutes('next')" style="padding: 8px 16px; background: #1e3c72; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 16px; transition: all 0.3s;">Next ▶</button>
-                    </div>
-                </div>
-
+                <!-- Route Cards -->
                 <div class="routes-grid" id="routesContainer">
                     <!-- Routes will be generated from data -->
                 </div>
@@ -2511,12 +2516,39 @@
                 return;
             }
 
-            const top10 = data.sort(function(a,b){ return (b.postal+b.poslog)-(a.postal+a.poslog); }).slice(0,10);
+            // === APPLY CHART FILTER AND PAGINATION ===
+            let sortedData = [];
+            if (currentChartFilter === 'all') {
+                // Sort by total volume (postal + poslog) - highest to lowest
+                sortedData = [...data].sort((a, b) => (b.postal + b.poslog) - (a.postal + a.poslog));
+            } else if (currentChartFilter === 'postal') {
+                // Sort by postal only - highest to lowest
+                sortedData = [...data].sort((a, b) => b.postal - a.postal);
+            } else if (currentChartFilter === 'poslog') {
+                // Sort by poslog only - highest to lowest
+                sortedData = [...data].sort((a, b) => b.poslog - a.poslog);
+            }
+            
+            // Store all sorted data
+            allChartData = sortedData;
+            
+            // Apply pagination
+            const startIdx = currentChartPage * itemsPerChartPage;
+            const endIdx = startIdx + itemsPerChartPage;
+            const top10 = sortedData.slice(startIdx, endIdx);
+            
+            // Update page info
+            updateChartPageInfo();
+            // === END FILTER AND PAGINATION ===
+            
             const totalPostal = data.reduce(function(s,r){ return s+r.postal; }, 0);
             const totalPoslog = data.reduce(function(s,r){ return s+r.poslog; }, 0);
 
             function fmtNum(n){ return n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toFixed(0); }
-            document.getElementById('chartTopRutesTitle').textContent = 'Volume Terbanyak (10 teratas dari ' + data.length + ' rute)';
+            
+            // Update title based on filter
+            let filterLabel = currentChartFilter === 'all' ? 'Total Volume' : currentChartFilter === 'postal' ? 'Postal' : 'Poslog';
+            document.getElementById('chartTopRutesTitle').textContent = `Volume Terbanyak (${filterLabel}) - Showing ${startIdx + 1}-${Math.min(endIdx, sortedData.length)} of ${sortedData.length}`;
 
             // Generate Insight Rute Terbanyak (Top 3)
             let sortedPostal = [...data].sort((a,b) => b.postal - a.postal).slice(0, 3);
@@ -5088,6 +5120,12 @@
         const cardsPerPage = 4;
         let filteredAndSortedRoutes = [];
 
+        // Chart filter state
+        let currentChartFilter = 'all'; // 'all', 'postal', 'poslog'
+        let currentChartPage = 0;
+        const itemsPerChartPage = 10;
+        let allChartData = [];
+
         // Urutan tetap tampilan rute di dashboard (sesuai tampilan awal)
 
         // Volume Filter Function - Sort ALL modes from highest to lowest
@@ -5137,6 +5175,90 @@
             
             // Re-render with filter
             renderRoutes();
+        }
+
+        // === CHART FILTER & SLIDER FUNCTIONS ===
+        
+        // Filter Chart Volume
+        function filterChartVolume(filterType) {
+            console.log('📊 Chart Filter:', filterType);
+            currentChartFilter = filterType;
+            currentChartPage = 0; // Reset to first page
+            
+            // Update button styling
+            document.querySelectorAll('.chart-filter-btn').forEach(btn => {
+                const btnFilter = btn.getAttribute('data-chart-filter');
+                if (btnFilter === filterType) {
+                    btn.classList.add('active');
+                    if (filterType === 'all') {
+                        btn.style.background = 'linear-gradient(135deg, #1e3c72, #2a5298)';
+                        btn.style.color = 'white';
+                        btn.style.borderColor = '#1e3c72';
+                    } else if (filterType === 'postal') {
+                        btn.style.background = 'linear-gradient(135deg, #FF8C42, #FFA500)';
+                        btn.style.color = 'white';
+                        btn.style.borderColor = '#FF8C42';
+                    } else if (filterType === 'poslog') {
+                        btn.style.background = 'linear-gradient(135deg, #4ECDC4, #44A08D)';
+                        btn.style.color = 'white';
+                        btn.style.borderColor = '#4ECDC4';
+                    }
+                } else {
+                    btn.classList.remove('active');
+                    const resetFilter = btn.getAttribute('data-chart-filter');
+                    if (resetFilter === 'all') {
+                        btn.style.background = 'white';
+                        btn.style.color = '#1e3c72';
+                        btn.style.borderColor = '#e0e0e0';
+                    } else if (resetFilter === 'postal') {
+                        btn.style.background = 'white';
+                        btn.style.color = '#FF8C42';
+                        btn.style.borderColor = '#FF8C42';
+                    } else if (resetFilter === 'poslog') {
+                        btn.style.background = 'white';
+                        btn.style.color = '#4ECDC4';
+                        btn.style.borderColor = '#4ECDC4';
+                    }
+                }
+            });
+            
+            // Re-render chart
+            updateChartDisplay();
+        }
+        
+        // Slide Chart (Prev/Next)
+        function slideChart(direction) {
+            const totalPages = Math.ceil(allChartData.length / itemsPerChartPage);
+            
+            if (direction === 'next') {
+                if (currentChartPage < totalPages - 1) {
+                    currentChartPage++;
+                }
+            } else if (direction === 'prev') {
+                if (currentChartPage > 0) {
+                    currentChartPage--;
+                }
+            }
+            
+            console.log(`📄 Chart page: ${currentChartPage + 1} of ${totalPages}`);
+            updateChartDisplay();
+        }
+        
+        // Update Chart Display
+        function updateChartDisplay() {
+            // This will be called after data is loaded
+            if (window._dashboardDataCache) {
+                renderDashboard(window._dashboardDataCache);
+            }
+        }
+        
+        // Update Chart Page Info
+        function updateChartPageInfo() {
+            const totalPages = Math.ceil(allChartData.length / itemsPerChartPage);
+            const pageInfo = document.getElementById('chartPageInfo');
+            if (pageInfo) {
+                pageInfo.textContent = `${currentChartPage + 1} / ${totalPages}`;
+            }
         }
 
         // Carousel/Slider Navigation Function
