@@ -1444,7 +1444,7 @@
                             <div class="chart-container-left" style="position:relative;">
                                 <canvas id="chartTopRutes"></canvas>
                                 <div id="customLegendContainer" style="display:flex; justify-content:center; align-items:center; gap:15px; margin-top:10px; padding-top:10px;">
-                                    <button onclick="setChartMode('ALL')" style="padding:6px 16px; background:#1e3c72; color:white; border:none; border-radius:4px; cursor:pointer; font-size:12px; font-weight:700;">ALL</button>
+                                    <button onclick="setChartMode('ALL')" style="padding:6px 16px; background:linear-gradient(135deg, #1e3c72 0%, #9333ea 100%); color:white; border:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:700; transition:opacity 0.2s; box-shadow:0 2px 8px rgba(30,60,114,0.3);" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">ALL</button>
                                 </div>
                             </div>
                         </div>
@@ -5088,7 +5088,7 @@
             initDefaultDates();
 
             // Check if user is already logged in
-            const savedUser = sessionStorage.getItem('currentUser');
+            const savedUser = localStorage.getItem('currentUser');
 
             if (savedUser) {
                 try {
@@ -5168,8 +5168,8 @@
             if (username === 'admin' && password === 'admin123') {
                 currentUser = { username: username, id: 1, role: 'admin' };
 
-                // Save user to sessionStorage
-                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                // Save user to localStorage agar tetap login setelah refresh
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
                 document.getElementById('login-page').style.display = 'none';
                 document.getElementById('dashboard-content').style.display = 'block';
@@ -5193,7 +5193,7 @@
             if (username.toLowerCase() === 'postal' && password === 'mirasenja') {
                 currentUser = { username: 'postal', id: 2, role: 'viewer' };
 
-                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
 
                 document.getElementById('login-page').style.display = 'none';
                 document.getElementById('dashboard-content').style.display = 'block';
@@ -5224,8 +5224,8 @@
                 if (result.success) {
                     currentUser = result.user;
 
-                    // Save user to sessionStorage
-                    sessionStorage.setItem('currentUser', JSON.stringify(result.user));
+                    // Save user to localStorage agar tetap login setelah refresh
+                    localStorage.setItem('currentUser', JSON.stringify(result.user));
 
                     document.getElementById('login-page').style.display = 'none';
                     document.getElementById('dashboard-content').style.display = 'block';
@@ -5257,7 +5257,7 @@
         // Logout function
         function logout() {
             if (confirm('Apakah Anda yakin ingin logout?')) {
-                sessionStorage.removeItem('currentUser');
+                localStorage.removeItem('currentUser');
                 currentUser = null;
                 document.getElementById('login-page').style.display = 'flex';
                 document.getElementById('dashboard-content').style.display = 'none';
