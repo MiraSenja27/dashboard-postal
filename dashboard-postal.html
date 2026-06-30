@@ -1192,17 +1192,11 @@
             max-width: 100%;
             overflow-x: hidden;
         }
-.chart-container-left {
-    flex: 1;
-    min-height: 0;
-    position: relative;
-    max-height: 350px; /* limit height to prevent oversized chart */
-    overflow: hidden;
-}
-.chart-container-left canvas {
-    width: 100% !important;
-    height: auto !important;
-}
+        .chart-container-left {
+            flex: 1;
+            min-height: 0;
+            position: relative;
+        }
         @media (min-width: 1600px) {
             .dashboard-charts-fit {
                 max-height: 500px;
@@ -1434,18 +1428,9 @@
                         
                         <!-- Horizontal Bar Chart -->
                         <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); display:flex; flex-direction:column;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                                <h4 id="chartTopRutesTitle" style="color:#1e3c72; margin:0; font-weight:700; font-size:14px;">Volume per Rute (10 teratas)</h4>
-                                <div style="display:flex; gap:8px; align-items:center;">
-                                    <button onclick="prevPage()" style="padding:6px 12px; background:#e2e8f0; color:#1e3c72; border:none; border-radius:4px; cursor:pointer; font-size:12px; font-weight:700;">◀ Prev</button>
-                                    <button onclick="nextPage()" style="padding:6px 12px; background:#e2e8f0; color:#1e3c72; border:none; border-radius:4px; cursor:pointer; font-size:12px; font-weight:700;">Next ▶</button>
-                                </div>
-                            </div>
-                            <div class="chart-container-left" style="position:relative;">
+                            <h4 id="chartTopRutesTitle" style="color:#1e3c72; margin-bottom:15px; font-weight:700; font-size:14px;">Volume per Rute (10 teratas)</h4>
+                            <div class="chart-container-left">
                                 <canvas id="chartTopRutes"></canvas>
-                                <div id="customLegendContainer" style="display:flex; justify-content:center; align-items:center; gap:15px; margin-top:10px; padding-top:10px;">
-                                    <button onclick="setChartMode('ALL')" style="padding:6px 16px; background:linear-gradient(135deg, #1e3c72 0%, #9333ea 100%); color:white; border:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:700; transition:opacity 0.2s; box-shadow:0 2px 8px rgba(30,60,114,0.3);" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">ALL</button>
-                                </div>
                             </div>
                         </div>
 
@@ -1680,28 +1665,6 @@
     </div>
 
     <script>
-        // Robust Storage Manager for auth
-        function setAuthUser(value) {
-            try { localStorage.setItem('currentUser', value); } catch(e) {}
-            try { sessionStorage.setItem('currentUser', value); } catch(e) {}
-            document.cookie = "currentUser=" + encodeURIComponent(value) + "; path=/; max-age=86400";
-        }
-        function getAuthUser() {
-            let val = null;
-            try { val = localStorage.getItem('currentUser'); } catch(e) {}
-            if (val) return val;
-            try { val = sessionStorage.getItem('currentUser'); } catch(e) {}
-            if (val) return val;
-            const match = document.cookie.match(new RegExp('(^| )currentUser=([^;]+)'));
-            if (match) return decodeURIComponent(match[2]);
-            return null;
-        }
-        function removeAuthUser() {
-            try { localStorage.removeItem('currentUser'); } catch(e) {}
-            try { sessionStorage.removeItem('currentUser'); } catch(e) {}
-            document.cookie = "currentUser=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        }
-
         // Auto-detect API URL based on environment
         const getAPIURL = () => {
             const protocol = window.location.protocol;
@@ -2225,107 +2188,7 @@
                     console.error('Gagal membuat slide ringkasan rute:', sumErr);
                 }
 
-                // Slide 5: Top 10 Postal Routes
-                try {
-                    const rdAll = (routesData || []).map(r => ({
-                        name: (r.route_name || r.name || '-').toString(),
-                        postal: parseFloat(r.postal_volume ?? r.postal ?? 0) || 0,
-                        poslog: parseFloat(r.non_postal_volume ?? r.nonPostal ?? 0) || 0
-                    })).filter(r => r.postal > 0 || r.poslog > 0);
-
-                    const sortedPostal = [...rdAll].sort((a, b) => b.postal - a.postal);
-                    const top10Postal = sortedPostal.slice(0, 10);
-                    const chartRowsPostal = [...top10Postal].reverse();
-                    const labelsPostal = chartRowsPostal.map(r => r.name);
-                    const totalPostalKg = sortedPostal.reduce((sum, r) => sum + r.postal, 0);
-
-                    let slide5 = pptx.addSlide();
-                    slide5.addText('Top 10 Rute - Postal', {
-                        x: 0.5, y: 0.3, w: 12.33, h: 0.6,
-                        fontSize: 32, bold: true, color: '1e3c72'
-                    });
-                    slide5.addText(`Total Postal: ${Math.round(totalPostalKg).toLocaleString('id-ID')} kg`, {
-                        x: 0.5, y: 0.95, w: 12.33, h: 0.35,
-                        fontSize: 14, bold: true, color: 'F59E0B'
-                    });
-
-                    if (top10Postal.length > 0) {
-                        slide5.addChart(pptx.ChartType.bar, {
-                            name: 'Postal (kg)',
-                            labels: labelsPostal,
-                            values: chartRowsPostal.map(r => Math.round(r.postal))
-                        }, {
-                            x: 0.5, y: 1.4, w: 12.33, h: 5.2,
-                            barDir: 'bar',
-                            chartColors: ['F59E0B'],
-                            showTitle: false,
-                            showLegend: false,
-                            catAxisLabelFontSize: 10,
-                            valAxisLabelFontSize: 10,
-                            valAxisLabelFormatCode: '#,##0',
-                            showValue: true,
-                            barGapWidthPct: 40
-                        });
-                    } else {
-                        slide5.addText('Tidak ada data postal.', {
-                            x: 0.5, y: 3.2, w: 12.33, h: 0.6, fontSize: 18, color: '94A3B8', align: 'center'
-                        });
-                    }
-                } catch (postalErr) {
-                    console.error('Gagal membuat slide top 10 postal:', postalErr);
-                }
-
-                // Slide 6: Top 10 Poslog Routes
-                try {
-                    const rdAll = (routesData || []).map(r => ({
-                        name: (r.route_name || r.name || '-').toString(),
-                        postal: parseFloat(r.postal_volume ?? r.postal ?? 0) || 0,
-                        poslog: parseFloat(r.non_postal_volume ?? r.nonPostal ?? 0) || 0
-                    })).filter(r => r.postal > 0 || r.poslog > 0);
-
-                    const sortedPoslog = [...rdAll].sort((a, b) => b.poslog - a.poslog);
-                    const top10Poslog = sortedPoslog.slice(0, 10);
-                    const chartRowsPoslog = [...top10Poslog].reverse();
-                    const labelsPoslog = chartRowsPoslog.map(r => r.name);
-                    const totalPoslogKg = sortedPoslog.reduce((sum, r) => sum + r.poslog, 0);
-
-                    let slide6 = pptx.addSlide();
-                    slide6.addText('Top 10 Rute - Poslog', {
-                        x: 0.5, y: 0.3, w: 12.33, h: 0.6,
-                        fontSize: 32, bold: true, color: '1e3c72'
-                    });
-                    slide6.addText(`Total Poslog: ${Math.round(totalPoslogKg).toLocaleString('id-ID')} kg`, {
-                        x: 0.5, y: 0.95, w: 12.33, h: 0.35,
-                        fontSize: 14, bold: true, color: '14B8A6'
-                    });
-
-                    if (top10Poslog.length > 0) {
-                        slide6.addChart(pptx.ChartType.bar, {
-                            name: 'Poslog (kg)',
-                            labels: labelsPoslog,
-                            values: chartRowsPoslog.map(r => Math.round(r.poslog))
-                        }, {
-                            x: 0.5, y: 1.4, w: 12.33, h: 5.2,
-                            barDir: 'bar',
-                            chartColors: ['14B8A6'],
-                            showTitle: false,
-                            showLegend: false,
-                            catAxisLabelFontSize: 10,
-                            valAxisLabelFontSize: 10,
-                            valAxisLabelFormatCode: '#,##0',
-                            showValue: true,
-                            barGapWidthPct: 40
-                        });
-                    } else {
-                        slide6.addText('Tidak ada data poslog.', {
-                            x: 0.5, y: 3.2, w: 12.33, h: 0.6, fontSize: 18, color: '94A3B8', align: 'center'
-                        });
-                    }
-                } catch (poslogErr) {
-                    console.error('Gagal membuat slide top 10 poslog:', poslogErr);
-                }
-
-                // Slide 7+: Route Cards - Screenshot (4 cards per slide in a 2x2 grid)
+                // Slide 4+: Route Cards - Screenshot (4 cards per slide in a 2x2 grid)
                 const routeCards = document.querySelectorAll('.route-card');
                 const cardsPerSlide = 4;
 
@@ -2530,25 +2393,6 @@
 
         // Dashboard Charts Function
         let _chartInstances = {};
-        let _chartPagination = { currentPage: 0, pageSize: 10, mode: 'ALL' }; // mode: ALL, POSTAL, POSLOG
-
-        function setChartMode(mode) {
-            _chartPagination.mode = mode;
-            _chartPagination.currentPage = 0;
-            _renderDashboardCharts();
-        }
-
-        function prevPage() {
-            if (_chartPagination.currentPage > 0) {
-                _chartPagination.currentPage--;
-                _renderDashboardCharts();
-            }
-        }
-
-        function nextPage() {
-            _chartPagination.currentPage++;
-            _renderDashboardCharts();
-        }
 
         function showDashboardCharts() {
             goToDashboardDefault();
@@ -2617,26 +2461,7 @@
             });
 
             const data = Object.values(ruteMap).filter(function(r){ return r.postal > 0 || r.poslog > 0; });
-
-            // Sort all routes based on active mode
-            let sortedData;
-            if (_chartPagination.mode === 'ALL') {
-                sortedData = data.sort(function(a,b){ return (b.postal+b.poslog)-(a.postal+a.poslog); });
-            } else if (_chartPagination.mode === 'POSTAL') {
-                sortedData = data.sort(function(a,b){ return b.postal - a.postal; });
-            } else if (_chartPagination.mode === 'POSLOG') {
-                sortedData = data.sort(function(a,b){ return b.poslog - a.poslog; });
-            }
-
-            // Validate pagination
-            const totalPages = Math.ceil(sortedData.length / _chartPagination.pageSize);
-            if (_chartPagination.currentPage >= totalPages) {
-                _chartPagination.currentPage = totalPages - 1;
-            }
-            if (_chartPagination.currentPage < 0) {
-                _chartPagination.currentPage = 0;
-            }
-
+            
             // Destroy existing charts to clear them if no data or re-rendering
             if (_chartInstances.top) { _chartInstances.top.destroy(); _chartInstances.top = null; }
             if (_chartInstances.breakdown) { _chartInstances.breakdown.destroy(); _chartInstances.breakdown = null; }
@@ -2646,16 +2471,12 @@
                 return;
             }
 
+            const top10 = data.sort(function(a,b){ return (b.postal+b.poslog)-(a.postal+a.poslog); }).slice(0,10);
             const totalPostal = data.reduce(function(s,r){ return s+r.postal; }, 0);
             const totalPoslog = data.reduce(function(s,r){ return s+r.poslog; }, 0);
 
             function fmtNum(n){ return n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toFixed(0); }
-
-            // Update title based on pagination
-            const startIdx = _chartPagination.currentPage * _chartPagination.pageSize;
-            const endIdx = Math.min(startIdx + _chartPagination.pageSize, sortedData.length);
-            document.getElementById('chartTopRutesTitle').textContent =
-                `Volume Rute (${startIdx + 1}-${endIdx} dari ${sortedData.length} rute) - Halaman ${_chartPagination.currentPage + 1}/${totalPages}`;
+            document.getElementById('chartTopRutesTitle').textContent = 'Volume Terbanyak (10 teratas dari ' + data.length + ' rute)';
 
             // Generate Insight Rute Terbanyak (Top 3)
             let sortedPostal = [...data].sort((a,b) => b.postal - a.postal).slice(0, 3);
@@ -2782,7 +2603,7 @@
                 if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
                     // Mode filter rute aktif - tampilkan titik pemberhentian
                     const stops = getRouteStops(routeFilter);
-                    const routeData = sortedData.find(r => r.name === routeFilter);
+                    const routeData = top10.find(r => r.name === routeFilter);
                     
                     if (routeData && stops.length > 0) {
                         // HANYA 1 BAR untuk rute yang dipilih (BUKAN 3 bar terpisah)
@@ -2797,14 +2618,16 @@
                             `Urutan Pemberhentian: ${routeFilter} (${stops.join(' → ')})`;
                     }
                 } else {
-                    // Mode normal - tampilkan routes dengan pagination
-                    const pagedData = sortedData.slice(startIdx, endIdx);
-                    chartData = pagedData.map(r => ({
+                    // Mode normal - tampilkan top routes
+                    chartData = top10.map(r => ({
                         label: r.name,
                         postal: r.postal,
                         poslog: r.poslog,
                         originalRoute: r.name
                     }));
+                    
+                    document.getElementById('chartTopRutesTitle').textContent = 
+                        'Volume Terbanyak (10 teratas dari ' + data.length + ' rute)';
                 }
 
                 if (chartData.length === 0) {
@@ -2812,97 +2635,31 @@
                     return;
                 }
 
-                // Build datasets based on selected mode
-                let datasets = [];
-                if (_chartPagination.mode === 'ALL') {
-                    datasets = [
-                        {
-                            label: 'Postal (kg)',
-                            data: chartData.map(d => d.postal),
-                            backgroundColor: '#FF8C42',
-                            borderRadius: 3
-                        },
-                        {
-                            label: 'Poslog (kg)',
-                            data: chartData.map(d => {
-                                if (d.poslog > 0) {
-                                    const minVisible = Math.max(d.postal * 0.05, 10);
-                                    return Math.max(d.poslog, minVisible);
-                                }
-                                return 0;
-                            }),
-                            backgroundColor: '#4ECDC4',
-                            borderRadius: 3
-                        }
-// Build both datasets always so legends stay visible
-                const zeroData = new Array(chartData.length).fill(0);
-                if (_chartPagination.mode === 'ALL') {
-                    datasets = [
-                        {
-                            label: 'Postal (kg)',
-                            data: chartData.map(d => d.postal),
-                            backgroundColor: '#FF8C42',
-                            borderRadius: 3
-                        },
-                        {
-                            label: 'Poslog (kg)',
-                            data: chartData.map(d => {
-                                if (d.poslog > 0) {
-                                    const minVisible = Math.max(d.postal * 0.05, 10);
-                                    return Math.max(d.poslog, minVisible);
-                                }
-                                return 0;
-                            }),
-                            backgroundColor: '#4ECDC4',
-                            borderRadius: 3
-                        }
-                    ];
-                } else if (_chartPagination.mode === 'POSTAL') {
-                    // Show only Postal data, hide Poslog by zeroing it
-                    datasets = [
-                        {
-                            label: 'Postal (kg)',
-                            data: chartData.map(d => d.postal),
-                            backgroundColor: '#FF8C42',
-                            borderRadius: 3
-                        },
-                        {
-                            label: 'Poslog (kg)',
-                            data: zeroData,
-                            backgroundColor: '#4ECDC4',
-                            borderRadius: 3
-                        }
-                    ];
-                } else if (_chartPagination.mode === 'POSLOG') {
-                    // Show only Poslog data, hide Postal by zeroing it
-                    datasets = [
-                        {
-                            label: 'Postal (kg)',
-                            data: zeroData,
-                            backgroundColor: '#FF8C42',
-                            borderRadius: 3
-                        },
-                        },
-                        {
-                            label: 'Poslog (kg)',
-                            data: chartData.map(d => {
-                                if (d.poslog > 0) {
-                                    const minVisible = Math.max(d.postal * 0.05, 10);
-                                    return Math.max(d.poslog, minVisible);
-                                }
-                                return 0;
-                            }),
-                            backgroundColor: '#4ECDC4',
-                            borderRadius: 3
-                        }
-                    ];
-                }
-
                 _chartInstances.top = new Chart(ctx1, {
                     type: 'bar',
                     data: {
                         labels: chartData.map(d => d.label),
-                        datasets: datasets
+                        datasets: [
+                            {
+                                label: 'Postal (kg)',
+                                data: chartData.map(d => d.postal),
+                                backgroundColor: '#FF8C42',
+                                borderRadius: 3
+                            },
+                            {
+                                label: 'Poslog (kg)',
+                                data: chartData.map(d => {
+                                    if (d.poslog > 0) {
+                                        // Minimum 5% dari postal agar terlihat
+                                        const minVisible = Math.max(d.postal * 0.05, 10);
+                                        return Math.max(d.poslog, minVisible);
+                                    }
+                                    return 0;
+                                }),
+                                backgroundColor: '#4ECDC4',
+                                borderRadius: 3
+                            }
+                        ]
                     },
                     options: {
                         indexAxis: 'y',
@@ -2913,41 +2670,7 @@
                             intersect: true,
                         },
                         plugins: {
-                            legend: {
-                                position: 'bottom',
-                                labels: {
-                                    // generate default dataset labels and add a custom "Total" label
-                                    generateLabels: function(chart) {
-                                        const original = Chart.defaults.plugins.legend.labels.generateLabels(chart);
-                                        const gradient = chart.ctx.createLinearGradient(0, 0, 20, 0);
-                                        // half orange (left), half green (right)
-                                        gradient.addColorStop(0, '#FF8C42');
-                                        gradient.addColorStop(0.5, '#FF8C42');
-                                        gradient.addColorStop(0.5, '#4ECDC4');
-                                        gradient.addColorStop(1, '#4ECDC4');
-                                        const totalLabel = {
-                                            text: 'Total',
-                                            fillStyle: gradient,
-                                            hidden: false,
-                                        };
-                                        return [...original, totalLabel];
-                                    },
-                                    font: { size: 13 },
-                                    padding: 16
-                                },
-                                onClick: function(e, legendItem, legend) {
-                                    const label = legendItem.text;
-                                    if (label === 'Total') {
-                                        _chartPagination.mode = 'ALL';
-                                    } else if (label.includes('Postal')) {
-                                        _chartPagination.mode = 'POSTAL';
-                                    } else if (label.includes('Poslog')) {
-                                        _chartPagination.mode = 'POSLOG';
-                                    }
-                                    _chartPagination.currentPage = 0;
-                                    _renderDashboardCharts();
-                                }
-                            },
+                            legend: { position: 'bottom', labels: { font: { size: 13 }, padding: 16 } },
                             tooltip: {
                                 callbacks: {
                                     title: function(tooltipItems) {
@@ -5110,26 +4833,17 @@
             initDefaultDates();
 
             // Check if user is already logged in
-            let savedUser = getAuthUser();
+            const savedUser = sessionStorage.getItem('currentUser');
 
             if (savedUser) {
-                let parsedUser = null;
                 try {
-                    parsedUser = JSON.parse(savedUser);
-                } catch(e) {
-                    console.warn('Corrupted auth data found, clearing...', e);
-                    removeAuthUser();
-                }
+                    currentUser = JSON.parse(savedUser);
+                    document.getElementById('login-page').style.display = 'none';
+                    document.getElementById('dashboard-content').style.display = 'block';
+                    document.getElementById('dashboard-content').classList.add('show');
 
-                if (parsedUser) {
-                    try {
-                        currentUser = parsedUser;
-                        document.getElementById('login-page').style.display = 'none';
-                        document.getElementById('dashboard-content').style.display = 'block';
-                        document.getElementById('dashboard-content').classList.add('show');
-
-                        applyRoleRestrictions();
-                        updateUserDisplay();
+                    applyRoleRestrictions();
+                    updateUserDisplay();
 
                     // Initialize defaults
                     await loadAvailableWeeks();
@@ -5178,10 +4892,11 @@
                     await showView('dashboard');
                     setTimeout(applyFixedHeader, 80);
                 } catch (error) {
-                    console.error('Error in window.onload initialization:', error);
-                    // Jika ada error jaringan/sistem, tetap berikan akses dashboard karena user valid
-                    // document.getElementById('login-page').style.display = 'flex';
+                    console.error('Error parsing saved user:', error);
+                    // Preserve sessionStorage; just show login page
+                    document.getElementById('login-page').style.display = 'flex';
                 }
+
             } else {
                 document.getElementById('login-page').style.display = 'flex';
             }
@@ -5198,8 +4913,8 @@
             if (username === 'admin' && password === 'admin123') {
                 currentUser = { username: username, id: 1, role: 'admin' };
 
-                // Save user to localStorage agar tetap login setelah refresh
-                setAuthUser(JSON.stringify(currentUser));
+                // Save user to sessionStorage
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
 
                 document.getElementById('login-page').style.display = 'none';
                 document.getElementById('dashboard-content').style.display = 'block';
@@ -5223,7 +4938,7 @@
             if (username.toLowerCase() === 'postal' && password === 'mirasenja') {
                 currentUser = { username: 'postal', id: 2, role: 'viewer' };
 
-                setAuthUser(JSON.stringify(currentUser));
+                sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
 
                 document.getElementById('login-page').style.display = 'none';
                 document.getElementById('dashboard-content').style.display = 'block';
@@ -5254,8 +4969,8 @@
                 if (result.success) {
                     currentUser = result.user;
 
-                    // Save user to localStorage agar tetap login setelah refresh
-                    setAuthUser(JSON.stringify(result.user));
+                    // Save user to sessionStorage
+                    sessionStorage.setItem('currentUser', JSON.stringify(result.user));
 
                     document.getElementById('login-page').style.display = 'none';
                     document.getElementById('dashboard-content').style.display = 'block';
@@ -5287,7 +5002,7 @@
         // Logout function
         function logout() {
             if (confirm('Apakah Anda yakin ingin logout?')) {
-                removeAuthUser();
+                sessionStorage.removeItem('currentUser');
                 currentUser = null;
                 document.getElementById('login-page').style.display = 'flex';
                 document.getElementById('dashboard-content').style.display = 'none';
