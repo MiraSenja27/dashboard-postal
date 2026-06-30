@@ -5113,14 +5113,23 @@
             let savedUser = getAuthUser();
 
             if (savedUser) {
+                let parsedUser = null;
                 try {
-                    currentUser = JSON.parse(savedUser);
-                    document.getElementById('login-page').style.display = 'none';
-                    document.getElementById('dashboard-content').style.display = 'block';
-                    document.getElementById('dashboard-content').classList.add('show');
+                    parsedUser = JSON.parse(savedUser);
+                } catch(e) {
+                    console.warn('Corrupted auth data found, clearing...', e);
+                    removeAuthUser();
+                }
 
-                    applyRoleRestrictions();
-                    updateUserDisplay();
+                if (parsedUser) {
+                    try {
+                        currentUser = parsedUser;
+                        document.getElementById('login-page').style.display = 'none';
+                        document.getElementById('dashboard-content').style.display = 'block';
+                        document.getElementById('dashboard-content').classList.add('show');
+
+                        applyRoleRestrictions();
+                        updateUserDisplay();
 
                     // Initialize defaults
                     await loadAvailableWeeks();
@@ -5169,11 +5178,10 @@
                     await showView('dashboard');
                     setTimeout(applyFixedHeader, 80);
                 } catch (error) {
-                    console.error('Error parsing saved user:', error);
-                    // Preserve sessionStorage; just show login page
-                    document.getElementById('login-page').style.display = 'flex';
+                    console.error('Error in window.onload initialization:', error);
+                    // Jika ada error jaringan/sistem, tetap berikan akses dashboard karena user valid
+                    // document.getElementById('login-page').style.display = 'flex';
                 }
-
             } else {
                 document.getElementById('login-page').style.display = 'flex';
             }
