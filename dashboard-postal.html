@@ -2790,27 +2790,54 @@
                     return;
                 }
 
-                // Build datasets - always show both labels, only sorting changes
-                let datasets = [
-                    {
-                        label: 'Postal (kg)',
-                        data: chartData.map(d => d.postal),
-                        backgroundColor: '#FF8C42',
-                        borderRadius: 3
-                    },
-                    {
-                        label: 'Poslog (kg)',
-                        data: chartData.map(d => {
-                            if (d.poslog > 0) {
-                                const minVisible = Math.max(d.postal * 0.05, 10);
-                                return Math.max(d.poslog, minVisible);
-                            }
-                            return 0;
-                        }),
-                        backgroundColor: '#4ECDC4',
-                        borderRadius: 3
-                    }
-                ];
+                // Build datasets based on selected mode
+                let datasets = [];
+                if (_chartPagination.mode === 'ALL') {
+                    datasets = [
+                        {
+                            label: 'Postal (kg)',
+                            data: chartData.map(d => d.postal),
+                            backgroundColor: '#FF8C42',
+                            borderRadius: 3
+                        },
+                        {
+                            label: 'Poslog (kg)',
+                            data: chartData.map(d => {
+                                if (d.poslog > 0) {
+                                    const minVisible = Math.max(d.postal * 0.05, 10);
+                                    return Math.max(d.poslog, minVisible);
+                                }
+                                return 0;
+                            }),
+                            backgroundColor: '#4ECDC4',
+                            borderRadius: 3
+                        }
+                    ];
+                } else if (_chartPagination.mode === 'POSTAL') {
+                    datasets = [
+                        {
+                            label: 'Postal (kg)',
+                            data: chartData.map(d => d.postal),
+                            backgroundColor: '#FF8C42',
+                            borderRadius: 3
+                        }
+                    ];
+                } else if (_chartPagination.mode === 'POSLOG') {
+                    datasets = [
+                        {
+                            label: 'Poslog (kg)',
+                            data: chartData.map(d => {
+                                if (d.poslog > 0) {
+                                    const minVisible = Math.max(d.postal * 0.05, 10);
+                                    return Math.max(d.poslog, minVisible);
+                                }
+                                return 0;
+                            }),
+                            backgroundColor: '#4ECDC4',
+                            borderRadius: 3
+                        }
+                    ];
+                }
 
                 _chartInstances.top = new Chart(ctx1, {
                     type: 'bar',
@@ -2833,9 +2860,12 @@
                                     // generate default dataset labels and add a custom "Total" label
                                     generateLabels: function(chart) {
                                         const original = Chart.defaults.plugins.legend.labels.generateLabels(chart);
+                                        const gradient = chart.ctx.createLinearGradient(0, 0, 20, 0);
+                                        gradient.addColorStop(0, '#FF8C42'); // orange
+                                        gradient.addColorStop(1, '#4ECDC4'); // green
                                         const totalLabel = {
                                             text: 'Total',
-                                            fillStyle: '#888', // gray color for legend box
+                                            fillStyle: gradient,
                                             hidden: false,
                                         };
                                         return [...original, totalLabel];
