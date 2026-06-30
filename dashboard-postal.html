@@ -1680,6 +1680,28 @@
     </div>
 
     <script>
+        // Robust Storage Manager for auth
+        function setAuthUser(value) {
+            try { localStorage.setItem('currentUser', value); } catch(e) {}
+            try { sessionStorage.setItem('currentUser', value); } catch(e) {}
+            document.cookie = "currentUser=" + encodeURIComponent(value) + "; path=/; max-age=86400";
+        }
+        function getAuthUser() {
+            let val = null;
+            try { val = localStorage.getItem('currentUser'); } catch(e) {}
+            if (val) return val;
+            try { val = sessionStorage.getItem('currentUser'); } catch(e) {}
+            if (val) return val;
+            const match = document.cookie.match(new RegExp('(^| )currentUser=([^;]+)'));
+            if (match) return decodeURIComponent(match[2]);
+            return null;
+        }
+        function removeAuthUser() {
+            try { localStorage.removeItem('currentUser'); } catch(e) {}
+            try { sessionStorage.removeItem('currentUser'); } catch(e) {}
+            document.cookie = "currentUser=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        }
+
         // Auto-detect API URL based on environment
         const getAPIURL = () => {
             const protocol = window.location.protocol;
@@ -5088,12 +5110,7 @@
             initDefaultDates();
 
             // Check if user is already logged in
-            let savedUser = null;
-            try {
-                savedUser = localStorage.getItem('currentUser');
-            } catch (e) {
-                console.warn('localStorage access denied:', e);
-            }
+            let savedUser = getAuthUser();
 
             if (savedUser) {
                 try {
@@ -5174,11 +5191,7 @@
                 currentUser = { username: username, id: 1, role: 'admin' };
 
                 // Save user to localStorage agar tetap login setelah refresh
-                try {
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                } catch (e) {
-                    console.warn('localStorage access denied:', e);
-                }
+                setAuthUser(JSON.stringify(currentUser));
 
                 document.getElementById('login-page').style.display = 'none';
                 document.getElementById('dashboard-content').style.display = 'block';
@@ -5202,11 +5215,7 @@
             if (username.toLowerCase() === 'postal' && password === 'mirasenja') {
                 currentUser = { username: 'postal', id: 2, role: 'viewer' };
 
-                try {
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                } catch (e) {
-                    console.warn('localStorage access denied:', e);
-                }
+                setAuthUser(JSON.stringify(currentUser));
 
                 document.getElementById('login-page').style.display = 'none';
                 document.getElementById('dashboard-content').style.display = 'block';
@@ -5238,11 +5247,7 @@
                     currentUser = result.user;
 
                     // Save user to localStorage agar tetap login setelah refresh
-                    try {
-                        localStorage.setItem('currentUser', JSON.stringify(result.user));
-                    } catch (e) {
-                        console.warn('localStorage access denied:', e);
-                    }
+                    setAuthUser(JSON.stringify(result.user));
 
                     document.getElementById('login-page').style.display = 'none';
                     document.getElementById('dashboard-content').style.display = 'block';
@@ -5274,11 +5279,7 @@
         // Logout function
         function logout() {
             if (confirm('Apakah Anda yakin ingin logout?')) {
-                try {
-                    localStorage.removeItem('currentUser');
-                } catch (e) {
-                    console.warn('localStorage access denied:', e);
-                }
+                removeAuthUser();
                 currentUser = null;
                 document.getElementById('login-page').style.display = 'flex';
                 document.getElementById('dashboard-content').style.display = 'none';
