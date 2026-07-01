@@ -1438,6 +1438,20 @@
                             </div>
                             <div class="chart-container-left">
                                 <canvas id="chartTopRutes"></canvas>
+                                <div id="chartVolumeLegend" style="display: flex; gap: 20px; justify-content: center; margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 8px;">
+                                    <div onclick="filterChartVolume('all')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 16px; border-radius: 6px; background: #e3f2fd; border: 2px solid #1e3c72; transition: all 0.2s;">
+                                        <div style="width: 20px; height: 20px; background: #1e3c72; border-radius: 4px;"></div>
+                                        <span style="font-weight: 700; color: #1e3c72; font-size: 14px;">Total (Postal + Poslog)</span>
+                                    </div>
+                                    <div onclick="filterChartVolume('postal')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 16px; border-radius: 6px; background: #fff3e0; border: 2px solid #FF8C42; transition: all 0.2s;">
+                                        <div style="width: 20px; height: 20px; background: linear-gradient(90deg, #FF8C42, #FFA500); border-radius: 4px;"></div>
+                                        <span style="font-weight: 700; color: #FF8C42; font-size: 14px;">Postal</span>
+                                    </div>
+                                    <div onclick="filterChartVolume('poslog')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 16px; border-radius: 6px; background: #e0f2f1; border: 2px solid #4ECDC4; transition: all 0.2s;">
+                                        <div style="width: 20px; height: 20px; background: linear-gradient(90deg, #4ECDC4, #44A08D); border-radius: 4px;"></div>
+                                        <span style="font-weight: 700; color: #4ECDC4; font-size: 14px;">Poslog</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -2406,23 +2420,79 @@
         let currentChartPage = 0;
         const itemsPerPage = 10;
         let allChartData = [];
+        
+        // Initialize legend visual state on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(() => {
+                filterChartVolume('all'); // Set default visual state
+            }, 1000);
+        });
+        
+        console.log('✅ Chart filter variables initialized');
+        console.log('filterChartVolume function defined:', typeof filterChartVolume);
+        console.log('slideChart function defined:', typeof slideChart);
 
         // Filter chart by volume type
         function filterChartVolume(type) {
+            console.log('🎯 Filter clicked:', type);
             currentChartFilter = type;
             currentChartPage = 0;
-            showDashboardCharts(); // Re-render
+            
+            // Update visual legend active state
+            const legendContainer = document.getElementById('chartVolumeLegend');
+            if (legendContainer) {
+                const legendItems = legendContainer.children;
+                const activeStyles = {
+                    'all': { bg: '#1e3c72', color: '#ffffff', border: '#1e3c72' },
+                    'postal': { bg: '#FF8C42', color: '#ffffff', border: '#FF8C42' },
+                    'poslog': { bg: '#4ECDC4', color: '#ffffff', border: '#4ECDC4' }
+                };
+                
+                const inactiveStyles = {
+                    'all': { bg: '#e3f2fd', color: '#1e3c72', border: '#1e3c72' },
+                    'postal': { bg: '#fff3e0', color: '#FF8C42', border: '#FF8C42' },
+                    'poslog': { bg: '#e0f2f1', color: '#4ECDC4', border: '#4ECDC4' }
+                };
+                
+                const types = ['all', 'postal', 'poslog'];
+                types.forEach((t, index) => {
+                    if (legendItems[index]) {
+                        const item = legendItems[index];
+                        const styles = t === type ? activeStyles[t] : inactiveStyles[t];
+                        item.style.background = styles.bg;
+                        item.style.color = styles.color;
+                        item.style.borderColor = styles.border;
+                    }
+                });
+            }
+            
+            _renderDashboardCharts(); // Re-render with correct function name
         }
 
         // Slide chart pages
         function slideChart(direction) {
+            console.log('📄 Slide clicked:', direction);
             const totalPages = Math.ceil(allChartData.length / itemsPerPage);
             if (direction === 'next' && currentChartPage < totalPages - 1) {
                 currentChartPage++;
             } else if (direction === 'prev' && currentChartPage > 0) {
                 currentChartPage--;
             }
-            showDashboardCharts(); // Re-render
+            console.log('Current page:', currentChartPage + 1, '/', totalPages);
+            
+            // Pastikan semua elemen tetap terlihat saat navigasi
+            const dashboardSection = document.getElementById('dashboardChartsSection');
+            if (dashboardSection) {
+                dashboardSection.style.display = 'block';
+            }
+            
+            // Pastikan ranking container tetap terlihat
+            const rankingContainer = document.querySelector('.ranking-container');
+            if (rankingContainer) {
+                rankingContainer.style.display = 'grid';
+            }
+            
+            _renderDashboardCharts(); // Re-render with correct function name
         }
 
         function showDashboardCharts() {
@@ -2500,25 +2570,35 @@
             if (data.length === 0) {
                 document.getElementById('chartTopRutesTitle').textContent = 'Belum ada data untuk periode ini';
                 document.getElementById('chartPageInfo').textContent = '0/0';
+                console.log('❌ No chart data available');
                 return;
             }
+
+            console.log('📊 Starting chart render with', data.length, 'routes');
+            console.log('Current filter:', currentChartFilter, 'Page:', currentChartPage);
 
             // Apply filter and sort
             let sortedData = [];
             if (currentChartFilter === 'all') {
                 sortedData = [...data].sort((a,b) => (b.postal + b.poslog) - (a.postal + a.poslog));
+                console.log('📊 Chart filter: ALL (Total volume)');
             } else if (currentChartFilter === 'postal') {
                 sortedData = [...data].sort((a,b) => b.postal - a.postal);
+                console.log('📊 Chart filter: POSTAL');
             } else if (currentChartFilter === 'poslog') {
                 sortedData = [...data].sort((a,b) => b.poslog - a.poslog);
+                console.log('📊 Chart filter: POSLOG');
             }
             
             allChartData = sortedData;
+            console.log('Total routes:', sortedData.length);
             
             // Apply pagination
             const startIdx = currentChartPage * itemsPerPage;
             const endIdx = startIdx + itemsPerPage;
             const top10 = sortedData.slice(startIdx, endIdx);
+            
+            console.log('Showing:', startIdx + 1, '-', Math.min(endIdx, sortedData.length));
             
             // Update page info
             const totalPages = Math.ceil(sortedData.length / itemsPerPage);
@@ -2689,31 +2769,58 @@
                     return;
                 }
 
+                // Tentukan datasets berdasarkan filter yang aktif
+                let chartDatasets = [];
+                if (currentChartFilter === 'all') {
+                    // Tampilkan kedua dataset (stacked)
+                    chartDatasets = [
+                        {
+                            label: 'Postal (kg)',
+                            data: chartData.map(d => d.postal),
+                            backgroundColor: '#FF8C42',
+                            borderRadius: 3
+                        },
+                        {
+                            label: 'Poslog (kg)',
+                            data: chartData.map(d => {
+                                if (d.poslog > 0) {
+                                    // Minimum 5% dari postal agar terlihat
+                                    const minVisible = Math.max(d.postal * 0.05, 10);
+                                    return Math.max(d.poslog, minVisible);
+                                }
+                                return 0;
+                            }),
+                            backgroundColor: '#4ECDC4',
+                            borderRadius: 3
+                        }
+                    ];
+                } else if (currentChartFilter === 'postal') {
+                    // Hanya tampilkan postal
+                    chartDatasets = [
+                        {
+                            label: 'Postal (kg)',
+                            data: chartData.map(d => d.postal),
+                            backgroundColor: '#FF8C42',
+                            borderRadius: 3
+                        }
+                    ];
+                } else if (currentChartFilter === 'poslog') {
+                    // Hanya tampilkan poslog
+                    chartDatasets = [
+                        {
+                            label: 'Poslog (kg)',
+                            data: chartData.map(d => d.poslog),
+                            backgroundColor: '#4ECDC4',
+                            borderRadius: 3
+                        }
+                    ];
+                }
+
                 _chartInstances.top = new Chart(ctx1, {
                     type: 'bar',
                     data: {
                         labels: chartData.map(d => d.label),
-                        datasets: [
-                            {
-                                label: 'Postal (kg)',
-                                data: chartData.map(d => d.postal),
-                                backgroundColor: '#FF8C42',
-                                borderRadius: 3
-                            },
-                            {
-                                label: 'Poslog (kg)',
-                                data: chartData.map(d => {
-                                    if (d.poslog > 0) {
-                                        // Minimum 5% dari postal agar terlihat
-                                        const minVisible = Math.max(d.postal * 0.05, 10);
-                                        return Math.max(d.poslog, minVisible);
-                                    }
-                                    return 0;
-                                }),
-                                backgroundColor: '#4ECDC4',
-                                borderRadius: 3
-                            }
-                        ]
+                        datasets: chartDatasets
                     },
                     options: {
                         indexAxis: 'y',
@@ -2725,29 +2832,7 @@
                         },
                         plugins: {
                             legend: { 
-                                position: 'bottom', 
-                                labels: { 
-                                    font: { size: 13 }, 
-                                    padding: 16,
-                                    generateLabels: function(chart) {
-                                        const original = Chart.defaults.plugins.legend.labels.generateLabels(chart);
-                                        // Add ALL button at beginning
-                                        original.unshift({
-                                            text: 'ALL',
-                                            fillStyle: currentChartFilter === 'all' ? '#1e3c72' : '#ccc',
-                                            strokeStyle: currentChartFilter === 'all' ? '#1e3c72' : '#ccc',
-                                            lineWidth: 2,
-                                            index: -1
-                                        });
-                                        return original;
-                                    }
-                                },
-                                onClick: function(e, legendItem) {
-                                    const idx = legendItem.index;
-                                    if (idx === -1) filterChartVolume('all');
-                                    else if (idx === 0) filterChartVolume('postal');
-                                    else if (idx === 1) filterChartVolume('poslog');
-                                }
+                                display: false // Hide default Chart.js legend since we use custom legend buttons
                             },
                             tooltip: {
                                 callbacks: {
