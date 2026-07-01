@@ -1441,15 +1441,18 @@
                                     <canvas id="chartTopRutes"></canvas>
                                 </div>
                                 <div id="chartVolumeLegend" style="display: flex; gap: 20px; justify-content: center; margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 8px; flex-shrink: 0;">
-                                    <div onclick="filterChartVolume('all')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 16px; border-radius: 6px; background: #e3f2fd; border: 2px solid #1e3c72; transition: all 0.2s;">
-                                        <div style="width: 20px; height: 20px; background: #1e3c72; border-radius: 4px;"></div>
-                                        <span style="font-weight: 700; color: #1e3c72; font-size: 14px;">Total (Postal + Poslog)</span>
+                                    <div onclick="filterChartVolume('all')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 16px; border-radius: 6px; background: #e3f2fd; transition: all 0.2s;">
+                                        <div style="width: 20px; height: 20px; border-radius: 4px; display: flex; overflow: hidden;">
+                                            <div style="width: 50%; height: 100%; background: linear-gradient(90deg, #FF8C42, #FFA500);"></div>
+                                            <div style="width: 50%; height: 100%; background: linear-gradient(90deg, #4ECDC4, #44A08D);"></div>
+                                        </div>
+                                        <span style="font-weight: 700; color: #1e3c72; font-size: 14px;">ALL</span>
                                     </div>
-                                    <div onclick="filterChartVolume('postal')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 16px; border-radius: 6px; background: #fff3e0; border: 2px solid #FF8C42; transition: all 0.2s;">
+                                    <div onclick="filterChartVolume('postal')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 16px; border-radius: 6px; background: #fff3e0; transition: all 0.2s;">
                                         <div style="width: 20px; height: 20px; background: linear-gradient(90deg, #FF8C42, #FFA500); border-radius: 4px;"></div>
                                         <span style="font-weight: 700; color: #FF8C42; font-size: 14px;">Postal</span>
                                     </div>
-                                    <div onclick="filterChartVolume('poslog')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 16px; border-radius: 6px; background: #e0f2f1; border: 2px solid #4ECDC4; transition: all 0.2s;">
+                                    <div onclick="filterChartVolume('poslog')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 16px; border-radius: 6px; background: #e0f2f1; transition: all 0.2s;">
                                         <div style="width: 20px; height: 20px; background: linear-gradient(90deg, #4ECDC4, #44A08D); border-radius: 4px;"></div>
                                         <span style="font-weight: 700; color: #4ECDC4; font-size: 14px;">Poslog</span>
                                     </div>
@@ -2438,15 +2441,15 @@
             if (legendContainer) {
                 const legendItems = legendContainer.children;
                 const activeStyles = {
-                    'all': { bg: '#1e3c72', color: '#ffffff', border: '#1e3c72' },
-                    'postal': { bg: '#FF8C42', color: '#ffffff', border: '#FF8C42' },
-                    'poslog': { bg: '#4ECDC4', color: '#ffffff', border: '#4ECDC4' }
+                    'all': { bg: '#1e3c72', color: '#ffffff' },
+                    'postal': { bg: '#FF8C42', color: '#ffffff' },
+                    'poslog': { bg: '#4ECDC4', color: '#ffffff' }
                 };
                 
                 const inactiveStyles = {
-                    'all': { bg: '#e3f2fd', color: '#1e3c72', border: '#1e3c72' },
-                    'postal': { bg: '#fff3e0', color: '#FF8C42', border: '#FF8C42' },
-                    'poslog': { bg: '#e0f2f1', color: '#4ECDC4', border: '#4ECDC4' }
+                    'all': { bg: '#e3f2fd', color: '#1e3c72' },
+                    'postal': { bg: '#fff3e0', color: '#FF8C42' },
+                    'poslog': { bg: '#e0f2f1', color: '#4ECDC4' }
                 };
                 
                 const types = ['all', 'postal', 'poslog'];
@@ -2456,7 +2459,6 @@
                         const styles = t === type ? activeStyles[t] : inactiveStyles[t];
                         item.style.background = styles.bg;
                         item.style.color = styles.color;
-                        item.style.borderColor = styles.border;
                     }
                 });
             }
@@ -2604,7 +2606,7 @@
 
             function fmtNum(n){ return n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toFixed(0); }
             
-            let filterLabel = currentChartFilter === 'all' ? 'Postal+Poslog' : currentChartFilter === 'postal' ? 'Postal' : 'Poslog';
+            let filterLabel = currentChartFilter === 'all' ? 'ALL' : currentChartFilter === 'postal' ? 'Postal' : 'Poslog';
             document.getElementById('chartTopRutesTitle').textContent = `Volume ${filterLabel} (${startIdx + 1}-${Math.min(endIdx, sortedData.length)} teratas dari ${sortedData.length} rute)`;
 
             // Generate Insight Rute Terbanyak (Top 3)
