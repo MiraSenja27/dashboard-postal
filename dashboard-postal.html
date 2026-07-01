@@ -1436,9 +1436,11 @@
                                     <button onclick="slideChart('next')" style="padding:6px 12px; background:#1e3c72; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:700; font-size:14px;">▶</button>
                                 </div>
                             </div>
-                            <div class="chart-container-left">
-                                <canvas id="chartTopRutes"></canvas>
-                                <div id="chartVolumeLegend" style="display: flex; gap: 20px; justify-content: center; margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 8px;">
+                            <div class="chart-container-left" style="display: flex; flex-direction: column; min-height: 0;">
+                                <div style="flex: 1; min-height: 0; position: relative;">
+                                    <canvas id="chartTopRutes"></canvas>
+                                </div>
+                                <div id="chartVolumeLegend" style="display: flex; gap: 20px; justify-content: center; margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 8px; flex-shrink: 0;">
                                     <div onclick="filterChartVolume('all')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 16px; border-radius: 6px; background: #e3f2fd; border: 2px solid #1e3c72; transition: all 0.2s;">
                                         <div style="width: 20px; height: 20px; background: #1e3c72; border-radius: 4px;"></div>
                                         <span style="font-weight: 700; color: #1e3c72; font-size: 14px;">Total (Postal + Poslog)</span>
@@ -2421,13 +2423,6 @@
         const itemsPerPage = 10;
         let allChartData = [];
         
-        // Initialize legend visual state on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            setTimeout(() => {
-                filterChartVolume('all'); // Set default visual state
-            }, 1000);
-        });
-        
         console.log('✅ Chart filter variables initialized');
         console.log('filterChartVolume function defined:', typeof filterChartVolume);
         console.log('slideChart function defined:', typeof slideChart);
@@ -2832,7 +2827,17 @@
                         },
                         plugins: {
                             legend: { 
-                                display: false // Hide default Chart.js legend since we use custom legend buttons
+                                display: true,
+                                position: 'bottom',
+                                labels: { 
+                                    font: { size: 13 }, 
+                                    padding: 16,
+                                    // Override default onClick to prevent hiding datasets
+                                    onClick: function(e, legendItem, legend) {
+                                        // Do nothing - prevent default hide/show behavior
+                                        return;
+                                    }
+                                }
                             },
                             tooltip: {
                                 callbacks: {
