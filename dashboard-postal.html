@@ -1210,6 +1210,18 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+        @media (min-width: 1920px) {
+            .dashboard-charts-fit {
+                max-height: 550px;
+                min-height: 400px;
+            }
+            .charts-row-grid {
+                grid-template-columns: 1.6fr 1fr;
+                gap: 25px;
+                max-width: 1800px;
+                margin: 0 auto;
+            }
+        }
         @media (min-width: 1200px) and (max-width: 1599px) {
             .dashboard-charts-fit {
                 max-height: 350px;
@@ -1461,20 +1473,22 @@
                         </div>
 
                         <!-- Doughnut Chart & Insight -->
-                        <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); display:flex; flex-direction:column;">
-                            <div style="display:flex; flex-direction:row; align-items:flex-start; justify-content:space-between; flex:1; gap:15px;">
-                                <div style="flex:1; min-width:140px;">
+                        <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); display:flex; flex-direction:column; min-height: 0;">
+                            <div style="display:flex; flex-direction:row; align-items:flex-start; justify-content:space-between; flex:1; gap:15px; min-height: 0;">
+                                <div style="flex:1; min-width:140px; overflow: auto;">
                                     <h4 style="color:#1e3c72; margin-bottom:12px; font-weight:700; font-size:14px;">📋 Rute Tertinggi (Volume)</h4>
                                     <div id="chartTopRutesInsight" style="font-size:13px;">
                                         <!-- Terbanyak akan dimunculkan di sini via JS -->
                                     </div>
                                 </div>
-                                <div style="flex:1.2; display:flex; flex-direction:column;">
+                                <div style="flex:1.2; display:flex; flex-direction:column; min-width: 0;">
                                     <h4 style="color:#1e3c72; margin-bottom:12px; font-weight:700; font-size:14px; text-align:center;">📊 Breakdown</h4>
-                                    <canvas id="chartBreakdown" style="max-height:180px; max-width:180px; margin:0 auto; display:block;"></canvas>
+                                    <div style="flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center;">
+                                        <canvas id="chartBreakdown" style="max-height:100%; max-width:100%; height: auto; width: auto; display:block;"></canvas>
+                                    </div>
                                 </div>
                             </div>
-                            <div id="chartBreakdownLegend" style="margin-top:15px; font-size:18px; color:#555;"></div>
+                            <div id="chartBreakdownLegend" style="margin-top:15px; font-size:16px; color:#555;"></div>
                         </div>
                     </div>
                 </div>
@@ -2943,6 +2957,8 @@
                         }
                     }
                 });
+                ctx2.parentElement.style.height = 'auto';
+                ctx2.parentElement.style.width = 'auto';
                 var pct1 = grandTotal > 0 ? (pPostal/grandTotal*100).toFixed(1) : 0;
                 var pct2 = grandTotal > 0 ? (pPoslog/grandTotal*100).toFixed(1) : 0;
                 var pct3 = grandTotal > 0 ? (pSisa/grandTotal*100).toFixed(1) : 0;
@@ -2951,10 +2967,10 @@
                 function formatLegendNum(n){ return n >= 1000000 ? (n/1000000).toFixed(3)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toFixed(0); }
                 
                 document.getElementById('chartBreakdownLegend').innerHTML =
-                    '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; font-size: 18px; margin-top: 15px; color: #111;">' +
-                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#FF8C42; font-size:24px;">■</span> Postal: <b style="font-size:20px;">' + formatLegendNum(pPostal) + ' kg</b> <span style="font-weight:bold; font-size:18px; color:#444;">(' + pct1 + '%)</span></div>' +
-                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#4ECDC4; font-size:24px;">■</span> Poslog: <b style="font-size:20px;">' + formatLegendNum(pPoslog) + ' kg</b> <span style="font-weight:bold; font-size:18px; color:#444;">(' + pct2 + '%)</span></div>' +
-                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#B0BEC5; font-size:24px;">■</span> Sisa Kapasitas: <b style="font-size:20px;">' + formatLegendNum(pSisa) + ' kg</b> <span style="font-weight:bold; font-size:18px; color:#444;">(' + pct3 + '%)</span></div>' +
+                    '<div style="display: flex; justify-content: center; gap: 15px; font-size: 14px; margin-top: 15px; color: #111; flex-wrap: nowrap;">' +
+                    '<div style="display:flex; align-items:center; gap:6px; font-weight: 500; white-space: nowrap;"><span style="color:#FF8C42; font-size:18px;">■</span> Postal: <b style="font-size:15px;">' + formatLegendNum(pPostal) + ' kg</b> <span style="font-weight:bold; font-size:14px; color:#444;">(' + pct1 + '%)</span></div>' +
+                    '<div style="display:flex; align-items:center; gap:6px; font-weight: 500; white-space: nowrap;"><span style="color:#4ECDC4; font-size:18px;">■</span> Poslog: <b style="font-size:15px;">' + formatLegendNum(pPoslog) + ' kg</b> <span style="font-weight:bold; font-size:14px; color:#444;">(' + pct2 + '%)</span></div>' +
+                    '<div style="display:flex; align-items:center; gap:6px; font-weight: 500; white-space: nowrap;"><span style="color:#B0BEC5; font-size:18px;">■</span> Sisa: <b style="font-size:15px;">' + formatLegendNum(pSisa) + ' kg</b> <span style="font-weight:bold; font-size:14px; color:#444;">(' + pct3 + '%)</span></div>' +
                     '</div>';
             }
         }
