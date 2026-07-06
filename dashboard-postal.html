@@ -1481,9 +1481,9 @@
                                         <!-- Terbanyak akan dimunculkan di sini via JS -->
                                     </div>
                                 </div>
-                                <div style="flex:1.2; display:flex; flex-direction:column; justify-content:center; padding-top: 40px;">
+                                <div style="flex:1.2; display:flex; flex-direction:column; justify-content:center; padding-top: 40px; min-width: 220px;">
                                     <h4 style="color:#1e3c72; margin-bottom:12px; font-weight:700; font-size:14px; text-align:center;">📊 Breakdown</h4>
-                                    <canvas id="chartBreakdown" style="max-height:200px; max-width:200px; margin:0 auto; display:block;"></canvas>
+                                    <canvas id="chartBreakdown" style="max-height:180px; max-width:180px; margin:0 auto; display:block;"></canvas>
                                     <div id="chartBreakdownLegend" style="margin-top:5px; font-size:14px; color:#555;"></div>
                                 </div>
                             </div>
@@ -2973,10 +2973,10 @@
                 function formatLegendNum(n){ return n >= 1000000 ? (n/1000000).toFixed(3)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toFixed(0); }
                 
                 document.getElementById('chartBreakdownLegend').innerHTML =
-                    '<div style="display: flex; justify-content: center; gap: 15px; font-size: 14px; margin-top: 15px; color: #111;">' +
-                    '<div style="display:flex; align-items:center; gap:6px; font-weight: 500;"><span style="color:#FF8C42; font-size:18px;">■</span> Postal: <b style="font-size:16px;">' + formatLegendNum(pPostal) + ' kg</b> <span style="font-weight:bold; font-size:14px; color:#444;">(' + pct1 + '%)</span></div>' +
-                    '<div style="display:flex; align-items:center; gap:6px; font-weight: 500;"><span style="color:#4ECDC4; font-size:18px;">■</span> Poslog: <b style="font-size:16px;">' + formatLegendNum(pPoslog) + ' kg</b> <span style="font-weight:bold; font-size:14px; color:#444;">(' + pct2 + '%)</span></div>' +
-                    '<div style="display:flex; align-items:center; gap:6px; font-weight: 500;"><span style="color:#B0BEC5; font-size:18px;">■</span> Sisa: <b style="font-size:16px;">' + formatLegendNum(pSisa) + ' kg</b> <span style="font-weight:bold; font-size:14px; color:#444;">(' + pct3 + '%)</span></div>' +
+                    '<div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px; margin-top: 10px; color: #111;">' +
+                    '<div style="display:flex; align-items:center; gap:6px; font-weight: 500;"><span style="color:#FF8C42; font-size:14px;">■</span> Postal: <b style="font-size:13px;">' + formatLegendNum(pPostal) + ' kg</b> <span style="font-weight:bold; font-size:12px; color:#444;">(' + pct1 + '%)</span></div>' +
+                    '<div style="display:flex; align-items:center; gap:6px; font-weight: 500;"><span style="color:#4ECDC4; font-size:14px;">■</span> Poslog: <b style="font-size:13px;">' + formatLegendNum(pPoslog) + ' kg</b> <span style="font-weight:bold; font-size:12px; color:#444;">(' + pct2 + '%)</span></div>' +
+                    '<div style="display:flex; align-items:center; gap:6px; font-weight: 500;"><span style="color:#B0BEC5; font-size:14px;">■</span> Sisa: <b style="font-size:13px;">' + formatLegendNum(pSisa) + ' kg</b> <span style="font-weight:bold; font-size:12px; color:#444;">(' + pct3 + '%)</span></div>' +
                     '</div>';
             }
         }
