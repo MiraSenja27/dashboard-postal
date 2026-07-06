@@ -2453,15 +2453,15 @@
             if (legendContainer) {
                 const legendItems = legendContainer.children;
                 const activeStyles = {
-                    'all': { bg: '#1e3c72', color: '#ffffff' },
-                    'postal': { bg: '#FF8C42', color: '#ffffff' },
-                    'poslog': { bg: '#4ECDC4', color: '#ffffff' }
+                    'all': { bg: '#1e3c72' },
+                    'postal': { bg: '#FF8C42' },
+                    'poslog': { bg: '#4ECDC4' }
                 };
                 
                 const inactiveStyles = {
-                    'all': { bg: '#e3f2fd', color: '#1e3c72' },
-                    'postal': { bg: '#fff3e0', color: '#FF8C42' },
-                    'poslog': { bg: '#e0f2f1', color: '#4ECDC4' }
+                    'all': { bg: '#e3f2fd' },
+                    'postal': { bg: '#fff3e0' },
+                    'poslog': { bg: '#e0f2f1' }
                 };
                 
                 const types = ['all', 'postal', 'poslog'];
@@ -2470,11 +2470,16 @@
                         const item = legendItems[index];
                         const styles = t === type ? activeStyles[t] : inactiveStyles[t];
                         item.style.background = styles.bg;
-                        // Keep text color consistent - always use the theme color for better visibility
-                        item.style.color = inactiveStyles[t].color;
+                        // Don't change color - let inline styles handle it
                         // Ensure text is always visible
                         item.style.opacity = '1';
                         item.style.visibility = 'visible';
+                        // Also ensure span inside is visible
+                        const span = item.querySelector('span');
+                        if (span) {
+                            span.style.opacity = '1';
+                            span.style.visibility = 'visible';
+                        }
                     }
                 });
             }
