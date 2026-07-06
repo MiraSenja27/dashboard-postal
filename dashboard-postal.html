@@ -1194,13 +1194,13 @@
         }
         .chart-container-left {
             flex: 1;
-            min-height: 0;
+            min-height: 300px;
             position: relative;
         }
         @media (min-width: 1600px) {
             .dashboard-charts-fit {
-                max-height: 500px;
-                min-height: 350px;
+                max-height: 650px;
+                min-height: 450px;
             }
             .charts-row-grid {
                 grid-template-columns: 1.6fr 1fr;
@@ -1212,8 +1212,8 @@
         }
         @media (min-width: 1920px) {
             .dashboard-charts-fit {
-                max-height: 550px;
-                min-height: 400px;
+                max-height: 700px;
+                min-height: 500px;
             }
             .charts-row-grid {
                 grid-template-columns: 1.6fr 1fr;
@@ -1224,8 +1224,8 @@
         }
         @media (min-width: 1200px) and (max-width: 1599px) {
             .dashboard-charts-fit {
-                max-height: 350px;
-                min-height: 280px;
+                max-height: 500px;
+                min-height: 380px;
             }
             .charts-row-grid {
                 grid-template-columns: 1.6fr 1fr;
@@ -1237,8 +1237,8 @@
         }
         @media (max-width: 1199px) {
             .dashboard-charts-fit {
-                max-height: 320px;
-                min-height: 250px;
+                max-height: 450px;
+                min-height: 350px;
             }
             .charts-row-grid {
                 grid-template-columns: 1fr;
@@ -1448,8 +1448,8 @@
                                     <button onclick="slideChart('next')" style="padding:6px 12px; background:#1e3c72; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:700; font-size:14px;">▶</button>
                                 </div>
                             </div>
-                            <div class="chart-container-left" style="display: flex; flex-direction: column; min-height: 0;">
-                                <div style="flex: 1; min-height: 0; position: relative;">
+                            <div class="chart-container-left" style="display: flex; flex-direction: column; min-height: 400px;">
+                                <div style="flex: 1; min-height: 400px; position: relative;">
                                     <canvas id="chartTopRutes"></canvas>
                                 </div>
                                 <div id="chartVolumeLegend" style="display: flex; gap: 20px; justify-content: center; margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 8px; flex-shrink: 0;">
