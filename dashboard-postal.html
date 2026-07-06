@@ -2470,7 +2470,11 @@
                         const item = legendItems[index];
                         const styles = t === type ? activeStyles[t] : inactiveStyles[t];
                         item.style.background = styles.bg;
-                        item.style.color = styles.color;
+                        // Keep text color consistent - always use the theme color for better visibility
+                        item.style.color = inactiveStyles[t].color;
+                        // Ensure text is always visible
+                        item.style.opacity = '1';
+                        item.style.visibility = 'visible';
                     }
                 });
             }
@@ -2838,7 +2842,7 @@
                         },
                         plugins: {
                             legend: { 
-                                display: true,
+                                display: false,
                                 position: 'bottom',
                                 labels: { 
                                     font: { size: 13 }, 
