@@ -1474,16 +1474,17 @@
 
                         <!-- Doughnut Chart & Insight -->
                         <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); display:flex; flex-direction:column;">
-                            <h4 style="color:#1e3c72; margin-bottom:15px; font-weight:700; font-size:14px;">📋 Rute Tertinggi (Volume)</h4>
-                            <div id="chartTopRutesInsightPostal" style="font-size:13px;">
-                                <!-- TOP 3 POSTAL akan dimunculkan di sini via JS -->
-                            </div>
-                            <div style="display:flex; flex-direction:column; align-items:center; margin:20px 0;">
-                                <h4 style="color:#1e3c72; margin-bottom:12px; font-weight:700; font-size:14px;">📊 Breakdown</h4>
-                                <canvas id="chartBreakdown" style="max-height:200px; max-width:200px; margin:0 auto; display:block;"></canvas>
-                            </div>
-                            <div id="chartTopRutesInsightPoslog" style="font-size:13px;">
-                                <!-- TOP 3 POSLOG akan dimunculkan di sini via JS -->
+                            <div style="display:flex; flex-direction:row; align-items:flex-start; justify-content:space-between; flex:1; gap:15px;">
+                                <div style="flex:1; min-width:140px;">
+                                    <h4 style="color:#1e3c72; margin-bottom:15px; font-weight:700; font-size:14px;">📋 Rute Tertinggi (Volume)</h4>
+                                    <div id="chartTopRutesInsight" style="font-size:13px;">
+                                        <!-- Terbanyak akan dimunculkan di sini via JS -->
+                                    </div>
+                                </div>
+                                <div style="flex:1.2; display:flex; flex-direction:column; justify-content:center; padding-top: 40px;">
+                                    <h4 style="color:#1e3c72; margin-bottom:12px; font-weight:700; font-size:14px; text-align:center;">📊 Breakdown</h4>
+                                    <canvas id="chartBreakdown" style="max-height:200px; max-width:200px; margin:0 auto; display:block;"></canvas>
+                                </div>
                             </div>
                             <div id="chartBreakdownLegend" style="margin-top:15px; font-size:18px; color:#555;"></div>
                         </div>
@@ -2634,7 +2635,7 @@
             let sortedPostal = [...data].sort((a,b) => b.postal - a.postal).slice(0, 3);
             let sortedPoslog = [...data].sort((a,b) => b.poslog - a.poslog).slice(0, 3);
 
-            let htmlPostal = `<div style="padding: 18px; background: #fff5eb; border-left: 4px solid #FF8C42; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+            let htmlPostal = `<div style="margin-bottom: 25px; padding: 18px; background: #fff5eb; border-left: 4px solid #FF8C42; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                 <div style="color: #555; font-size: 16px; margin-bottom: 12px; font-weight: 800;">🏆 TOP 3 POSTAL</div>`;
             sortedPostal.forEach((r, i) => {
                 htmlPostal += `<div style="display:flex; justify-content:space-between; margin-bottom: 10px; border-bottom: 1px dashed #fad8c3; padding-bottom: 8px;">
@@ -2654,9 +2655,7 @@
             });
             htmlPoslog += `</div>`;
 
-            // Masukkan ke container terpisah agar pie chart di antara keduanya
-            document.getElementById('chartTopRutesInsightPostal').innerHTML = htmlPostal;
-            document.getElementById('chartTopRutesInsightPoslog').innerHTML = htmlPoslog;
+            document.getElementById('chartTopRutesInsight').innerHTML = htmlPostal + htmlPoslog;
 
             // Data SLA yang berisi informasi lengkap titik pemberhentian setiap rute (LENGKAP)
             const slaDataMap = {
