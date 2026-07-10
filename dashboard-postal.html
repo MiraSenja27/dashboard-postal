@@ -2976,7 +2976,7 @@
                 function formatLegendNum(n){ return n >= 1000000 ? (n/1000000).toFixed(3)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toFixed(0); }
                 
                 document.getElementById('chartBreakdownLegend').innerHTML =
-                    '<div style="display: flex; flex-direction: column; gap: 10px; font-size: 15px; margin-top: 25px; color: #111;">' +
+                    '<div style="display: flex; flex-direction: column; gap: 10px; font-size: 15px; margin-top: 25px; color: #111; justify-content: center; align-items: center;">' +
                     '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#FF8C42; font-size:18px;">■</span> Postal: <b style="font-size:16px;">' + formatLegendNum(pPostal) + ' kg</b> <span style="font-weight:bold; font-size:15px; color:#444;">(' + pct1 + '%)</span></div>' +
                     '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#4ECDC4; font-size:18px;">■</span> Poslog: <b style="font-size:16px;">' + formatLegendNum(pPoslog) + ' kg</b> <span style="font-weight:bold; font-size:15px; color:#444;">(' + pct2 + '%)</span></div>' +
                     '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#B0BEC5; font-size:18px;">■</span> Sisa: <b style="font-size:16px;">' + formatLegendNum(pSisa) + ' kg</b> <span style="font-weight:bold; font-size:15px; color:#444;">(' + pct3 + '%)</span></div>' +
