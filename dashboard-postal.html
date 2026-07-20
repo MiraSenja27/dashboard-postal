@@ -1521,6 +1521,9 @@
                     <button id="toggleSLABtn" onclick="toggleSLA()" class="admin-only"
                         style="background: linear-gradient(135deg, #4CAF50, #388E3C); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;">👁
                         Sembunyikan SLA</button>
+                    <button onclick="openRouteSettingsModal()" class="admin-only"
+                        style="background: linear-gradient(135deg, #FF9800, #F57C00); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;">⚙️
+                        Pengaturan Rute</button>
                 </div>
 
                 <!-- Route Cards -->
@@ -5504,7 +5507,7 @@
                     'Rute 13 SB-YK': [{ t: '01:00', l: 'SB (OUT)' }, { t: '05:00', l: 'SLO (IN)' }, { t: '05:30', l: 'SLO (OUT)' }, { t: '07:30', l: 'YK (IN)' }],
                     'Rute 14 SM-SB': [{ t: '02:30', l: 'SM (OUT)' }, { t: '07:30', l: 'SB (IN)' }],
                     'Rute 14 SB-SM': [{ t: '02:00', l: 'SB (OUT)' }, { t: '07:00', l: 'SM (IN)' }],
-                    'Rute 15 JAT-SB': [{ t: '20:30', l: 'JAT (OUT)' }, { t: '04:30', l: 'SM (IN)' }, { t: '05:30', l: 'SM (OUT)' }, { t: '07:30', l: 'SLO (IN)' }, { t: '08:30', l: 'SLO (OUT)' }, { t: '12:30', l: 'SB (IN)' }],
+                    'Rute 15 JAT-SB': [{ t: '20:30', l: 'JAT (OUT)' }, { t: '04:30', l: 'SM (IN)' }, { t: '05:30', l: 'SM (OUT)' }, { t: '12:30', l: 'SB (IN)' }],
                     'Rute 15 SB-JAT': [{ t: '04:00', l: 'SB (OUT)' }, { t: '08:30', l: 'SM (IN)' }, { t: '09:30', l: 'SM (OUT)' }, { t: '17:00', l: 'JAT (IN)' }],
                     'RUTE B1 (15) JAT-Solo': [{ t: '05:00', l: 'JAT (OUT)' }, { t: '11:30', l: 'YK (IN)' }, { t: '12:30', l: 'YK (OUT)' }, { t: '15:00', l: 'SLO (IN)' }],
                     'RUTE B1 (15) Solo-JAT': [{ t: '16:00', l: 'SLO (OUT)' }, { t: '18:30', l: 'SM (IN)' }, { t: '19:00', l: 'SM (OUT)' }, { t: '01:30', l: 'JAT (IN)' }],
@@ -6206,6 +6209,60 @@
         </div>
     </div>
 
+    <!-- ===================== MODAL MANAJEMEN RUTE & SLA ===================== -->
+    <div id="routeManagementModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+        <div style="background:white; border-radius:14px; width:95%; max-width:1200px; max-height:90vh; overflow-y:auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); display:flex; flex-direction:column;">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:24px 30px 16px; position:sticky; top:0; background:white; z-index:10; border-bottom:2px solid #e2e8f0; border-radius:14px 14px 0 0;">
+                <h2 style="color:#1e3c72; font-size:26px; font-weight:800;">⚙️ Manajemen Rute & SLA</h2>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button onclick="closeRouteManagementModal()" style="padding:10px 22px; border:1px solid #ddd; background:white; border-radius:8px; cursor:pointer; font-size:15px; font-weight:600; color:#333;">Tutup</button>
+                    <button onclick="closeRouteManagementModal()" style="background:none; border:none; font-size:28px; cursor:pointer; color:#999; line-height:1;">✕</button>
+                </div>
+            </div>
+
+            <div style="padding:20px 30px 30px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <p style="color:#1e293b; font-size:16px; font-weight:500; margin:0;">
+                        Kelola semua rute, tambah rute baru, edit titik SLA, atau hapus rute beserta data SLA terkait.
+                    </p>
+                    <button onclick="openAddRouteInManagement()" style="padding:10px 20px; background:linear-gradient(135deg,#1e3c72,#2a5298); color:white; border:none; border-radius:8px; cursor:pointer; font-size:15px; font-weight:700; display:flex; align-items:center; gap:8px;">➕ Tambah Rute Baru</button>
+                </div>
+
+                <!-- Search -->
+                <div style="margin-bottom:20px;">
+                    <input type="text" id="routeSearchInput" onkeyup="filterRouteManagement()" placeholder="🔍 Cari rute..." style="width:100%; padding:12px 16px; border:1px solid #e2e8f0; border-radius:8px; font-size:15px;">
+                </div>
+
+                <!-- Route List -->
+                <div id="routeManagementList" style="display:flex; flex-direction:column; gap:12px;">
+                    <!-- Routes will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================== MODAL EDIT TITIK SLA ===================== -->
+    <div id="editSLAPointsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; justify-content:center; align-items:center;">
+        <div style="background:white; border-radius:14px; width:90%; max-width:700px; max-height:85vh; overflow-y:auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:20px 24px 16px; border-bottom:2px solid #e2e8f0;">
+                <h3 id="editSLATitle" style="color:#1e3c72; font-size:20px; font-weight:800;">Edit Titik SLA</h3>
+                <button onclick="closeEditSLAPointsModal()" style="background:none; border:none; font-size:24px; cursor:pointer; color:#999;">✕</button>
+            </div>
+            <div style="padding:20px 24px;">
+                <input type="hidden" id="editSLARouteName">
+                <div style="margin-bottom:16px;">
+                    <label style="font-weight:700; color:#333; display:block; margin-bottom:8px;">Titik N22 SLA</label>
+                    <p style="font-size:13px; color:#666; margin-bottom:8px;">Format: HH:MM=Nama Titik (IN/OUT), pisahkan dengan koma</p>
+                    <textarea id="editSLAPoints" rows="8" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; font-size:14px; resize:vertical; font-family:monospace;"></textarea>
+                </div>
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+                    <button onclick="closeEditSLAPointsModal()" style="padding:10px 20px; border:1px solid #ddd; background:white; border-radius:8px; cursor:pointer; font-size:14px;">Batal</button>
+                    <button onclick="saveSLAPoints()" style="padding:10px 24px; background:linear-gradient(135deg,#1e3c72,#2a5298); color:white; border:none; border-radius:8px; cursor:pointer; font-size:14px; font-weight:700;">Simpan Perubahan</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ===================== MODAL PENGATURAN RUTE ===================== -->
     <div id="routeSettingsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
         <div style="background:white; border-radius:14px; width:98%; max-width:1400px; max-height:90vh; overflow-y:auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); display:flex; flex-direction:column;">
@@ -6351,6 +6408,170 @@
 
         function closeRouteModal() {
             document.getElementById('routeModal').style.display = 'none';
+        }
+
+        // =================== MODAL MANAJEMEN RUTE & SLA ===================
+        function openRouteSettingsModal() {
+            document.getElementById('routeManagementModal').style.display = 'flex';
+            loadRouteManagementList();
+        }
+
+        function closeRouteManagementModal() {
+            document.getElementById('routeManagementModal').style.display = 'none';
+        }
+
+        async function loadRouteManagementList() {
+            const container = document.getElementById('routeManagementList');
+            container.innerHTML = '<div style="text-align:center; padding:40px; color:#666;">🔄 Memuat data rute...</div>';
+
+            try {
+                // Get all routes from slaDataMap
+                const allRoutes = Object.keys(window._slaDataMap || {}).sort();
+                
+                if (allRoutes.length === 0) {
+                    container.innerHTML = '<div style="text-align:center; padding:40px; color:#666;">⚠️ Tidak ada data rute tersedia</div>';
+                    return;
+                }
+
+                let html = '';
+                allRoutes.forEach((routeName, index) => {
+                    const slaPoints = window._slaDataMap[routeName] || [];
+                    const pointsDisplay = slaPoints.map(p => `${p.t} - ${p.l}`).join(', ');
+                    
+                    html += `
+                        <div class="route-management-item" data-route="${routeName.toLowerCase()}" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;">
+                            <div style="flex:1; min-width:300px;">
+                                <div style="font-weight:800; color:#1e3c72; font-size:16px; margin-bottom:6px;">${routeName}</div>
+                                <div style="font-size:13px; color:#64748b; line-height:1.4;">${pointsDisplay || 'Tidak ada titik SLA'}</div>
+                            </div>
+                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <button onclick="editRouteSLA('${routeName}')" style="padding:8px 16px; background:linear-gradient(135deg,#3b82f6,#2563eb); color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:700;">✏️ Edit SLA</button>
+                                <button onclick="deleteRouteFromManagement('${routeName}')" style="padding:8px 16px; background:linear-gradient(135deg,#ef4444,#dc2626); color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:700;">🗑️ Hapus</button>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+            } catch (error) {
+                container.innerHTML = `<div style="text-align:center; padding:40px; color:#ef4444;">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        function filterRouteManagement() {
+            const searchTerm = document.getElementById('routeSearchInput').value.toLowerCase();
+            const items = document.querySelectorAll('.route-management-item');
+            
+            items.forEach(item => {
+                const routeName = item.getAttribute('data-route');
+                if (routeName.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        function openAddRouteInManagement() {
+            closeRouteManagementModal();
+            openAddRouteModal();
+        }
+
+        // =================== MODAL EDIT TITIK SLA ===================
+        function editRouteSLA(routeName) {
+            document.getElementById('editSLARouteName').value = routeName;
+            document.getElementById('editSLATitle').textContent = `Edit Titik SLA - ${routeName}`;
+            
+            const slaPoints = window._slaDataMap && window._slaDataMap[routeName] 
+                ? window._slaDataMap[routeName].map(p => `${p.t}=${p.l}`).join(', ')
+                : '';
+            
+            document.getElementById('editSLAPoints').value = slaPoints;
+            document.getElementById('editSLAPointsModal').style.display = 'flex';
+        }
+
+        function closeEditSLAPointsModal() {
+            document.getElementById('editSLAPointsModal').style.display = 'none';
+        }
+
+        async function saveSLAPoints() {
+            const routeName = document.getElementById('editSLARouteName').value;
+            const slaRaw = document.getElementById('editSLAPoints').value.trim();
+            
+            if (!routeName) {
+                alert('Nama rute tidak ditemukan!');
+                return;
+            }
+
+            // Parse SLA points
+            const pts = slaRaw.split(',').map(s => {
+                const [t, ...lparts] = s.trim().split('=');
+                return { t: t.trim(), l: lparts.join('=').trim() };
+            }).filter(p => p.t && p.l);
+
+            if (!window._slaDataMap) window._slaDataMap = {};
+            window._slaDataMap[routeName] = pts;
+
+            // Update in database via API
+            try {
+                const response = await fetch(`${API_URL}/sla`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        rute: routeName, 
+                        titik: pts 
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert(`✅ Titik SLA untuk ${routeName} berhasil diperbarui!`);
+                    closeEditSLAPointsModal();
+                    loadRouteManagementList();
+                    await loadDashboardData();
+                } else {
+                    alert(`⚠️ Peringatan: ${result.message}\n\nData lokal telah diperbarui, namun database mungkin belum sinkron.`);
+                    closeEditSLAPointsModal();
+                    loadRouteManagementList();
+                }
+            } catch (error) {
+                alert(`⚠️ Error koneksi database: ${error.message}\n\nData lokal telah diperbarui.`);
+                closeEditSLAPointsModal();
+                loadRouteManagementList();
+            }
+        }
+
+        async function deleteRouteFromManagement(routeName) {
+            if (!confirm(`⚠️ Apakah Anda yakin ingin menghapus rute "${routeName}"?\n\nTindakan ini akan:\n- Menghapus rute dari data lokal\n- Menghapus data SLA terkait dari database\n\nData yang dihapus tidak dapat dikembalikan!`)) {
+                return;
+            }
+
+            try {
+                // Delete from local slaDataMap
+                if (window._slaDataMap && window._slaDataMap[routeName]) {
+                    delete window._slaDataMap[routeName];
+                }
+
+                // Delete from database via API
+                const response = await fetch(`${API_URL}/sla`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ routeName: routeName })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert(`✅ Rute "${routeName}" berhasil dihapus!`);
+                    loadRouteManagementList();
+                    await loadDashboardData();
+                } else {
+                    alert(`⚠️ ${result.message}\n\nData lokal telah dihapus.`);
+                    loadRouteManagementList();
+                }
+            } catch (error) {
+                alert(`⚠️ Error koneksi database: ${error.message}\n\nData lokal telah dihapus.`);
+                loadRouteManagementList();
+            }
         }
 
         function saveRoute() {
