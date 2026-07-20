@@ -6425,28 +6425,32 @@
             container.innerHTML = '<div style="text-align:center; padding:40px; color:#666;">🔄 Memuat data rute...</div>';
 
             try {
-                // Get all routes from slaDataMap
-                const allRoutes = Object.keys(window._slaDataMap || {}).sort();
+                // Get routes from routesData (dashboard data)
+                const allRoutes = routesData || [];
                 
                 if (allRoutes.length === 0) {
-                    container.innerHTML = '<div style="text-align:center; padding:40px; color:#666;">⚠️ Tidak ada data rute tersedia</div>';
+                    container.innerHTML = '<div style="text-align:center; padding:40px; color:#666;">⚠️ Tidak ada data rute tersedia di dashboard. Silakan upload data volume terlebih dahulu.</div>';
                     return;
                 }
 
                 let html = '';
-                allRoutes.forEach((routeName, index) => {
-                    const slaPoints = window._slaDataMap[routeName] || [];
+                allRoutes.forEach((route, index) => {
+                    const routeName = route.name || route.route_name || '-';
+                    const slaPoints = window._slaDataMap && window._slaDataMap[routeName] 
+                        ? window._slaDataMap[routeName] 
+                        : [];
                     const pointsDisplay = slaPoints.map(p => `${p.t} - ${p.l}`).join(', ');
                     
                     html += `
-                        <div class="route-management-item" data-route="${routeName.toLowerCase()}" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;">
+                        <div class="route-management-item" data-route="${routeName.toLowerCase()}" data-index="${index}" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;">
                             <div style="flex:1; min-width:300px;">
                                 <div style="font-weight:800; color:#1e3c72; font-size:16px; margin-bottom:6px;">${routeName}</div>
                                 <div style="font-size:13px; color:#64748b; line-height:1.4;">${pointsDisplay || 'Tidak ada titik SLA'}</div>
                             </div>
                             <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                <button onclick="editRouteName(${index})" style="padding:8px 16px; background:linear-gradient(135deg,#f59e0b,#d97706); color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:700;">📝 Edit Nama</button>
                                 <button onclick="editRouteSLA('${routeName}')" style="padding:8px 16px; background:linear-gradient(135deg,#3b82f6,#2563eb); color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:700;">✏️ Edit SLA</button>
-                                <button onclick="deleteRouteFromManagement('${routeName}')" style="padding:8px 16px; background:linear-gradient(135deg,#ef4444,#dc2626); color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:700;">🗑️ Hapus</button>
+                                <button onclick="deleteRouteFromManagement('${routeName}', ${index})" style="padding:8px 16px; background:linear-gradient(135deg,#ef4444,#dc2626); color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:700;">🗑️ Hapus</button>
                             </div>
                         </div>
                     `;
@@ -6541,7 +6545,7 @@
             }
         }
 
-        async function deleteRouteFromManagement(routeName) {
+        async function deleteRouteFromManagement(routeName, index) {
             if (!confirm(`⚠️ Apakah Anda yakin ingin menghapus rute "${routeName}"?\n\nTindakan ini akan:\n- Menghapus rute dari data lokal\n- Menghapus data SLA terkait dari database\n\nData yang dihapus tidak dapat dikembalikan!`)) {
                 return;
             }
@@ -6550,6 +6554,11 @@
                 // Delete from local slaDataMap
                 if (window._slaDataMap && window._slaDataMap[routeName]) {
                     delete window._slaDataMap[routeName];
+                }
+
+                // Delete from local routesData
+                if (routesData && routesData[index]) {
+                    routesData.splice(index, 1);
                 }
 
                 // Delete from database via API
@@ -6563,15 +6572,76 @@
                 if (result.success) {
                     alert(`✅ Rute "${routeName}" berhasil dihapus!`);
                     loadRouteManagementList();
+                    renderRoutes();
                     await loadDashboardData();
                 } else {
                     alert(`⚠️ ${result.message}\n\nData lokal telah dihapus.`);
                     loadRouteManagementList();
+                    renderRoutes();
                 }
             } catch (error) {
                 alert(`⚠️ Error koneksi database: ${error.message}\n\nData lokal telah dihapus.`);
                 loadRouteManagementList();
+                renderRoutes();
             }
+        }
+
+        // =================== EDIT NAMA RUTE ===================
+        function editRouteName(index) {
+            const route = routesData[index];
+            const oldName = route.name || route.route_name;
+            const newName = prompt(`Masukkan nama baru untuk rute "${oldName}":`, oldName);
+            
+            if (!newName || newName.trim() === '') {
+                return;
+            }
+            
+            if (newName.trim() === oldName) {
+                return;
+            }
+
+            if (!confirm(`⚠️ Ubah nama rute dari "${oldName}" menjadi "${newName.trim()}"?\n\nTindakan ini akan:\n- Mengubah nama rute di data lokal\n- Mengubah nama rute di database (Volume & SLA)\n\nPastikan nama baru sudah benar!`)) {
+                return;
+            }
+
+            const trimmedName = newName.trim();
+            
+            // Update local routesData
+            if (route.name) {
+                route.name = trimmedName;
+            } else if (route.route_name) {
+                route.route_name = trimmedName;
+            }
+
+            // Update slaDataMap key
+            if (window._slaDataMap && window._slaDataMap[oldName]) {
+                window._slaDataMap[trimmedName] = window._slaDataMap[oldName];
+                delete window._slaDataMap[oldName];
+            }
+
+            // Update in database via API
+            fetch(`${API_URL}/routes/rename`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ oldName: oldName, newName: trimmedName })
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert(`✅ Nama rute berhasil diubah dari "${oldName}" menjadi "${trimmedName}"!`);
+                    loadRouteManagementList();
+                    renderRoutes();
+                } else {
+                    alert(`⚠️ ${result.message}\n\nData lokal telah diperbarui.`);
+                    loadRouteManagementList();
+                    renderRoutes();
+                }
+            })
+            .catch(error => {
+                alert(`⚠️ Error koneksi database: ${error.message}\n\nData lokal telah diperbarui.`);
+                loadRouteManagementList();
+                renderRoutes();
+            });
         }
 
         function saveRoute() {
