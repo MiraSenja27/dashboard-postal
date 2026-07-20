@@ -5472,7 +5472,8 @@
                     isSamePair = false;
                 }
 
-                const slaDataMap = {
+                // Use window._slaDataMap as base, merge with hardcoded fallback
+                const hardcodedSLAMap = {
                     'Rute 1 JAT-SB': [{ t: '23:00', l: 'JAT (OUT)' }, { t: '02:45', l: 'CN (IN)' }, { t: '03:15', l: 'CN (OUT)' }, { t: '12:00', l: 'SB (IN)' }],
                     'Rute 1 SB-JAT': [{ t: '21:00', l: 'SB (OUT)' }, { t: '05:30', l: 'CN (IN)' }, { t: '06:00', l: 'CN (OUT)' }, { t: '09:45', l: 'JAT (IN)' }],
                     'Rute 2 JAT-YK': [{ t: '23:00', l: 'JAT (OUT)' }, { t: '02:45', l: 'CN (IN)' }, { t: '03:15', l: 'CN (OUT)' }, { t: '09:30', l: 'YK (IN)' }],
@@ -5517,6 +5518,8 @@
                     'Rute 3 JAT-PG express': [{ t: '00:30', l: 'JAT (OUT)' }, { t: '08:30', l: 'BDL (IN)' }, { t: '09:30', l: 'BDL (OUT)' }, { t: '15:30', l: 'PG (IN)' }],
                     'Rute 3 PG-JAT express': [{ t: '21:00', l: 'PG (OUT)' }, { t: '03:00', l: 'BDL (IN)' }, { t: '04:00', l: 'BDL (OUT)' }, { t: '11:30', l: 'JAT (IN)' }]
                 };
+                
+                const slaDataMap = window._slaDataMap ? {...hardcodedSLAMap, ...window._slaDataMap} : hardcodedSLAMap;
                 // Expose globally so edit modal can read N22 points
                 if (!window._slaDataMap) window._slaDataMap = {};
                 Object.assign(window._slaDataMap, slaDataMap);
@@ -6700,7 +6703,7 @@
                 route.route_name = trimmedName;
             }
 
-            // Update slaDataMap key
+            // Update slaDataMap key in window._slaDataMap
             if (window._slaDataMap && window._slaDataMap[oldName]) {
                 window._slaDataMap[trimmedName] = window._slaDataMap[oldName];
                 delete window._slaDataMap[oldName];
