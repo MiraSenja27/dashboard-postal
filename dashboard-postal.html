@@ -6680,7 +6680,22 @@
         function editRouteName(index) {
             const route = routesData[index];
             const oldName = route.name || route.route_name;
-            const newName = prompt(`Masukkan nama baru untuk rute "${oldName}":`, oldName);
+            
+            // Generate route path label (arah) sama seperti di menu pengaturan
+            const slaPoints = window._slaDataMap && window._slaDataMap[oldName] 
+                ? window._slaDataMap[oldName] 
+                : [];
+            const nodes = [];
+            slaPoints.forEach(p => {
+                let nodeName = p.l.replace(/\s*\((IN|OUT)\)/i, '').trim();
+                if (nodes.length === 0 || nodes[nodes.length - 1] !== nodeName) {
+                    nodes.push(nodeName);
+                }
+            });
+            const routePathLabel = nodes.length > 0 ? nodes.join(' - ') : oldName.replace(/Rute\s*[A-Za-z0-9]+[:\-]?\s*/gi, '').trim();
+            const displayName = routePathLabel ? `${oldName} - Arah: (${routePathLabel})` : oldName;
+            
+            const newName = prompt(`Masukkan nama baru untuk rute "${displayName}":`, oldName);
             
             if (!newName || newName.trim() === '') {
                 return;
