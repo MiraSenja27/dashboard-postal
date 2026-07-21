@@ -5519,7 +5519,15 @@
                     'Rute 3 PG-JAT express': [{ t: '21:00', l: 'PG (OUT)' }, { t: '03:00', l: 'BDL (IN)' }, { t: '04:00', l: 'BDL (OUT)' }, { t: '11:30', l: 'JAT (IN)' }]
                 };
                 
-                const slaDataMap = window._slaDataMap ? {...window._slaDataMap, ...hardcodedSLAMap} : hardcodedSLAMap;
+                const slaDataMap = window._slaDataMap ? {...hardcodedSLAMap, ...window._slaDataMap} : hardcodedSLAMap;
+                // Expose globally so edit modal can read N22 points
+                if (!window._slaDataMap) window._slaDataMap = {};
+                // Merge hardcoded SLA data for routes that don't have custom data
+                Object.keys(hardcodedSLAMap).forEach(key => {
+                    if (!window._slaDataMap[key]) {
+                        window._slaDataMap[key] = hardcodedSLAMap[key];
+                    }
+                });
 
                 const getFullRoutePath = (rName) => {
                     const points = slaDataMap[rName] || window._slaDataMap[rName];
