@@ -6432,8 +6432,36 @@
             container.innerHTML = '<div style="text-align:center; padding:40px; color:#666;">🔄 Memuat data rute...</div>';
 
             try {
-                // Get routes from routesData (dashboard data)
-                const allRoutes = routesData || [];
+                // Load fresh data from server to ensure sync with chartbar
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                const currentWeekKey =document.getElementById('weekFilter').value;
+                
+                let url = `${API_URL}/routes?category=${currentMenu}`;
+                if (currentWeekKey && currentWeekKey !== 'ALL') {
+                    url += `&weekKey=${currentWeekKey}`;
+                } else if (startDate && endDate) {
+                    url += `&startDate=${startDate}&endDate=${endDate}`;
+                }
+
+                const response = await fetch(url);
+                const result = await response.json();
+
+                let allRoutes = [];
+                if (result.success && result.data && result.data.length > 0) {
+                    allRoutes = result.data.map(record => ({
+                        name: record.route_name,
+                        route_name: record.route_name,
+                        postal: parseFloat(record.postal_volume || 0),
+                        nonPostal: parseFloat(record.non_postal_volume || 0),
+                        kapasitas: parseFloat(record.kapasitas || 0),
+                        sisa: parseFloat(record.kapasitas || 0) - (parseFloat(record.postal_volume || 0) + parseFloat(record.non_postal_volume || 0)),
+                        baseKapasitas: parseFloat(record.base_kapasitas || 0),
+                        unitInfo: record.units || '-',
+                        units: record.units || '-',
+                        totalUnits: record.totalUnits || []
+                    }));
+                }
                 
                 if (allRoutes.length === 0) {
                     container.innerHTML = '<div style="text-align:center; padding:40px; color:#666;">⚠️ Tidak ada data rute tersedia di dashboard. Silakan upload data volume terlebih dahulu.</div>';
@@ -6621,12 +6649,16 @@
                 if (result.success) {
                     alert(`✅ Titik SLA untuk ${routeName} berhasil diperbarui!`);
                     closeEditSLAPointsModal();
+                    await loadRoutesFromServer();
                     loadRouteManagementList();
+                    renderRoutes();
                     await loadDashboardData();
                 } else {
                     alert(`⚠️ Peringatan: ${result.message}\n\nData lokal telah diperbarui, namun database mungkin belum sinkron.`);
                     closeEditSLAPointsModal();
+                    await loadRoutesFromServer();
                     loadRouteManagementList();
+                    renderRoutes();
                 }
             } catch (error) {
                 alert(`⚠️ Error koneksi database: ${error.message}\n\nData lokal telah diperbarui.`);
@@ -6661,11 +6693,13 @@
                 const result = await response.json();
                 if (result.success) {
                     alert(`✅ Rute "${routeName}" berhasil dihapus!`);
+                    await loadRoutesFromServer();
                     loadRouteManagementList();
                     renderRoutes();
                     await loadDashboardData();
                 } else {
                     alert(`⚠️ ${result.message}\n\nData lokal telah dihapus.`);
+                    await loadRoutesFromServer();
                     loadRouteManagementList();
                     renderRoutes();
                 }
@@ -6734,18 +6768,24 @@
             .then(result => {
                 if (result.success) {
                     alert(`✅ Nama rute berhasil diubah dari "${oldName}" menjadi "${trimmedName}"!`);
+                    loadRoutesFromServer();
                     loadRouteManagementList();
                     renderRoutes();
+                    loadDashboardData();
                 } else {
                     alert(`⚠️ ${result.message}\n\nData lokal telah diperbarui.`);
+                    loadRoutesFromServer();
                     loadRouteManagementList();
                     renderRoutes();
+                    loadDashboardData();
                 }
             })
             .catch(error => {
                 alert(`⚠️ Error koneksi database: ${error.message}\n\nData lokal telah diperbarui.`);
+                loadRoutesFromServer();
                 loadRouteManagementList();
                 renderRoutes();
+                loadDashboardData();
             });
         }
 
