@@ -6654,13 +6654,19 @@
                 });
 
                 const result = await response.json();
+                console.log('Save SLA Result:', result);
                 if (result.success) {
                     alert(`✅ Titik SLA untuk ${routeName} berhasil diperbarui!`);
                     closeEditSLAPointsModal();
+                    console.log('Starting refresh after save SLA...');
                     await loadRoutesFromServer();
+                    console.log('loadRoutesFromServer completed');
                     loadRouteManagementList();
+                    console.log('loadRouteManagementList completed');
                     renderRoutes();
+                    console.log('renderRoutes completed');
                     await loadDashboardData();
+                    console.log('loadDashboardData completed');
                 } else {
                     alert(`⚠️ Peringatan: ${result.message}\n\nData lokal telah diperbarui, namun database mungkin belum sinkron.`);
                     closeEditSLAPointsModal();
