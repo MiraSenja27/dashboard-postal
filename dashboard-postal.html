@@ -6468,6 +6468,9 @@
                     return;
                 }
 
+                // Sort routes by order
+                allRoutes = sortRoutesByOrder(allRoutes);
+
                 let html = '';
                 allRoutes.forEach((route, index) => {
                     const routeName = route.name || route.route_name || '-';
