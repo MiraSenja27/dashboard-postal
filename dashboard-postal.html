@@ -2658,8 +2658,8 @@
                 <div style="color: #555; font-size: 16px; margin-bottom: 12px; font-weight: 800;">🏆 TOP 3 POSTAL</div>`;
             sortedPostal.forEach((r, i) => {
                 htmlPostal += `<div style="display:flex; justify-content:space-between; margin-bottom: 10px; border-bottom: 1px dashed #fad8c3; padding-bottom: 8px;">
-                    <span style="font-weight: 700; color: #1e3c72; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%;" title="${r.name}">${i+1}. ${r.name}</span>
-                    <span style="font-weight: 800; color: #D35400; font-size: 15px; text-align: right;">${r.postal.toLocaleString('id-ID')} kg</span>
+                    <span style="font-weight: 700; color: #1e3c72; font-size: 15px; flex: 1; margin-right: 10px;">${i+1}. ${r.name}</span>
+                    <span style="font-weight: 800; color: #D35400; font-size: 15px; text-align: right; white-space: nowrap;">${r.postal.toLocaleString('id-ID')} kg</span>
                 </div>`;
             });
             htmlPostal += `</div>`;
@@ -2668,8 +2668,8 @@
                 <div style="color: #555; font-size: 16px; margin-bottom: 12px; font-weight: 800;">🏆 TOP 3 POSLOG</div>`;
             sortedPoslog.forEach((r, i) => {
                 htmlPoslog += `<div style="display:flex; justify-content:space-between; margin-bottom: 10px; border-bottom: 1px dashed #bdf1ed; padding-bottom: 8px;">
-                    <span style="font-weight: 700; color: #1e3c72; font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%;" title="${r.name}">${i+1}. ${r.name}</span>
-                    <span style="font-weight: 800; color: #00796B; font-size: 15px; text-align: right;">${r.poslog.toLocaleString('id-ID')} kg</span>
+                    <span style="font-weight: 700; color: #1e3c72; font-size: 15px; flex: 1; margin-right: 10px;">${i+1}. ${r.name}</span>
+                    <span style="font-weight: 800; color: #00796B; font-size: 15px; text-align: right; white-space: nowrap;">${r.poslog.toLocaleString('id-ID')} kg</span>
                 </div>`;
             });
             htmlPoslog += `</div>`;
