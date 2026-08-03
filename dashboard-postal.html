@@ -1469,13 +1469,9 @@
                                         <div style="width: 20px; height: 20px; background: linear-gradient(90deg, #4ECDC4, #44A08D); border-radius: 4px;"></div>
                                         <span style="font-weight: 700; color: #4ECDC4; font-size: 14px;">Poslog</span>
                                     </div>
-                                    <div onclick="filterChartVolume('total_empty')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 16px; border-radius: 6px; background: #e8eaf6; transition: all 0.2s;">
-                                        <div style="width: 20px; height: 20px; background: linear-gradient(90deg, #9C27B0, #7B1FA2); border-radius: 4px;"></div>
-                                        <span style="font-weight: 700; color: #9C27B0; font-size: 14px;">Rute Paling Kosong</span>
-                                    </div>
-                                    <div onclick="filterChartVolume('zero_volume')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 16px; border-radius: 6px; background: #f5f5f5; transition: all 0.2s;">
+                                    <div onclick="filterChartVolume('total_empty')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 16px; border-radius: 6px; background: #f5f5f5; transition: all 0.2s;">
                                         <div style="width: 20px; height: 20px; background: linear-gradient(90deg, #757575, #616161); border-radius: 4px;"></div>
-                                        <span style="font-weight: 700; color: #757575; font-size: 14px;">Muatan Kosong</span>
+                                        <span style="font-weight: 700; color: #757575; font-size: 14px;">Rute Terkosong</span>
                                     </div>
                                 </div>
                             </div>
@@ -2442,7 +2438,7 @@
         let _chartInstances = {};
         
         // Chart filter state
-        let currentChartFilter = 'all'; // 'all', 'postal', 'poslog', 'total_empty', 'zero_volume'
+        let currentChartFilter = 'all'; // 'all', 'postal', 'poslog', 'total_empty'
         let currentChartPage = 0;
         const itemsPerPage = 10;
         let allChartData = [];
@@ -2465,19 +2461,17 @@
                     'all': { bg: '#1e3c72', color: '#ffffff' },
                     'postal': { bg: '#FF8C42', color: '#ffffff' },
                     'poslog': { bg: '#4ECDC4', color: '#ffffff' },
-                    'total_empty': { bg: '#9C27B0', color: '#ffffff' },
-                    'zero_volume': { bg: '#757575', color: '#ffffff' }
+                    'total_empty': { bg: '#757575', color: '#ffffff' }
                 };
                 
                 const inactiveStyles = {
                     'all': { bg: '#e3f2fd', color: '#1e3c72' },
                     'postal': { bg: '#fff3e0', color: '#FF8C42' },
                     'poslog': { bg: '#e0f2f1', color: '#4ECDC4' },
-                    'total_empty': { bg: '#e8eaf6', color: '#9C27B0' },
-                    'zero_volume': { bg: '#f5f5f5', color: '#757575' }
+                    'total_empty': { bg: '#f5f5f5', color: '#757575' }
                 };
                 
-                const types = ['all', 'postal', 'poslog', 'total_empty', 'zero_volume'];
+                const types = ['all', 'postal', 'poslog', 'total_empty'];
                 types.forEach((t, index) => {
                     if (legendItems[index]) {
                         const item = legendItems[index];
@@ -2623,9 +2617,6 @@
             } else if (currentChartFilter === 'total_empty') {
                 sortedData = [...data].sort((a,b) => (a.postal + a.poslog) - (b.postal + b.poslog));
                 console.log('📊 Chart filter: TOTAL EMPTY (lowest total volume)');
-            } else if (currentChartFilter === 'zero_volume') {
-                sortedData = [...data].filter(r => r.postal === 0 && r.poslog === 0);
-                console.log('📊 Chart filter: ZERO VOLUME (postal = 0 AND poslog = 0)');
             }
             
             allChartData = sortedData;
@@ -2655,9 +2646,7 @@
             } else if (currentChartFilter === 'poslog') {
                 filterLabel = 'Poslog';
             } else if (currentChartFilter === 'total_empty') {
-                filterLabel = 'Rute Paling Kosong';
-            } else if (currentChartFilter === 'zero_volume') {
-                filterLabel = 'Muatan Kosong';
+                filterLabel = 'Rute Terkosong';
             }
             document.getElementById('chartTopRutesTitle').textContent = `Volume ${filterLabel} (${startIdx + 1}-${Math.min(endIdx, sortedData.length)} teratas dari ${sortedData.length} rute)`;
 
@@ -2866,29 +2855,13 @@
                         {
                             label: 'Postal (kg)',
                             data: chartData.map(d => d.postal),
-                            backgroundColor: '#9C27B0',
+                            backgroundColor: '#FF8C42',
                             borderRadius: 3
                         },
                         {
                             label: 'Poslog (kg)',
                             data: chartData.map(d => d.poslog),
-                            backgroundColor: '#7B1FA2',
-                            borderRadius: 3
-                        }
-                    ];
-                } else if (currentChartFilter === 'zero_volume') {
-                    // Tampilkan rute dengan muatan kosong (kedua dataset = 0)
-                    chartDatasets = [
-                        {
-                            label: 'Postal (kg)',
-                            data: chartData.map(d => d.postal),
-                            backgroundColor: '#757575',
-                            borderRadius: 3
-                        },
-                        {
-                            label: 'Poslog (kg)',
-                            data: chartData.map(d => d.poslog),
-                            backgroundColor: '#616161',
+                            backgroundColor: '#4ECDC4',
                             borderRadius: 3
                         }
                     ];
