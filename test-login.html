@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            max-width: 400px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            color: #1e3c72;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        input:focus {
+            outline: none;
+            border-color: #1e3c72;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: scale(1.02);
+        }
+        .dashboard {
+            display: none;
+        }
+        .dashboard.show {
+            display: block;
+        }
+        .info {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .success {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        .error {
+            color: #f44336;
+            font-weight: bold;
+            margin-top: 10px;
+            display: none;
+        }
+        .error.show {
+            display: block;
+        }
+        .logout-btn {
+            background: #f44336;
+            margin-top: 20px;
+        }
+        .console-log {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Page -->
+        <div id="login-page">
+            <h1>🔐 Test Login</h1>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" placeholder="Masukkan username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" placeholder="Masukkan password" required>
+                </div>
+                <button type="submit">Login</button>
+                <div id="error-message" class="error">Username atau password salah!</div>
+            </form>
+            <div class="info">
+                <strong>Akun Test:</strong><br>
+                Username: <code>admin</code><br>
+                Password: <code>admin123</code>
+            </div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="dashboard-page" class="dashboard">
+            <h1 class="success">✅ Login Berhasil!</h1>
+            <div class="info">
+                <strong>User:</strong> <span id="user-display"></span><br>
+                <strong>Role:</strong> <span id="role-display"></span><br>
+                <strong>Session ID:</strong> <span id="session-display"></span>
+            </div>
+            <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+            <div class="info" style="margin-top: 20px;">
+                <strong>💡 Test Sekarang:</strong><br>
+                Coba refresh halaman ini (F5 atau Ctrl+R)<br>
+                Jika berhasil, Anda akan tetap login!
+            </div>
+        </div>
+
+        <!-- Console Log Display -->
+        <div class="console-log" id="console-log">
+            <div>📋 <strong>Console Log:</strong></div>
+        </div>
+    </div>
+
+    <script>
+        // Console log capture
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        const logDisplay = document.getElementById('console-log');
+
+        function addLog(type, ...args) {
+            const message = args.join(' ');
+            const div = document.createElement('div');
+            div.textContent = `[${type}] ${message}`;
+            logDisplay.appendChild(div);
+            logDisplay.scrollTop = logDisplay.scrollHeight;
+        }
+
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addLog('LOG', ...args);
+        };
+
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addLog('ERROR', ...args);
+        };
+
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            addLog('WARN', ...args);
+        };
+
+        // Storage Manager
+        function setAuthUser(value) {
+            console.log('💾 Saving user to storage...');
+            try {
+                localStorage.setItem('currentUser', value);
+                console.log('✅ Saved to localStorage');
+            } catch (e) {
+                console.error('❌ Failed to save to localStorage:', e);
+            }
+            try {
+                sessionStorage.setItem('currentUser', value);
+                console.log('✅ Saved to sessionStorage');
+            } catch (e) {
+                console.error('❌ Failed to save to sessionStorage:', e);
+            }
+            document.cookie = "currentUser=" + encodeURIComponent(value) + "; path=/; max-age=86400";
+            console.log('✅ Saved to cookie');
+        }
+
+        function getAuthUser() {
+            console.log('🔍 Checking storage for user...');
+            let val = null;
+            try {
+                val = localStorage.getItem('currentUser');
+            } catch (e) {
+                console.error('Error reading localStorage:', e);
+            }
+            if (val) {
+                console.log('📦 Found user in localStorage');
+                return val;
+            }
+            try {
+                val = sessionStorage.getItem('currentUser');
+            } catch (e) {
+                console.error('Error reading sessionStorage:', e);
+            }
+            if (val) {
+                console.log('📦 Found user in sessionStorage');
+                return val;
+            }
+            const match = document.cookie.match(new RegExp('(^| )currentUser=([^;]+)'));
+            if (match) {
+                console.log('📦 Found user in cookie');
+                return decodeURIComponent(match[2]);
+            }
+            console.log('❌ No user found in any storage');
+            return null;
+        }
+
+        function removeAuthUser() {
+            console.log('🗑️ Removing user from all storage...');
+            try {
+                localStorage.removeItem('currentUser');
+            } catch (e) {}
+            try {
+                sessionStorage.removeItem('currentUser');
+            } catch (e) {}
+            document.cookie = "currentUser=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+            console.log('✅ User removed from storage');
+        }
+
+        let currentUser = null;
+
+        // Page Load - Check Session
+        window.onload = function() {
+            console.log('🔄 Page loaded - Checking session...');
+            const savedUser = getAuthUser();
+
+            if (savedUser) {
+                try {
+                    currentUser = JSON.parse(savedUser);
+                    console.log('✅ User data parsed successfully:', currentUser.username);
+                    console.log('🔓 Restoring session for:', currentUser.username);
+                    showDashboard();
+                } catch (e) {
+                    console.warn('❌ Corrupted auth data found, clearing...', e);
+                    removeAuthUser();
+                    showLogin();
+                }
+            } else {
+                console.log('🔐 No saved session - Showing login page');
+                showLogin();
+            }
+        };
+
+        // Login Form Handler
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            console.log('🔑 Login attempt...');
+
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            console.log('Username:', username);
+
+            if (username === 'admin' && password === 'admin123') {
+                console.log('✅ Credentials valid!');
+                currentUser = {
+                    username: username,
+                    id: 1,
+                    role: 'admin',
+                    sessionId: Date.now()
+                };
+
+                setAuthUser(JSON.stringify(currentUser));
+                console.log('✅ Login successful!');
+                showDashboard();
+            } else {
+                console.log('❌ Invalid credentials');
+                document.getElementById('error-message').classList.add('show');
+                setTimeout(() => {
+                    document.getElementById('error-message').classList.remove('show');
+                }, 3000);
+            }
+        });
+
+        function showLogin() {
+            document.getElementById('login-page').style.display = 'block';
+            document.getElementById('dashboard-page').style.display = 'none';
+        }
+
+        function showDashboard() {
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('dashboard-page').style.display = 'block';
+            document.getElementById('dashboard-page').classList.add('show');
+            document.getElementById('user-display').textContent = currentUser.username;
+            document.getElementById('role-display').textContent = currentUser.role;
+            document.getElementById('session-display').textContent = currentUser.sessionId || 'N/A';
+        }
+
+        function logout() {
+            console.log('🚪 Logout requested...');
+            if (confirm('Apakah Anda yakin ingin logout?')) {
+                removeAuthUser();
+                currentUser = null;
+                console.log('✅ Logged out successfully');
+                showLogin();
+            }
+        }
+    </script>
+</body>
+</html>

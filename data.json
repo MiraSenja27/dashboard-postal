@@ -787,7 +787,7 @@
     {
       "id": 127,
       "tanggal": "2026-05-01",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 926.3699999999999,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -801,7 +801,7 @@
     {
       "id": 128,
       "tanggal": "2026-05-02",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 337,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -815,7 +815,7 @@
     {
       "id": 129,
       "tanggal": "2026-05-03",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 3759.44,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -829,7 +829,7 @@
     {
       "id": 130,
       "tanggal": "2026-04-27",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 4696.0599999999995,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -843,7 +843,7 @@
     {
       "id": 131,
       "tanggal": "2026-04-28",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 4241.58,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -857,7 +857,7 @@
     {
       "id": 132,
       "tanggal": "2026-04-29",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 4292.7,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -871,7 +871,7 @@
     {
       "id": 133,
       "tanggal": "2026-04-30",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 2659.25,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -885,7 +885,7 @@
     {
       "id": 134,
       "tanggal": "2026-05-01",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 825.8400000000001,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -899,7 +899,7 @@
     {
       "id": 135,
       "tanggal": "2026-05-02",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 1383.8,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -913,7 +913,7 @@
     {
       "id": 136,
       "tanggal": "2026-05-03",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 612.17,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -927,7 +927,7 @@
     {
       "id": 137,
       "tanggal": "2026-04-27",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 1507.24,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -941,7 +941,7 @@
     {
       "id": 138,
       "tanggal": "2026-04-28",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 2316.25,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -955,7 +955,7 @@
     {
       "id": 139,
       "tanggal": "2026-04-29",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 2830.8699999999994,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -969,7 +969,7 @@
     {
       "id": 140,
       "tanggal": "2026-04-30",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 2424.41,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -983,7 +983,7 @@
     {
       "id": 141,
       "tanggal": "2026-05-01",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 2755.1800000000003,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -997,7 +997,7 @@
     {
       "id": 142,
       "tanggal": "2026-05-02",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 1359.31,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -1011,7 +1011,7 @@
     {
       "id": 143,
       "tanggal": "2026-05-03",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 3190.83,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -1025,7 +1025,7 @@
     {
       "id": 144,
       "tanggal": "2026-04-27",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 2467.8199999999997,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -1039,7 +1039,7 @@
     {
       "id": 145,
       "tanggal": "2026-04-28",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 4080.3100000000004,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -1053,7 +1053,7 @@
     {
       "id": 146,
       "tanggal": "2026-04-29",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 2716.72,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -1067,7 +1067,7 @@
     {
       "id": 147,
       "tanggal": "2026-04-30",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 3178.49,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -1081,7 +1081,7 @@
     {
       "id": 148,
       "tanggal": "2026-05-01",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 2835.9900000000002,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -1095,7 +1095,7 @@
     {
       "id": 149,
       "tanggal": "2026-05-02",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 1595.55,
       "nonPostal": 400,
       "kapasitas": 56000,
@@ -1109,7 +1109,7 @@
     {
       "id": 150,
       "tanggal": "2026-05-03",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 2357.7299999999996,
       "nonPostal": 70,
       "kapasitas": 56000,
@@ -1123,7 +1123,7 @@
     {
       "id": 151,
       "tanggal": "2026-04-27",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 1477.8600000000001,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -1137,7 +1137,7 @@
     {
       "id": 152,
       "tanggal": "2026-04-28",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 3709.86,
       "nonPostal": 671,
       "kapasitas": 56000,
@@ -1151,7 +1151,7 @@
     {
       "id": 153,
       "tanggal": "2026-04-29",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 3333.9299999999994,
       "nonPostal": 200,
       "kapasitas": 56000,
@@ -1165,7 +1165,7 @@
     {
       "id": 154,
       "tanggal": "2026-04-30",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 2708.1499999999996,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -5295,7 +5295,7 @@
     {
       "id": 379,
       "tanggal": "2026-04-01",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 3356.62,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -5309,7 +5309,7 @@
     {
       "id": 380,
       "tanggal": "2026-04-02",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 2788,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -5323,7 +5323,7 @@
     {
       "id": 381,
       "tanggal": "2026-04-03",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 997.16,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -5337,7 +5337,7 @@
     {
       "id": 382,
       "tanggal": "2026-04-04",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 2984,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -5351,7 +5351,7 @@
     {
       "id": 383,
       "tanggal": "2026-04-05",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 1437,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -5365,7 +5365,7 @@
     {
       "id": 384,
       "tanggal": "2026-03-30",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 2966.24,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -5379,7 +5379,7 @@
     {
       "id": 385,
       "tanggal": "2026-03-31",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 5016.490000000001,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -5393,7 +5393,7 @@
     {
       "id": 386,
       "tanggal": "2026-04-01",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 1528.72,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -5407,7 +5407,7 @@
     {
       "id": 387,
       "tanggal": "2026-04-02",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 1608.24,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -5421,7 +5421,7 @@
     {
       "id": 388,
       "tanggal": "2026-04-03",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 950.53,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -5435,7 +5435,7 @@
     {
       "id": 389,
       "tanggal": "2026-04-04",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 411.03,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -5449,7 +5449,7 @@
     {
       "id": 390,
       "tanggal": "2026-04-05",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 993.04,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -5463,7 +5463,7 @@
     {
       "id": 391,
       "tanggal": "2026-03-30",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 746.7,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -5477,7 +5477,7 @@
     {
       "id": 392,
       "tanggal": "2026-03-31",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 1316.6599999999999,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -5491,7 +5491,7 @@
     {
       "id": 393,
       "tanggal": "2026-04-01",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 4761.31,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -5505,7 +5505,7 @@
     {
       "id": 394,
       "tanggal": "2026-04-02",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 2762.46,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -5519,7 +5519,7 @@
     {
       "id": 395,
       "tanggal": "2026-04-03",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 1796.37,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -5533,7 +5533,7 @@
     {
       "id": 396,
       "tanggal": "2026-04-04",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 3456.2,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -5547,7 +5547,7 @@
     {
       "id": 397,
       "tanggal": "2026-04-05",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 2555.6500000000005,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -5561,7 +5561,7 @@
     {
       "id": 398,
       "tanggal": "2026-03-30",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 2630.86,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -5575,7 +5575,7 @@
     {
       "id": 399,
       "tanggal": "2026-03-31",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 3210.1,
       "nonPostal": 0,
       "kapasitas": 28000,
@@ -5589,7 +5589,7 @@
     {
       "id": 400,
       "tanggal": "2026-04-01",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 2857.4,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -5603,7 +5603,7 @@
     {
       "id": 401,
       "tanggal": "2026-04-02",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 3961.33,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -5617,7 +5617,7 @@
     {
       "id": 402,
       "tanggal": "2026-04-03",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 3552.24,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -5631,7 +5631,7 @@
     {
       "id": 403,
       "tanggal": "2026-04-04",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 1590.47,
       "nonPostal": 1013,
       "kapasitas": 56000,
@@ -5645,7 +5645,7 @@
     {
       "id": 404,
       "tanggal": "2026-04-05",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 1944.03,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -5659,7 +5659,7 @@
     {
       "id": 405,
       "tanggal": "2026-03-30",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 1873.8799999999997,
       "nonPostal": 120,
       "kapasitas": 56000,
@@ -5673,7 +5673,7 @@
     {
       "id": 406,
       "tanggal": "2026-03-31",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 2657.8199999999997,
       "nonPostal": 150,
       "kapasitas": 56000,
@@ -9509,7 +9509,7 @@
     {
       "id": 680,
       "tanggal": "2026-04-06",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 5050.4,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -9523,7 +9523,7 @@
     {
       "id": 681,
       "tanggal": "2026-04-07",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 6104.5,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -9537,7 +9537,7 @@
     {
       "id": 682,
       "tanggal": "2026-04-08",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 4972.79,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -9551,7 +9551,7 @@
     {
       "id": 683,
       "tanggal": "2026-04-09",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 3307.1,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -9565,7 +9565,7 @@
     {
       "id": 684,
       "tanggal": "2026-04-10",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 4036.26,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -9579,7 +9579,7 @@
     {
       "id": 685,
       "tanggal": "2026-04-11",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 2309.87,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -9593,7 +9593,7 @@
     {
       "id": 686,
       "tanggal": "2026-04-12",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 4214.07,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -9607,7 +9607,7 @@
     {
       "id": 687,
       "tanggal": "2026-04-06",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 2122.82,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -9621,7 +9621,7 @@
     {
       "id": 688,
       "tanggal": "2026-04-07",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 2241.18,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -9635,7 +9635,7 @@
     {
       "id": 689,
       "tanggal": "2026-04-08",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 2162.92,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -9649,7 +9649,7 @@
     {
       "id": 690,
       "tanggal": "2026-04-09",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 1946.13,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -9663,7 +9663,7 @@
     {
       "id": 691,
       "tanggal": "2026-04-10",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 2336.27,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -9677,7 +9677,7 @@
     {
       "id": 692,
       "tanggal": "2026-04-11",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 1115.6100000000001,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -9691,7 +9691,7 @@
     {
       "id": 693,
       "tanggal": "2026-04-12",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 1461.17,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -9705,7 +9705,7 @@
     {
       "id": 694,
       "tanggal": "2026-04-06",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 2038.8,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -9719,7 +9719,7 @@
     {
       "id": 695,
       "tanggal": "2026-04-07",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 5026.08,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -9733,7 +9733,7 @@
     {
       "id": 696,
       "tanggal": "2026-04-08",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 3211.6000000000004,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -9747,7 +9747,7 @@
     {
       "id": 697,
       "tanggal": "2026-04-09",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 5402.620000000001,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -9761,7 +9761,7 @@
     {
       "id": 698,
       "tanggal": "2026-04-10",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 3546.4900000000002,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -9775,7 +9775,7 @@
     {
       "id": 699,
       "tanggal": "2026-04-11",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 3085.9399999999996,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -9789,7 +9789,7 @@
     {
       "id": 700,
       "tanggal": "2026-04-12",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 2807.1699999999996,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -9803,7 +9803,7 @@
     {
       "id": 701,
       "tanggal": "2026-04-06",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 2504.72,
       "nonPostal": 350,
       "kapasitas": 112000,
@@ -9817,7 +9817,7 @@
     {
       "id": 702,
       "tanggal": "2026-04-07",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 3668.04,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -9831,7 +9831,7 @@
     {
       "id": 703,
       "tanggal": "2026-04-08",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 3435.82,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -9845,7 +9845,7 @@
     {
       "id": 704,
       "tanggal": "2026-04-09",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 3923.4299999999994,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -9859,7 +9859,7 @@
     {
       "id": 705,
       "tanggal": "2026-04-10",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 2621.6200000000003,
       "nonPostal": 150,
       "kapasitas": 112000,
@@ -9873,7 +9873,7 @@
     {
       "id": 706,
       "tanggal": "2026-04-11",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 3464.44,
       "nonPostal": 450,
       "kapasitas": 112000,
@@ -9887,7 +9887,7 @@
     {
       "id": 707,
       "tanggal": "2026-04-12",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 1975.64,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -13723,7 +13723,7 @@
     {
       "id": 981,
       "tanggal": "2026-04-13",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 905.8,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -13737,7 +13737,7 @@
     {
       "id": 982,
       "tanggal": "2026-04-14",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 4525.8,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -13751,7 +13751,7 @@
     {
       "id": 983,
       "tanggal": "2026-04-15",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 5076.48,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -13765,7 +13765,7 @@
     {
       "id": 984,
       "tanggal": "2026-04-16",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 2532.8999999999996,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -13779,7 +13779,7 @@
     {
       "id": 985,
       "tanggal": "2026-04-17",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 3762.51,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -13793,7 +13793,7 @@
     {
       "id": 986,
       "tanggal": "2026-04-18",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 3224.7699999999995,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -13807,7 +13807,7 @@
     {
       "id": 987,
       "tanggal": "2026-04-19",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 3369.98,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -13821,7 +13821,7 @@
     {
       "id": 988,
       "tanggal": "2026-04-13",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 1774.85,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -13835,7 +13835,7 @@
     {
       "id": 989,
       "tanggal": "2026-04-14",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 2529.2299999999996,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -13849,7 +13849,7 @@
     {
       "id": 990,
       "tanggal": "2026-04-15",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 1809.0100000000002,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -13863,7 +13863,7 @@
     {
       "id": 991,
       "tanggal": "2026-04-16",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 2646.44,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -13877,7 +13877,7 @@
     {
       "id": 992,
       "tanggal": "2026-04-17",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 2475.73,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -13891,7 +13891,7 @@
     {
       "id": 993,
       "tanggal": "2026-04-18",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 3178,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -13905,7 +13905,7 @@
     {
       "id": 994,
       "tanggal": "2026-04-19",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 512.76,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -13919,7 +13919,7 @@
     {
       "id": 995,
       "tanggal": "2026-04-13",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 845.6000000000001,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -13933,7 +13933,7 @@
     {
       "id": 996,
       "tanggal": "2026-04-14",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 3149.6600000000003,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -13947,7 +13947,7 @@
     {
       "id": 997,
       "tanggal": "2026-04-15",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 2863.61,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -13961,7 +13961,7 @@
     {
       "id": 998,
       "tanggal": "2026-04-16",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 3125.11,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -13975,7 +13975,7 @@
     {
       "id": 999,
       "tanggal": "2026-04-17",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 3364.0899999999997,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -13989,7 +13989,7 @@
     {
       "id": 1000,
       "tanggal": "2026-04-18",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 2247.3900000000003,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -14003,7 +14003,7 @@
     {
       "id": 1001,
       "tanggal": "2026-04-19",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 2280.7100000000005,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -14017,7 +14017,7 @@
     {
       "id": 1002,
       "tanggal": "2026-04-13",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 2026.98,
       "nonPostal": 390,
       "kapasitas": 112000,
@@ -14031,7 +14031,7 @@
     {
       "id": 1003,
       "tanggal": "2026-04-14",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 2874.4,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -14045,7 +14045,7 @@
     {
       "id": 1004,
       "tanggal": "2026-04-15",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 3169.7100000000005,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -14059,7 +14059,7 @@
     {
       "id": 1005,
       "tanggal": "2026-04-16",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 3729.7800000000007,
       "nonPostal": 137,
       "kapasitas": 112000,
@@ -14073,7 +14073,7 @@
     {
       "id": 1006,
       "tanggal": "2026-04-17",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 2752.7799999999997,
       "nonPostal": 450,
       "kapasitas": 112000,
@@ -14087,7 +14087,7 @@
     {
       "id": 1007,
       "tanggal": "2026-04-18",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 2339.5600000000004,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -14101,7 +14101,7 @@
     {
       "id": 1008,
       "tanggal": "2026-04-19",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 2683.07,
       "nonPostal": 430,
       "kapasitas": 112000,
@@ -17937,7 +17937,7 @@
     {
       "id": 1282,
       "tanggal": "2026-04-20",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 250,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -17951,7 +17951,7 @@
     {
       "id": 1283,
       "tanggal": "2026-04-21",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 4562.2,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -17965,7 +17965,7 @@
     {
       "id": 1284,
       "tanggal": "2026-04-22",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 3993.77,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -17979,7 +17979,7 @@
     {
       "id": 1285,
       "tanggal": "2026-04-23",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 2841.45,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -17993,7 +17993,7 @@
     {
       "id": 1286,
       "tanggal": "2026-04-24",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 3054.9,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -18007,7 +18007,7 @@
     {
       "id": 1287,
       "tanggal": "2026-04-25",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 3158.17,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -18021,7 +18021,7 @@
     {
       "id": 1288,
       "tanggal": "2026-04-26",
-      "rute": "Rute 11 BD-SB",
+      "rute": "Rute 11A BD-SB",
       "postal": 1328.13,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -18035,7 +18035,7 @@
     {
       "id": 1289,
       "tanggal": "2026-04-20",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 1801.7899999999997,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -18049,7 +18049,7 @@
     {
       "id": 1290,
       "tanggal": "2026-04-21",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 3385.3899999999994,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -18063,7 +18063,7 @@
     {
       "id": 1291,
       "tanggal": "2026-04-22",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 2232.96,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -18077,7 +18077,7 @@
     {
       "id": 1292,
       "tanggal": "2026-04-23",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 2968.79,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -18091,7 +18091,7 @@
     {
       "id": 1293,
       "tanggal": "2026-04-24",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 2745.71,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -18105,7 +18105,7 @@
     {
       "id": 1294,
       "tanggal": "2026-04-25",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 2011.76,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -18119,7 +18119,7 @@
     {
       "id": 1295,
       "tanggal": "2026-04-26",
-      "rute": "Rute 11 MTR-SB",
+      "rute": "Rute 11B MTR-SB",
       "postal": 666.87,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -18133,7 +18133,7 @@
     {
       "id": 1296,
       "tanggal": "2026-04-20",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 3549.24,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -18147,7 +18147,7 @@
     {
       "id": 1297,
       "tanggal": "2026-04-21",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 3041.14,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -18161,7 +18161,7 @@
     {
       "id": 1298,
       "tanggal": "2026-04-22",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 2923.71,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -18175,7 +18175,7 @@
     {
       "id": 1299,
       "tanggal": "2026-04-23",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 2565.8500000000004,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -18189,7 +18189,7 @@
     {
       "id": 1300,
       "tanggal": "2026-04-24",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 4654.1,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -18203,7 +18203,7 @@
     {
       "id": 1301,
       "tanggal": "2026-04-25",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 3475.71,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -18217,7 +18217,7 @@
     {
       "id": 1302,
       "tanggal": "2026-04-26",
-      "rute": "Rute 11 SB-BD",
+      "rute": "Rute 11A SB-BD",
       "postal": 2168.9,
       "nonPostal": 0,
       "kapasitas": 56000,
@@ -18231,7 +18231,7 @@
     {
       "id": 1303,
       "tanggal": "2026-04-20",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 1722.56,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -18245,7 +18245,7 @@
     {
       "id": 1304,
       "tanggal": "2026-04-21",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 3475.8999999999996,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -18259,7 +18259,7 @@
     {
       "id": 1305,
       "tanggal": "2026-04-22",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 2881.52,
       "nonPostal": 0,
       "kapasitas": 112000,
@@ -18273,7 +18273,7 @@
     {
       "id": 1306,
       "tanggal": "2026-04-23",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 3139.1799999999994,
       "nonPostal": 330,
       "kapasitas": 112000,
@@ -18287,7 +18287,7 @@
     {
       "id": 1307,
       "tanggal": "2026-04-24",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 3847.4999999999995,
       "nonPostal": 88,
       "kapasitas": 112000,
@@ -18301,7 +18301,7 @@
     {
       "id": 1308,
       "tanggal": "2026-04-25",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 2661.19,
       "nonPostal": 556,
       "kapasitas": 112000,
@@ -18315,7 +18315,7 @@
     {
       "id": 1309,
       "tanggal": "2026-04-26",
-      "rute": "Rute 11 SB-MTR",
+      "rute": "Rute 11B SB-MTR",
       "postal": 2462.69,
       "nonPostal": 0,
       "kapasitas": 112000,

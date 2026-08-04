@@ -1350,6 +1350,36 @@ app.put("/api/sla", async (req, res) => {
   }
 });
 
+// Update route names in database
+app.put("/api/routes/rename", async (req, res) => {
+  try {
+    const { oldName, newName } = req.body;
+    
+    if (!oldName || !newName) {
+      return res.status(400).json({ success: false, message: "oldName and newName are required" });
+    }
+
+    // Update in VolumeData
+    const volumeResult = await VolumeData.updateMany(
+      { rute: { $regex: new RegExp(`^${oldName}$`, "i") } },
+      { $set: { rute: newName } }
+    );
+
+    // Update in SlaData
+    const slaResult = await SlaData.updateMany(
+      { rute: { $regex: new RegExp(`^${oldName}$`, "i") } },
+      { $set: { rute: newName } }
+    );
+
+    res.json({ 
+      success: true, 
+      message: `Updated ${volumeResult.modifiedCount} volume records and ${slaResult.modifiedCount} SLA records from "${oldName}" to "${newName}"` 
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 // Clear all data
 app.delete("/api/data/clear", async (req, res) => {
   try {
