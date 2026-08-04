@@ -707,7 +707,6 @@
             margin-top: 10px;
             font-size: 16px;
             justify-content: center;
-            flex-wrap: nowrap;
         }
 
         .legend-item {
@@ -1181,8 +1180,8 @@
             display: block;
             margin: 15px 0 30px 0;
             height: auto;
-            max-height: 600px;
-            min-height: 400px;
+            max-height: 450px;
+            min-height: 280px;
         }
         .charts-row-grid {
             display: grid;
@@ -1195,13 +1194,13 @@
         }
         .chart-container-left {
             flex: 1;
-            min-height: 300px;
+            min-height: 0;
             position: relative;
         }
         @media (min-width: 1600px) {
             .dashboard-charts-fit {
-                max-height: 650px;
-                min-height: 450px;
+                max-height: 500px;
+                min-height: 350px;
             }
             .charts-row-grid {
                 grid-template-columns: 1.6fr 1fr;
@@ -1211,22 +1210,10 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
-        @media (min-width: 1920px) {
-            .dashboard-charts-fit {
-                max-height: 700px;
-                min-height: 500px;
-            }
-            .charts-row-grid {
-                grid-template-columns: 1.6fr 1fr;
-                gap: 25px;
-                max-width: 1800px;
-                margin: 0 auto;
-            }
-        }
         @media (min-width: 1200px) and (max-width: 1599px) {
             .dashboard-charts-fit {
-                max-height: 500px;
-                min-height: 380px;
+                max-height: 350px;
+                min-height: 280px;
             }
             .charts-row-grid {
                 grid-template-columns: 1.6fr 1fr;
@@ -1238,8 +1225,8 @@
         }
         @media (max-width: 1199px) {
             .dashboard-charts-fit {
-                max-height: 450px;
-                min-height: 350px;
+                max-height: 320px;
+                min-height: 250px;
             }
             .charts-row-grid {
                 grid-template-columns: 1fr;
@@ -1359,8 +1346,8 @@
                         <option value="Rute 8 JAT-SB">Rute 8 JAT-SB</option>
                         <option value="Rute 9 JAT-BD">Rute 9 JAT-BD</option>
                         <option value="Rute 10 BD-CN">Rute 10 BD-CN</option>
-                        <option value="Rute 11A BD-SB">Rute 11A BD-SB</option>
-                        <option value="Rute 11B SB-MTR">Rute 11B SB-MTR</option>
+                        <option value="Rute 11 BD-SB">Rute 11 BD-SB</option>
+                        <option value="Rute 11 SB-MTR">Rute 11 SB-MTR</option>
                         <option value="Rute 12 YK-SB">Rute 12 YK-SB</option>
                         <option value="Rute 13 YK-SB">Rute 13 YK-SB</option>
                         <option value="Rute 14 SM-SB">Rute 14 SM-SB</option>
@@ -1389,7 +1376,6 @@
             <div id="volume-action-btns" style="display:none; width:100%; align-items:center; flex-wrap:nowrap;">
                 <div style="display:flex; gap:10px; align-items:center; flex-shrink:0;">
                     <button style="padding: 8px 16px; background: #FF9800; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadVolume(currentMenu)">📤 Upload Volume</button>
-                    <button style="padding: 8px 16px; background: #9333ea; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="showUploadPendapatan(currentMenu)">💰 Upload Pendapatan</button>
                     <button style="padding: 8px 16px; background: #f44336; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="deleteSelectedVolume()">🗑️ Hapus Terpilih</button>
                     <button style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 700; font-size: 13px;" onclick="downloadVolumeExcel()">Excel 📊</button>
                 </div>
@@ -1441,39 +1427,9 @@
                         
                         <!-- Horizontal Bar Chart -->
                         <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); display:flex; flex-direction:column;">
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-                                <h4 id="chartTopRutesTitle" style="color:#1e3c72; margin:0; font-weight:700; font-size:14px;">Volume per Rute (10 teratas)</h4>
-                                <div style="display:flex; gap:8px; align-items:center;">
-                                    <button onclick="slideChart('prev')" style="padding:6px 12px; background:#1e3c72; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:700; font-size:14px;">◀</button>
-                                    <span id="chartPageInfo" style="font-weight:600; color:#64748b; font-size:13px;">1/1</span>
-                                    <button onclick="slideChart('next')" style="padding:6px 12px; background:#1e3c72; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:700; font-size:14px;">▶</button>
-                                </div>
-                            </div>
-                            <div class="chart-container-left" style="display: flex; flex-direction: column; min-height: 400px;">
-                                <div style="flex: 1; min-height: 400px; position: relative;">
-                                    <canvas id="chartTopRutes"></canvas>
-                                </div>
-                                <div id="chartVolumeLegend" style="display: flex; gap: 15px; justify-content: center; margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 8px; flex-shrink: 0; flex-wrap: wrap;">
-                                    <div onclick="filterChartVolume('all')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 16px; border-radius: 6px; background: #e3f2fd; transition: all 0.2s;">
-                                        <div style="width: 20px; height: 20px; border-radius: 4px; display: flex; overflow: hidden;">
-                                            <div style="width: 50%; height: 100%; background: linear-gradient(90deg, #FF8C42, #FFA500);"></div>
-                                            <div style="width: 50%; height: 100%; background: linear-gradient(90deg, #4ECDC4, #44A08D);"></div>
-                                        </div>
-                                        <span style="font-weight: 700; color: #1e3c72; font-size: 14px;">ALL</span>
-                                    </div>
-                                    <div onclick="filterChartVolume('postal')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 16px; border-radius: 6px; background: #fff3e0; transition: all 0.2s;">
-                                        <div style="width: 20px; height: 20px; background: linear-gradient(90deg, #FF8C42, #FFA500); border-radius: 4px;"></div>
-                                        <span style="font-weight: 700; color: #FF8C42; font-size: 14px;">Postal</span>
-                                    </div>
-                                    <div onclick="filterChartVolume('poslog')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 16px; border-radius: 6px; background: #e0f2f1; transition: all 0.2s;">
-                                        <div style="width: 20px; height: 20px; background: linear-gradient(90deg, #4ECDC4, #44A08D); border-radius: 4px;"></div>
-                                        <span style="font-weight: 700; color: #4ECDC4; font-size: 14px;">Poslog</span>
-                                    </div>
-                                    <div onclick="filterChartVolume('total_empty')" style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px 16px; border-radius: 6px; background: #f5f5f5; transition: all 0.2s;">
-                                        <div style="width: 20px; height: 20px; background: linear-gradient(90deg, #757575, #616161); border-radius: 4px;"></div>
-                                        <span style="font-weight: 700; color: #757575; font-size: 14px;">Rute Terkosong</span>
-                                    </div>
-                                </div>
+                            <h4 id="chartTopRutesTitle" style="color:#1e3c72; margin-bottom:15px; font-weight:700; font-size:14px;">Volume per Rute (10 teratas)</h4>
+                            <div class="chart-container-left">
+                                <canvas id="chartTopRutes"></canvas>
                             </div>
                         </div>
 
@@ -1481,17 +1437,17 @@
                         <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); display:flex; flex-direction:column;">
                             <div style="display:flex; flex-direction:row; align-items:flex-start; justify-content:space-between; flex:1; gap:15px;">
                                 <div style="flex:1; min-width:140px;">
-                                    <h4 style="color:#1e3c72; margin-bottom:15px; font-weight:700; font-size:14px;">📋 Rute Tertinggi (Volume)</h4>
+                                    <h4 style="color:#1e3c72; margin-bottom:12px; font-weight:700; font-size:14px;">📋 Rute Tertinggi (Volume)</h4>
                                     <div id="chartTopRutesInsight" style="font-size:13px;">
                                         <!-- Terbanyak akan dimunculkan di sini via JS -->
                                     </div>
                                 </div>
-                                <div style="flex:1.2; display:flex; flex-direction:column; justify-content:center; padding-top: 40px; min-width: 280px;">
+                                <div style="flex:1.2; display:flex; flex-direction:column;">
                                     <h4 style="color:#1e3c72; margin-bottom:12px; font-weight:700; font-size:14px; text-align:center;">📊 Breakdown</h4>
                                     <canvas id="chartBreakdown" style="max-height:180px; max-width:180px; margin:0 auto; display:block;"></canvas>
-                                    <div id="chartBreakdownLegend" style="margin-top:5px; font-size:14px; color:#555;"></div>
                                 </div>
                             </div>
+                            <div id="chartBreakdownLegend" style="margin-top:15px; font-size:18px; color:#555;"></div>
                         </div>
                     </div>
                 </div>
@@ -1519,12 +1475,12 @@
 
                 <!-- Route Toolbar -->
                 <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap;">
+                    <button onclick="openAddRouteModal()" class="admin-only"
+                        style="background: linear-gradient(135deg, #1e3c72, #2a5298); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;">➕
+                        Tambah Rute</button>
                     <button id="toggleSLABtn" onclick="toggleSLA()" class="admin-only"
                         style="background: linear-gradient(135deg, #4CAF50, #388E3C); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;">👁
                         Sembunyikan SLA</button>
-                    <button onclick="openRouteSettingsModal()" class="admin-only"
-                        style="background: linear-gradient(135deg, #FF9800, #F57C00); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px;">⚙️
-                        Pengaturan Rute</button>
                 </div>
 
                 <!-- Route Cards -->
@@ -1801,42 +1757,6 @@
                             await loadDashboardData();
                             if (currentView === 'volume') await loadVolumeData();
                             if (currentView === 'sla') await loadSLAData();
-                        } else {
-                            alert(`❌ Error: ${result.message}`);
-                        }
-                    } catch (error) {
-                        alert(`❌ Error uploading file: ${error.message}`);
-                    }
-                }
-            };
-            input.click();
-        }
-
-        async function showUploadPendapatan(category) {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = '.xlsx,.xls';
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (file) {
-                    const formData = new FormData();
-                    formData.append('file', file);
-                    formData.append('category', category);
-
-                    try {
-                        const response = await fetch(`${API_URL}/upload-pendapatan`, {
-                            method: 'POST',
-                            body: formData
-                        });
-
-                        const result = await response.json();
-
-                        if (result.success) {
-                            alert(`✅ ${result.message}\n\nData pendapatan berhasil diupload dan tabel volume akan diperbarui.`);
-                            // Refresh ALL views after upload to ensure data appears
-                            await loadAvailableWeeks();
-                            await loadDashboardData();
-                            if (currentView === 'volume') await loadVolumeData();
                         } else {
                             alert(`❌ Error: ${result.message}`);
                         }
@@ -2436,90 +2356,6 @@
 
         // Dashboard Charts Function
         let _chartInstances = {};
-        
-        // Chart filter state
-        let currentChartFilter = 'all'; // 'all', 'postal', 'poslog', 'total_empty'
-        let currentChartPage = 0;
-        const itemsPerPage = 10;
-        let allChartData = [];
-        
-        console.log('✅ Chart filter variables initialized');
-        console.log('filterChartVolume function defined:', typeof filterChartVolume);
-        console.log('slideChart function defined:', typeof slideChart);
-
-        // Filter chart by volume type
-        function filterChartVolume(type) {
-            console.log('🎯 Filter clicked:', type);
-            currentChartFilter = type;
-            currentChartPage = 0;
-            
-            // Update visual legend active state
-            const legendContainer = document.getElementById('chartVolumeLegend');
-            if (legendContainer) {
-                const legendItems = legendContainer.children;
-                const activeStyles = {
-                    'all': { bg: '#1e3c72', color: '#ffffff' },
-                    'postal': { bg: '#FF8C42', color: '#ffffff' },
-                    'poslog': { bg: '#4ECDC4', color: '#ffffff' },
-                    'total_empty': { bg: '#757575', color: '#ffffff' }
-                };
-                
-                const inactiveStyles = {
-                    'all': { bg: '#e3f2fd', color: '#1e3c72' },
-                    'postal': { bg: '#fff3e0', color: '#FF8C42' },
-                    'poslog': { bg: '#e0f2f1', color: '#4ECDC4' },
-                    'total_empty': { bg: '#f5f5f5', color: '#757575' }
-                };
-                
-                const types = ['all', 'postal', 'poslog', 'total_empty'];
-                types.forEach((t, index) => {
-                    if (legendItems[index]) {
-                        const item = legendItems[index];
-                        const styles = t === type ? activeStyles[t] : inactiveStyles[t];
-                        item.style.background = styles.bg;
-                        item.style.color = styles.color;
-                        // Ensure text is always visible
-                        item.style.opacity = '1';
-                        item.style.visibility = 'visible';
-                        // Also ensure span inside is visible with correct color
-                        const span = item.querySelector('span');
-                        if (span) {
-                            span.style.color = styles.color;
-                            span.style.opacity = '1';
-                            span.style.visibility = 'visible';
-                        }
-                    }
-                });
-            }
-            
-            _renderDashboardCharts(); // Re-render with correct function name
-        }
-
-        // Slide chart pages
-        function slideChart(direction) {
-            console.log('📄 Slide clicked:', direction);
-            const totalPages = Math.ceil(allChartData.length / itemsPerPage);
-            if (direction === 'next' && currentChartPage < totalPages - 1) {
-                currentChartPage++;
-            } else if (direction === 'prev' && currentChartPage > 0) {
-                currentChartPage--;
-            }
-            console.log('Current page:', currentChartPage + 1, '/', totalPages);
-            
-            // Pastikan semua elemen tetap terlihat saat navigasi
-            const dashboardSection = document.getElementById('dashboardChartsSection');
-            if (dashboardSection) {
-                dashboardSection.style.display = 'block';
-            }
-            
-            // Pastikan ranking container tetap terlihat
-            const rankingContainer = document.querySelector('.ranking-container');
-            if (rankingContainer) {
-                rankingContainer.style.display = 'grid';
-            }
-            
-            _renderDashboardCharts(); // Re-render with correct function name
-        }
 
         function showDashboardCharts() {
             goToDashboardDefault();
@@ -2595,81 +2431,36 @@
 
             if (data.length === 0) {
                 document.getElementById('chartTopRutesTitle').textContent = 'Belum ada data untuk periode ini';
-                document.getElementById('chartPageInfo').textContent = '0/0';
-                console.log('❌ No chart data available');
                 return;
             }
 
-            console.log('📊 Starting chart render with', data.length, 'routes');
-            console.log('Current filter:', currentChartFilter, 'Page:', currentChartPage);
-
-            // Apply filter and sort
-            let sortedData = [];
-            if (currentChartFilter === 'all') {
-                sortedData = [...data].sort((a,b) => (b.postal + b.poslog) - (a.postal + a.poslog));
-                console.log('📊 Chart filter: ALL (Total volume)');
-            } else if (currentChartFilter === 'postal') {
-                sortedData = [...data].sort((a,b) => b.postal - a.postal);
-                console.log('📊 Chart filter: POSTAL');
-            } else if (currentChartFilter === 'poslog') {
-                sortedData = [...data].sort((a,b) => b.poslog - a.poslog);
-                console.log('📊 Chart filter: POSLOG');
-            } else if (currentChartFilter === 'total_empty') {
-                sortedData = [...data].sort((a,b) => (a.postal + a.poslog) - (b.postal + b.poslog));
-                console.log('📊 Chart filter: TOTAL EMPTY (lowest total volume)');
-            }
-            
-            allChartData = sortedData;
-            console.log('Total routes:', sortedData.length);
-            
-            // Apply pagination
-            const startIdx = currentChartPage * itemsPerPage;
-            const endIdx = startIdx + itemsPerPage;
-            const top10 = sortedData.slice(startIdx, endIdx);
-            
-            console.log('Showing:', startIdx + 1, '-', Math.min(endIdx, sortedData.length));
-            
-            // Update page info
-            const totalPages = Math.ceil(sortedData.length / itemsPerPage);
-            document.getElementById('chartPageInfo').textContent = `${currentChartPage + 1}/${totalPages}`;
-            
+            const top10 = data.sort(function(a,b){ return (b.postal+b.poslog)-(a.postal+a.poslog); }).slice(0,10);
             const totalPostal = data.reduce(function(s,r){ return s+r.postal; }, 0);
             const totalPoslog = data.reduce(function(s,r){ return s+r.poslog; }, 0);
 
             function fmtNum(n){ return n >= 1000000 ? (n/1000000).toFixed(1)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toFixed(0); }
-            
-            let filterLabel;
-            if (currentChartFilter === 'all') {
-                filterLabel = 'ALL';
-            } else if (currentChartFilter === 'postal') {
-                filterLabel = 'Postal';
-            } else if (currentChartFilter === 'poslog') {
-                filterLabel = 'Poslog';
-            } else if (currentChartFilter === 'total_empty') {
-                filterLabel = 'Rute Terkosong';
-            }
-            document.getElementById('chartTopRutesTitle').textContent = `Volume ${filterLabel} (${startIdx + 1}-${Math.min(endIdx, sortedData.length)} teratas dari ${sortedData.length} rute)`;
+            document.getElementById('chartTopRutesTitle').textContent = 'Volume Terbanyak (10 teratas dari ' + data.length + ' rute)';
 
             // Generate Insight Rute Terbanyak (Top 3)
             let sortedPostal = [...data].sort((a,b) => b.postal - a.postal).slice(0, 3);
             let sortedPoslog = [...data].sort((a,b) => b.poslog - a.poslog).slice(0, 3);
 
-            let htmlPostal = `<div style="margin-bottom: 30px; padding: 18px; background: #fff5eb; border-left: 4px solid #FF8C42; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                <div style="color: #555; font-size: 16px; margin-bottom: 12px; font-weight: 800;">🏆 TOP 3 POSTAL</div>`;
+            let htmlPostal = `<div style="margin-bottom: 20px; padding: 14px; background: #fff5eb; border-left: 4px solid #FF8C42; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <div style="color: #555; font-size: 13px; margin-bottom: 8px; font-weight: 800;">🏆 TOP 3 POSTAL</div>`;
             sortedPostal.forEach((r, i) => {
-                htmlPostal += `<div style="display:flex; justify-content:space-between; margin-bottom: 10px; border-bottom: 1px dashed #fad8c3; padding-bottom: 8px;">
-                    <span style="font-weight: 700; color: #1e3c72; font-size: 15px; flex: 1; margin-right: 10px;">${i+1}. ${r.name}</span>
-                    <span style="font-weight: 800; color: #D35400; font-size: 15px; text-align: right; white-space: nowrap;">${r.postal.toLocaleString('id-ID')} kg</span>
+                htmlPostal += `<div style="display:flex; justify-content:space-between; margin-bottom: 5px; border-bottom: 1px dashed #fad8c3; padding-bottom: 3px;">
+                    <span style="font-weight: 700; color: #1e3c72; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%;" title="${r.name}">${i+1}. ${r.name}</span>
+                    <span style="font-weight: 800; color: #D35400; font-size: 12px; text-align: right;">${r.postal.toLocaleString('id-ID')} kg</span>
                 </div>`;
             });
             htmlPostal += `</div>`;
 
-            let htmlPoslog = `<div style="margin-bottom: 30px; padding: 18px; background: #e0f7f5; border-left: 4px solid #4ECDC4; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
-                <div style="color: #555; font-size: 16px; margin-bottom: 12px; font-weight: 800;">🏆 TOP 3 POSLOG</div>`;
+            let htmlPoslog = `<div style="padding: 14px; background: #e0f7f5; border-left: 4px solid #4ECDC4; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <div style="color: #555; font-size: 13px; margin-bottom: 8px; font-weight: 800;">🏆 TOP 3 POSLOG</div>`;
             sortedPoslog.forEach((r, i) => {
-                htmlPoslog += `<div style="display:flex; justify-content:space-between; margin-bottom: 10px; border-bottom: 1px dashed #bdf1ed; padding-bottom: 8px;">
-                    <span style="font-weight: 700; color: #1e3c72; font-size: 15px; flex: 1; margin-right: 10px;">${i+1}. ${r.name}</span>
-                    <span style="font-weight: 800; color: #00796B; font-size: 15px; text-align: right; white-space: nowrap;">${r.poslog.toLocaleString('id-ID')} kg</span>
+                htmlPoslog += `<div style="display:flex; justify-content:space-between; margin-bottom: 5px; border-bottom: 1px dashed #bdf1ed; padding-bottom: 3px;">
+                    <span style="font-weight: 700; color: #1e3c72; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55%;" title="${r.name}">${i+1}. ${r.name}</span>
+                    <span style="font-weight: 800; color: #00796B; font-size: 12px; text-align: right;">${r.poslog.toLocaleString('id-ID')} kg</span>
                 </div>`;
             });
             htmlPoslog += `</div>`;
@@ -2709,7 +2500,7 @@
                 'Rute 13 SB-YK': [{ t: '01:00', l: 'SB (OUT)' }, { t: '05:00', l: 'SLO (IN)' }, { t: '05:30', l: 'SLO (OUT)' }, { t: '07:30', l: 'YK (IN)' }],
                 'Rute 14 SM-SB': [{ t: '02:30', l: 'SM (OUT)' }, { t: '07:30', l: 'SB (IN)' }],
                 'Rute 14 SB-SM': [{ t: '02:00', l: 'SB (OUT)' }, { t: '07:00', l: 'SM (IN)' }],
-                'Rute 15 JAT-SB': [{ t: '20:30', l: 'JAT (OUT)' }, { t: '04:30', l: 'SM (IN)' }, { t: '05:30', l: 'SM (OUT)' }, { t: '12:30', l: 'SB (IN)' }],
+                'Rute 15 JAT-SB': [{ t: '20:30', l: 'JAT (OUT)' }, { t: '04:30', l: 'SM (IN)' }, { t: '05:30', l: 'SM (OUT)' }, { t: '07:30', l: 'SLO (IN)' }, { t: '08:30', l: 'SLO (OUT)' }, { t: '12:30', l: 'SB (IN)' }],
                 'Rute 15 SB-JAT': [{ t: '04:00', l: 'SB (OUT)' }, { t: '08:30', l: 'SM (IN)' }, { t: '09:30', l: 'SM (OUT)' }, { t: '17:00', l: 'JAT (IN)' }],
                 'RUTE B1 (15) JAT-Solo': [{ t: '05:00', l: 'JAT (OUT)' }, { t: '11:30', l: 'YK (IN)' }, { t: '12:30', l: 'YK (OUT)' }, { t: '15:00', l: 'SLO (IN)' }],
                 'RUTE B1 (15) Solo-JAT': [{ t: '16:00', l: 'SLO (OUT)' }, { t: '18:30', l: 'SM (IN)' }, { t: '19:00', l: 'SM (OUT)' }, { t: '01:30', l: 'JAT (IN)' }],
@@ -2797,6 +2588,9 @@
                         poslog: r.poslog,
                         originalRoute: r.name
                     }));
+                    
+                    document.getElementById('chartTopRutesTitle').textContent = 
+                        'Volume Terbanyak (10 teratas dari ' + data.length + ' rute)';
                 }
 
                 if (chartData.length === 0) {
@@ -2804,74 +2598,31 @@
                     return;
                 }
 
-                // Tentukan datasets berdasarkan filter yang aktif
-                let chartDatasets = [];
-                if (currentChartFilter === 'all') {
-                    // Tampilkan kedua dataset (stacked)
-                    chartDatasets = [
-                        {
-                            label: 'Postal (kg)',
-                            data: chartData.map(d => d.postal),
-                            backgroundColor: '#FF8C42',
-                            borderRadius: 3
-                        },
-                        {
-                            label: 'Poslog (kg)',
-                            data: chartData.map(d => {
-                                if (d.poslog > 0) {
-                                    // Minimum 5% dari postal agar terlihat
-                                    const minVisible = Math.max(d.postal * 0.05, 10);
-                                    return Math.max(d.poslog, minVisible);
-                                }
-                                return 0;
-                            }),
-                            backgroundColor: '#4ECDC4',
-                            borderRadius: 3
-                        }
-                    ];
-                } else if (currentChartFilter === 'postal') {
-                    // Hanya tampilkan postal
-                    chartDatasets = [
-                        {
-                            label: 'Postal (kg)',
-                            data: chartData.map(d => d.postal),
-                            backgroundColor: '#FF8C42',
-                            borderRadius: 3
-                        }
-                    ];
-                } else if (currentChartFilter === 'poslog') {
-                    // Hanya tampilkan poslog
-                    chartDatasets = [
-                        {
-                            label: 'Poslog (kg)',
-                            data: chartData.map(d => d.poslog),
-                            backgroundColor: '#4ECDC4',
-                            borderRadius: 3
-                        }
-                    ];
-                } else if (currentChartFilter === 'total_empty') {
-                    // Tampilkan rute dengan total volume terkecil (kedua dataset)
-                    chartDatasets = [
-                        {
-                            label: 'Postal (kg)',
-                            data: chartData.map(d => d.postal),
-                            backgroundColor: '#FF8C42',
-                            borderRadius: 3
-                        },
-                        {
-                            label: 'Poslog (kg)',
-                            data: chartData.map(d => d.poslog),
-                            backgroundColor: '#4ECDC4',
-                            borderRadius: 3
-                        }
-                    ];
-                }
-
                 _chartInstances.top = new Chart(ctx1, {
                     type: 'bar',
                     data: {
                         labels: chartData.map(d => d.label),
-                        datasets: chartDatasets
+                        datasets: [
+                            {
+                                label: 'Postal (kg)',
+                                data: chartData.map(d => d.postal),
+                                backgroundColor: '#FF8C42',
+                                borderRadius: 3
+                            },
+                            {
+                                label: 'Poslog (kg)',
+                                data: chartData.map(d => {
+                                    if (d.poslog > 0) {
+                                        // Minimum 5% dari postal agar terlihat
+                                        const minVisible = Math.max(d.postal * 0.05, 10);
+                                        return Math.max(d.poslog, minVisible);
+                                    }
+                                    return 0;
+                                }),
+                                backgroundColor: '#4ECDC4',
+                                borderRadius: 3
+                            }
+                        ]
                     },
                     options: {
                         indexAxis: 'y',
@@ -2882,19 +2633,7 @@
                             intersect: true,
                         },
                         plugins: {
-                            legend: { 
-                                display: false,
-                                position: 'bottom',
-                                labels: { 
-                                    font: { size: 13 }, 
-                                    padding: 16,
-                                    // Override default onClick to prevent hiding datasets
-                                    onClick: function(e, legendItem, legend) {
-                                        // Do nothing - prevent default hide/show behavior
-                                        return;
-                                    }
-                                }
-                            },
+                            legend: { position: 'bottom', labels: { font: { size: 13 }, padding: 16 } },
                             tooltip: {
                                 callbacks: {
                                     title: function(tooltipItems) {
@@ -2930,12 +2669,12 @@
                             x: {
                                 beginAtZero: true,
                                 stacked: true,
-                                ticks: { font: { size: 12 }, callback: function(v){ return fmtNum(v); }, maxRotation: 0, autoSkip: true }
+                                ticks: { font: { size: 10 }, callback: function(v){ return fmtNum(v); }, maxRotation: 0, autoSkip: true }
                             },
                             y: {
                                 stacked: true,
                                 ticks: {
-                                    font: { size: 13, weight: '600' },
+                                    font: { size: 11, weight: '600' },
                                     color: '#333',
                                     maxRotation: 0,
                                     autoSkip: false
@@ -2944,9 +2683,7 @@
                         }
                     }
                 });
-                // Set fixed height untuk chart agar konsisten di semua halaman
-                ctx1.parentElement.style.height = '400px';
-                ctx1.style.height = '400px';
+                ctx1.parentElement.style.height = '100%';
             }
 
             // Chart 2: Doughnut - ambil dari stats agar cocok dengan stat cards atas
@@ -3010,10 +2747,10 @@
                 function formatLegendNum(n){ return n >= 1000000 ? (n/1000000).toFixed(3)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'K' : n.toFixed(0); }
                 
                 document.getElementById('chartBreakdownLegend').innerHTML =
-                    '<div style="display: flex; flex-direction: column; gap: 10px; font-size: 15px; margin-top: 25px; color: #111; justify-content: center; align-items: center;">' +
-                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#FF8C42; font-size:18px;">■</span> Postal: <b style="font-size:16px;">' + formatLegendNum(pPostal) + ' kg</b> <span style="font-weight:bold; font-size:15px; color:#444;">(' + pct1 + '%)</span></div>' +
-                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#4ECDC4; font-size:18px;">■</span> Poslog: <b style="font-size:16px;">' + formatLegendNum(pPoslog) + ' kg</b> <span style="font-weight:bold; font-size:15px; color:#444;">(' + pct2 + '%)</span></div>' +
-                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#B0BEC5; font-size:18px;">■</span> Sisa: <b style="font-size:16px;">' + formatLegendNum(pSisa) + ' kg</b> <span style="font-weight:bold; font-size:15px; color:#444;">(' + pct3 + '%)</span></div>' +
+                    '<div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; font-size: 18px; margin-top: 15px; color: #111;">' +
+                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#FF8C42; font-size:24px;">■</span> Postal: <b style="font-size:20px;">' + formatLegendNum(pPostal) + ' kg</b> <span style="font-weight:bold; font-size:18px; color:#444;">(' + pct1 + '%)</span></div>' +
+                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#4ECDC4; font-size:24px;">■</span> Poslog: <b style="font-size:20px;">' + formatLegendNum(pPoslog) + ' kg</b> <span style="font-weight:bold; font-size:18px; color:#444;">(' + pct2 + '%)</span></div>' +
+                    '<div style="display:flex; align-items:center; gap:8px; font-weight: 500;"><span style="color:#B0BEC5; font-size:24px;">■</span> Sisa Kapasitas: <b style="font-size:20px;">' + formatLegendNum(pSisa) + ' kg</b> <span style="font-weight:bold; font-size:18px; color:#444;">(' + pct3 + '%)</span></div>' +
                     '</div>';
             }
         }
@@ -4846,10 +4583,6 @@
                 const sisaColorHari = sisaPercentHari < 0 ? '#f44336' : '#4CAF50';
                 rowsHTML += `<td style="color: ${sisaColorHari}; font-weight: bold;">${sisaDisplayHari}</td>`;
 
-                // Pendapatan column
-                const pendapatanValue = record.pendapatan != null ? record.pendapatan.toLocaleString('id-ID') : '-';
-                rowsHTML += `<td style="text-align: left;">${pendapatanValue}</td>`;
-
                 // Aksi column
                 if (isAdmin()) {
                     rowsHTML += `<td style="text-align: center;">
@@ -4863,7 +4596,6 @@
             // Calculate totals
             const totalPostal = volumeData.reduce((sum, r) => sum + (parseFloat(r.postal) || 0), 0);
             const totalPoslog = volumeData.reduce((sum, r) => sum + (parseFloat(r.nonPostal) || 0), 0);
-            const totalPendapatan = volumeData.reduce((sum, r) => sum + (parseFloat(r.pendapatan) || 0), 0);
 
             return `
                 <div class="table-scroll-wrapper">
@@ -4886,7 +4618,6 @@
                             <th style="width: 130px; white-space: nowrap;">Kapasitas/hari</th>
                             <th style="width: 120px; white-space: nowrap;">Sisa/minggu</th>
                             <th style="width: 120px; white-space: nowrap;">Sisa/hari</th>
-                            <th style="width: 120px; white-space: nowrap;">Pendapatan</th>
                             ${isAdmin() ? '<th style="width: 70px; white-space: nowrap;">Aksi</th>' : ''}
                         </tr>
                     </thead>
@@ -4902,7 +4633,7 @@
                             <td>-</td>
                             <td>-</td>
                             <td>-</td>
-                            <td style="color: #9333ea; font-weight: bold;">${totalPendapatan.toLocaleString('id-ID')}</td>
+                            <td></td>
                             <td></td>
                         </tr>
                     </tfoot>
@@ -5506,8 +5237,7 @@
                     isSamePair = false;
                 }
 
-                // Use window._slaDataMap as base, merge with hardcoded fallback
-                const hardcodedSLAMap = {
+                const slaDataMap = {
                     'Rute 1 JAT-SB': [{ t: '23:00', l: 'JAT (OUT)' }, { t: '02:45', l: 'CN (IN)' }, { t: '03:15', l: 'CN (OUT)' }, { t: '12:00', l: 'SB (IN)' }],
                     'Rute 1 SB-JAT': [{ t: '21:00', l: 'SB (OUT)' }, { t: '05:30', l: 'CN (IN)' }, { t: '06:00', l: 'CN (OUT)' }, { t: '09:45', l: 'JAT (IN)' }],
                     'Rute 2 JAT-YK': [{ t: '23:00', l: 'JAT (OUT)' }, { t: '02:45', l: 'CN (IN)' }, { t: '03:15', l: 'CN (OUT)' }, { t: '09:30', l: 'YK (IN)' }],
@@ -5539,7 +5269,7 @@
                     'Rute 13 SB-YK': [{ t: '01:00', l: 'SB (OUT)' }, { t: '05:00', l: 'SLO (IN)' }, { t: '05:30', l: 'SLO (OUT)' }, { t: '07:30', l: 'YK (IN)' }],
                     'Rute 14 SM-SB': [{ t: '02:30', l: 'SM (OUT)' }, { t: '07:30', l: 'SB (IN)' }],
                     'Rute 14 SB-SM': [{ t: '02:00', l: 'SB (OUT)' }, { t: '07:00', l: 'SM (IN)' }],
-                    'Rute 15 JAT-SB': [{ t: '20:30', l: 'JAT (OUT)' }, { t: '04:30', l: 'SM (IN)' }, { t: '05:30', l: 'SM (OUT)' }, { t: '12:30', l: 'SB (IN)' }],
+                    'Rute 15 JAT-SB': [{ t: '20:30', l: 'JAT (OUT)' }, { t: '04:30', l: 'SM (IN)' }, { t: '05:30', l: 'SM (OUT)' }, { t: '07:30', l: 'SLO (IN)' }, { t: '08:30', l: 'SLO (OUT)' }, { t: '12:30', l: 'SB (IN)' }],
                     'Rute 15 SB-JAT': [{ t: '04:00', l: 'SB (OUT)' }, { t: '08:30', l: 'SM (IN)' }, { t: '09:30', l: 'SM (OUT)' }, { t: '17:00', l: 'JAT (IN)' }],
                     'RUTE B1 (15) JAT-Solo': [{ t: '05:00', l: 'JAT (OUT)' }, { t: '11:30', l: 'YK (IN)' }, { t: '12:30', l: 'YK (OUT)' }, { t: '15:00', l: 'SLO (IN)' }],
                     'RUTE B1 (15) Solo-JAT': [{ t: '16:00', l: 'SLO (OUT)' }, { t: '18:30', l: 'SM (IN)' }, { t: '19:00', l: 'SM (OUT)' }, { t: '01:30', l: 'JAT (IN)' }],
@@ -5552,16 +5282,9 @@
                     'Rute 3 JAT-PG express': [{ t: '00:30', l: 'JAT (OUT)' }, { t: '08:30', l: 'BDL (IN)' }, { t: '09:30', l: 'BDL (OUT)' }, { t: '15:30', l: 'PG (IN)' }],
                     'Rute 3 PG-JAT express': [{ t: '21:00', l: 'PG (OUT)' }, { t: '03:00', l: 'BDL (IN)' }, { t: '04:00', l: 'BDL (OUT)' }, { t: '11:30', l: 'JAT (IN)' }]
                 };
-                
-                const slaDataMap = window._slaDataMap ? {...hardcodedSLAMap, ...window._slaDataMap} : hardcodedSLAMap;
                 // Expose globally so edit modal can read N22 points
                 if (!window._slaDataMap) window._slaDataMap = {};
-                // Merge hardcoded SLA data for routes that don't have custom data
-                Object.keys(hardcodedSLAMap).forEach(key => {
-                    if (!window._slaDataMap[key]) {
-                        window._slaDataMap[key] = hardcodedSLAMap[key];
-                    }
-                });
+                Object.assign(window._slaDataMap, slaDataMap);
 
                 const getFullRoutePath = (rName) => {
                     const points = slaDataMap[rName] || window._slaDataMap[rName];
@@ -5588,7 +5311,7 @@
                     // 1. Selalu render Legend Volume terlebih dahulu
                     const isExtraKcuSolo = /KCU SOLO.*SPP YOGYAKARTA.*SPP SURABAYA/i.test(routeName);
                     const legendHtml = `
-                    <div class="volume-legend" style="margin-bottom: ${isExtraKcuSolo ? '5px' : '25px'}; display: flex; flex-wrap: nowrap; gap: 20px; background: #f0f4f8; padding: 15px; border-radius: 12px; border: 1px solid #d1d9e6;">
+                    <div class="volume-legend" style="margin-bottom: ${isExtraKcuSolo ? '5px' : '25px'}; display: flex; flex-wrap: wrap; gap: 20px; background: #f0f4f8; padding: 15px; border-radius: 12px; border: 1px solid #d1d9e6;">
                         <div class="legend-item" style="display: flex; align-items: center; gap: 10px;">
                             <div class="legend-color legend-postal" style="width: 16px; height: 16px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
                             <span style="font-size: 15px; color: #e67e22; font-weight: 800;">Postal: </span>
@@ -5655,17 +5378,7 @@
 
                 // Track card index for edit/delete
                 const cardIdx1 = i;
-                let displayName = route1.name; // Use full route name instead of just routeKey
-                
-                // Simple display name mapping for Rute 11 based on direction
-                if (routeKey1 === 'Rute 11') {
-                    // Check the direction from route1.name
-                    if (route1.name.includes('BD-SB') || route1.name.includes('SB-BD')) {
-                        displayName = 'Rute 11A';
-                    } else if (route1.name.includes('SB-MTR') || route1.name.includes('MTR-SB')) {
-                        displayName = 'Rute 11B';
-                    }
-                }
+                let displayName = routeKey1;
                 if (/^(EXTRA|Ekstra|Exstra)/i.test(route1.name)) {
                     displayName = 'Extra';
                 }
@@ -6248,67 +5961,6 @@
         </div>
     </div>
 
-    <!-- ===================== MODAL MANAJEMEN RUTE & SLA ===================== -->
-    <div id="routeManagementModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
-        <div style="background:white; border-radius:14px; width:95%; max-width:1200px; max-height:90vh; overflow-y:auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); display:flex; flex-direction:column;">
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:24px 30px 16px; position:sticky; top:0; background:white; z-index:10; border-bottom:2px solid #e2e8f0; border-radius:14px 14px 0 0;">
-                <h2 style="color:#1e3c72; font-size:26px; font-weight:800;">⚙️ Manajemen Rute & SLA</h2>
-                <div style="display:flex; gap:10px; align-items:center;">
-                    <button onclick="closeRouteManagementModal()" style="padding:10px 22px; border:1px solid #ddd; background:white; border-radius:8px; cursor:pointer; font-size:15px; font-weight:600; color:#333;">Tutup</button>
-                    <button onclick="closeRouteManagementModal()" style="background:none; border:none; font-size:28px; cursor:pointer; color:#999; line-height:1;">✕</button>
-                </div>
-            </div>
-
-            <div style="padding:20px 30px 30px;">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-                    <p style="color:#1e293b; font-size:16px; font-weight:500; margin:0;">
-                        Kelola semua rute, tambah rute baru, edit titik SLA, atau hapus rute beserta data SLA terkait.
-                    </p>
-                    <button onclick="openAddRouteInManagement()" style="padding:10px 20px; background:linear-gradient(135deg,#1e3c72,#2a5298); color:white; border:none; border-radius:8px; cursor:pointer; font-size:15px; font-weight:700; display:flex; align-items:center; gap:8px;">➕ Tambah Rute Baru</button>
-                </div>
-
-                <!-- Search -->
-                <div style="margin-bottom:20px;">
-                    <input type="text" id="routeSearchInput" onkeyup="filterRouteManagement()" placeholder="🔍 Cari rute..." style="width:100%; padding:12px 16px; border:1px solid #e2e8f0; border-radius:8px; font-size:15px;">
-                </div>
-
-                <!-- Route List -->
-                <div id="routeManagementList" style="display:flex; flex-direction:column; gap:12px;">
-                    <!-- Routes will be loaded here -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===================== MODAL EDIT TITIK SLA ===================== -->
-    <div id="editSLAPointsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:10000; justify-content:center; align-items:center;">
-        <div style="background:white; border-radius:14px; width:90%; max-width:800px; max-height:85vh; overflow-y:auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-            <div style="display:flex; justify-content:space-between; align-items:center; padding:20px 24px 16px; border-bottom:2px solid #e2e8f0; position:sticky; top:0; background:white; z-index:10;">
-                <h3 id="editSLATitle" style="color:#1e3c72; font-size:20px; font-weight:800;">Edit Titik SLA</h3>
-                <button onclick="closeEditSLAPointsModal()" style="background:none; border:none; font-size:24px; cursor:pointer; color:#999;">✕</button>
-            </div>
-            <div style="padding:20px 24px;">
-                <input type="hidden" id="editSLARouteName">
-                
-                <div style="margin-bottom:20px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                        <label style="font-weight:700; color:#333; font-size:16px;">Titik N22 SLA</label>
-                        <button onclick="addSLAPoint()" style="padding:8px 16px; background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:700;">➕ Tambah Titik</button>
-                    </div>
-                    
-                    <div id="slaPointsList" style="display:flex; flex-direction:column; gap:10px;">
-                        <!-- SLA points will be rendered here -->
-                    </div>
-                </div>
-                
-                <div style="display:flex; gap:10px; justify-content:flex-end;">
-                    <button onclick="closeEditSLAPointsModal()" style="padding:10px 20px; border:1px solid #ddd; background:white; border-radius:8px; cursor:pointer; font-size:14px;">Batal</button>
-                    <button onclick="saveSLAPoints()" style="padding:10px 24px; background:linear-gradient(135deg,#1e3c72,#2a5298); color:white; border:none; border-radius:8px; cursor:pointer; font-size:14px; font-weight:700;">Simpan Perubahan</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- ===================== MODAL PENGATURAN RUTE ===================== -->
     <div id="routeSettingsModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
         <div style="background:white; border-radius:14px; width:98%; max-width:1400px; max-height:90vh; overflow-y:auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3); display:flex; flex-direction:column;">
@@ -6454,387 +6106,6 @@
 
         function closeRouteModal() {
             document.getElementById('routeModal').style.display = 'none';
-        }
-
-        // =================== MODAL MANAJEMEN RUTE & SLA ===================
-        function openRouteSettingsModal() {
-            document.getElementById('routeManagementModal').style.display = 'flex';
-            loadRouteManagementList();
-        }
-
-        function closeRouteManagementModal() {
-            document.getElementById('routeManagementModal').style.display = 'none';
-        }
-
-        async function loadRouteManagementList() {
-            const container = document.getElementById('routeManagementList');
-            container.innerHTML = '<div style="text-align:center; padding:40px; color:#666;">🔄 Memuat data rute...</div>';
-
-            try {
-                // Load fresh data from server to ensure sync with chartbar
-                const startDate = document.getElementById('startDate').value;
-                const endDate = document.getElementById('endDate').value;
-                const currentWeekKey =document.getElementById('weekFilter').value;
-                
-                let url = `${API_URL}/routes?category=${currentMenu}`;
-                if (currentWeekKey && currentWeekKey !== 'ALL') {
-                    url += `&weekKey=${currentWeekKey}`;
-                } else if (startDate && endDate) {
-                    url += `&startDate=${startDate}&endDate=${endDate}`;
-                }
-
-                const response = await fetch(url);
-                const result = await response.json();
-
-                let allRoutes = [];
-                if (result.success && result.data && result.data.length > 0) {
-                    allRoutes = result.data.map(record => ({
-                        name: record.route_name,
-                        route_name: record.route_name,
-                        postal: parseFloat(record.postal_volume || 0),
-                        nonPostal: parseFloat(record.non_postal_volume || 0),
-                        kapasitas: parseFloat(record.kapasitas || 0),
-                        sisa: parseFloat(record.kapasitas || 0) - (parseFloat(record.postal_volume || 0) + parseFloat(record.non_postal_volume || 0)),
-                        baseKapasitas: parseFloat(record.base_kapasitas || 0),
-                        unitInfo: record.units || '-',
-                        units: record.units || '-',
-                        totalUnits: record.totalUnits || []
-                    }));
-                }
-                
-                if (allRoutes.length === 0) {
-                    container.innerHTML = '<div style="text-align:center; padding:40px; color:#666;">⚠️ Tidak ada data rute tersedia di dashboard. Silakan upload data volume terlebih dahulu.</div>';
-                    return;
-                }
-
-                // Sort routes by order
-                allRoutes = sortRoutesByOrder(allRoutes);
-
-                let html = '';
-                allRoutes.forEach((route, index) => {
-                    const routeName = route.name || route.route_name || '-';
-                    const slaPoints = window._slaDataMap && window._slaDataMap[routeName] 
-                        ? window._slaDataMap[routeName] 
-                        : [];
-                    const pointsDisplay = slaPoints.map(p => `${p.t} - ${p.l}`).join(', ');
-                    
-                    // Generate route path label (same as chartbar)
-                    const nodes = [];
-                    slaPoints.forEach(p => {
-                        let nodeName = p.l.replace(/\s*\((IN|OUT)\)/i, '').trim();
-                        if (nodes.length === 0 || nodes[nodes.length - 1] !== nodeName) {
-                            nodes.push(nodeName);
-                        }
-                    });
-                    const routePathLabel = nodes.length > 0 ? nodes.join(' - ') : routeName.replace(/Rute\s*[A-Za-z0-9]+[:\-]?\s*/gi, '').trim();
-                    
-                    html += `
-                        <div class="route-management-item" data-route="${routeName.toLowerCase()}" data-index="${index}" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:10px; padding:16px 20px; display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;">
-                            <div style="flex:1; min-width:300px;">
-                                <div style="font-weight:800; color:#1e3c72; font-size:16px; margin-bottom:6px;">${routeName}</div>
-                                <div style="font-size:13px; color:#64748b; line-height:1.4;">Arah: (${routePathLabel})</div>
-                                <div style="font-size:12px; color:#94a3b8; line-height:1.4; margin-top:4px;">${pointsDisplay || 'Tidak ada titik SLA'}</div>
-                            </div>
-                            <div style="display:flex; gap:8px; flex-wrap:wrap;">
-                                <button onclick="editRouteName(${index})" style="padding:8px 16px; background:linear-gradient(135deg,#f59e0b,#d97706); color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:700;">📝 Edit Nama</button>
-                                <button onclick="editRouteSLA('${routeName}')" style="padding:8px 16px; background:linear-gradient(135deg,#3b82f6,#2563eb); color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:700;">✏️ Edit SLA</button>
-                                <button onclick="deleteRouteFromManagement('${routeName}', ${index})" style="padding:8px 16px; background:linear-gradient(135deg,#ef4444,#dc2626); color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:700;">🗑️ Hapus</button>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                container.innerHTML = html;
-            } catch (error) {
-                container.innerHTML = `<div style="text-align:center; padding:40px; color:#ef4444;">❌ Error: ${error.message}</div>`;
-            }
-        }
-
-        function filterRouteManagement() {
-            const searchTerm = document.getElementById('routeSearchInput').value.toLowerCase();
-            const items = document.querySelectorAll('.route-management-item');
-            
-            items.forEach(item => {
-                const routeName = item.getAttribute('data-route');
-                if (routeName.includes(searchTerm)) {
-                    item.style.display = 'flex';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-        }
-
-        function openAddRouteInManagement() {
-            closeRouteManagementModal();
-            openAddRouteModal();
-        }
-
-        // =================== MODAL EDIT TITIK SLA ===================
-        let currentSLAPoints = [];
-
-        function editRouteSLA(routeName) {
-            document.getElementById('editSLARouteName').value = routeName;
-            document.getElementById('editSLATitle').textContent = `Edit Titik SLA - ${routeName}`;
-            
-            // Load SLA points
-            currentSLAPoints = window._slaDataMap && window._slaDataMap[routeName] 
-                ? [...window._slaDataMap[routeName]]
-                : [];
-            
-            renderSLAPoints();
-            document.getElementById('editSLAPointsModal').style.display = 'flex';
-        }
-
-        function closeEditSLAPointsModal() {
-            document.getElementById('editSLAPointsModal').style.display = 'none';
-            currentSLAPoints = [];
-        }
-
-        function renderSLAPoints() {
-            const container = document.getElementById('slaPointsList');
-            
-            if (currentSLAPoints.length === 0) {
-                container.innerHTML = '<div style="text-align:center; padding:20px; color:#999; font-style:italic;">Belum ada titik SLA. Klik "Tambah Titik" untuk menambahkan.</div>';
-                return;
-            }
-
-            let html = '';
-            currentSLAPoints.forEach((point, index) => {
-                html += `
-                    <div class="sla-point-item" data-index="${index}" style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:12px 16px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
-                        <div style="flex:1; min-width:120px;">
-                            <label style="font-weight:600; color:#333; font-size:12px; display:block; margin-bottom:4px;">Waktu (HH:MM)</label>
-                            <input type="time" class="sla-time-input" data-index="${index}" value="${point.t || ''}" style="width:100%; padding:8px 10px; border:1px solid #ddd; border-radius:6px; font-size:14px;">
-                        </div>
-                        <div style="flex:2; min-width:200px;">
-                            <label style="font-weight:600; color:#333; font-size:12px; display:block; margin-bottom:4px;">Nama Tempat</label>
-                            <input type="text" class="sla-location-input" data-index="${index}" value="${point.l || ''}" placeholder="Contoh: JAT (OUT)" style="width:100%; padding:8px 10px; border:1px solid #ddd; border-radius:6px; font-size:14px;">
-                        </div>
-                        <div style="display:flex; gap:8px; align-items:flex-end;">
-                            <button onclick="moveSLAPoint(${index}, -1)" ${index === 0 ? 'disabled' : ''} style="padding:8px 12px; background:#64748b; color:white; border:none; border-radius:6px; cursor:pointer; font-size:16px; ${index === 0 ? 'opacity:0.5;cursor:not-allowed;' : ''}">⬆️</button>
-                            <button onclick="moveSLAPoint(${index}, 1)" ${index === currentSLAPoints.length - 1 ? 'disabled' : ''} style="padding:8px 12px; background:#64748b; color:white; border:none; border-radius:6px; cursor:pointer; font-size:16px; ${index === currentSLAPoints.length - 1 ? 'opacity:0.5;cursor:not-allowed;' : ''}">⬇️</button>
-                            <button onclick="removeSLAPoint(${index})" style="padding:8px 12px; background:linear-gradient(135deg,#ef4444,#dc2626); color:white; border:none; border-radius:6px; cursor:pointer; font-size:13px; font-weight:700;">🗑️</button>
-                        </div>
-                    </div>
-                `;
-            });
-
-            container.innerHTML = html;
-        }
-
-        function addSLAPoint() {
-            currentSLAPoints.push({ t: '', l: '' });
-            renderSLAPoints();
-        }
-
-        function removeSLAPoint(index) {
-            if (currentSLAPoints.length <= 1) {
-                alert('Minimal harus ada 1 titik SLA!');
-                return;
-            }
-            currentSLAPoints.splice(index, 1);
-            renderSLAPoints();
-        }
-
-        function moveSLAPoint(index, direction) {
-            const newIndex = index + direction;
-            if (newIndex < 0 || newIndex >= currentSLAPoints.length) return;
-            
-            const temp = currentSLAPoints[index];
-            currentSLAPoints[index] = currentSLAPoints[newIndex];
-            currentSLAPoints[newIndex] = temp;
-            renderSLAPoints();
-        }
-
-        async function saveSLAPoints() {
-            const routeName = document.getElementById('editSLARouteName').value;
-            
-            if (!routeName) {
-                alert('Nama rute tidak ditemukan!');
-                return;
-            }
-
-            // Collect data from inputs
-            const timeInputs = document.querySelectorAll('.sla-time-input');
-            const locationInputs = document.querySelectorAll('.sla-location-input');
-            
-            const pts = [];
-            timeInputs.forEach((input, index) => {
-                const time = input.value.trim();
-                const location = locationInputs[index].value.trim();
-                if (time && location) {
-                    pts.push({ t: time, l: location });
-                }
-            });
-
-            if (pts.length === 0) {
-                alert('Minimal harus ada 1 titik SLA dengan waktu dan nama tempat!');
-                return;
-            }
-
-            // Update local slaDataMap
-            if (!window._slaDataMap) window._slaDataMap = {};
-            window._slaDataMap[routeName] = pts;
-
-            // Update in database via API
-            try {
-                const response = await fetch(`${API_URL}/sla`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        rute: routeName, 
-                        titik: pts 
-                    })
-                });
-
-                const result = await response.json();
-                console.log('Save SLA Result:', result);
-                if (result.success) {
-                    alert(`✅ Titik SLA untuk ${routeName} berhasil diperbarui!`);
-                    closeEditSLAPointsModal();
-                    console.log('Starting refresh after save SLA...');
-                    await loadRoutesFromServer();
-                    console.log('loadRoutesFromServer completed');
-                    loadRouteManagementList();
-                    console.log('loadRouteManagementList completed');
-                    renderRoutes();
-                    console.log('renderRoutes completed');
-                    await loadDashboardData();
-                    console.log('loadDashboardData completed');
-                } else {
-                    alert(`⚠️ Peringatan: ${result.message}\n\nData lokal telah diperbarui, namun database mungkin belum sinkron.`);
-                    closeEditSLAPointsModal();
-                    await loadRoutesFromServer();
-                    loadRouteManagementList();
-                    renderRoutes();
-                }
-            } catch (error) {
-                alert(`⚠️ Error koneksi database: ${error.message}\n\nData lokal telah diperbarui.`);
-                closeEditSLAPointsModal();
-                loadRouteManagementList();
-            }
-        }
-
-        async function deleteRouteFromManagement(routeName, index) {
-            if (!confirm(`⚠️ Apakah Anda yakin ingin menghapus rute "${routeName}"?\n\nTindakan ini akan:\n- Menghapus rute dari data lokal\n- Menghapus data SLA terkait dari database\n\nData yang dihapus tidak dapat dikembalikan!`)) {
-                return;
-            }
-
-            try {
-                // Delete from local slaDataMap
-                if (window._slaDataMap && window._slaDataMap[routeName]) {
-                    delete window._slaDataMap[routeName];
-                }
-
-                // Delete from local routesData
-                if (routesData && routesData[index]) {
-                    routesData.splice(index, 1);
-                }
-
-                // Delete from database via API
-                const response = await fetch(`${API_URL}/sla`, {
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ routeName: routeName })
-                });
-
-                const result = await response.json();
-                if (result.success) {
-                    alert(`✅ Rute "${routeName}" berhasil dihapus!`);
-                    await loadRoutesFromServer();
-                    loadRouteManagementList();
-                    renderRoutes();
-                    await loadDashboardData();
-                } else {
-                    alert(`⚠️ ${result.message}\n\nData lokal telah dihapus.`);
-                    await loadRoutesFromServer();
-                    loadRouteManagementList();
-                    renderRoutes();
-                }
-            } catch (error) {
-                alert(`⚠️ Error koneksi database: ${error.message}\n\nData lokal telah dihapus.`);
-                loadRouteManagementList();
-                renderRoutes();
-            }
-        }
-
-        // =================== EDIT NAMA RUTE ===================
-        function editRouteName(index) {
-            const route = routesData[index];
-            const oldName = route.name || route.route_name;
-            
-            // Generate route path label (arah) sama seperti di menu pengaturan
-            const slaPoints = window._slaDataMap && window._slaDataMap[oldName] 
-                ? window._slaDataMap[oldName] 
-                : [];
-            const nodes = [];
-            slaPoints.forEach(p => {
-                let nodeName = p.l.replace(/\s*\((IN|OUT)\)/i, '').trim();
-                if (nodes.length === 0 || nodes[nodes.length - 1] !== nodeName) {
-                    nodes.push(nodeName);
-                }
-            });
-            const routePathLabel = nodes.length > 0 ? nodes.join(' - ') : oldName.replace(/Rute\s*[A-Za-z0-9]+[:\-]?\s*/gi, '').trim();
-            const displayName = routePathLabel ? `${oldName} - Arah: (${routePathLabel})` : oldName;
-            
-            const newName = prompt(`Masukkan nama baru untuk rute "${displayName}":`, displayName);
-            
-            if (!newName || newName.trim() === '') {
-                return;
-            }
-            
-            if (newName.trim() === oldName) {
-                return;
-            }
-
-            if (!confirm(`⚠️ Ubah nama rute dari "${oldName}" menjadi "${newName.trim()}"?\n\nTindakan ini akan:\n- Mengubah nama rute di data lokal\n- Mengubah nama rute di database (Volume & SLA)\n\nPastikan nama baru sudah benar!`)) {
-                return;
-            }
-
-            const trimmedName = newName.trim();
-            
-            // Update local routesData
-            if (route.name) {
-                route.name = trimmedName;
-            } else if (route.route_name) {
-                route.route_name = trimmedName;
-            }
-
-            // Update slaDataMap key in window._slaDataMap
-            if (window._slaDataMap && window._slaDataMap[oldName]) {
-                window._slaDataMap[trimmedName] = window._slaDataMap[oldName];
-                delete window._slaDataMap[oldName];
-            }
-
-            // Update in database via API
-            fetch(`${API_URL}/routes/rename`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ oldName: oldName, newName: trimmedName })
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    alert(`✅ Nama rute berhasil diubah dari "${oldName}" menjadi "${trimmedName}"!`);
-                    loadRoutesFromServer();
-                    loadRouteManagementList();
-                    renderRoutes();
-                    loadDashboardData();
-                } else {
-                    alert(`⚠️ ${result.message}\n\nData lokal telah diperbarui.`);
-                    loadRoutesFromServer();
-                    loadRouteManagementList();
-                    renderRoutes();
-                    loadDashboardData();
-                }
-            })
-            .catch(error => {
-                alert(`⚠️ Error koneksi database: ${error.message}\n\nData lokal telah diperbarui.`);
-                loadRoutesFromServer();
-                loadRouteManagementList();
-                renderRoutes();
-                loadDashboardData();
-            });
         }
 
         function saveRoute() {
