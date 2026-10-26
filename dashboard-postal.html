@@ -8,7 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.js"></script>
     <style>
         * {
             margin: 0;
@@ -1450,7 +1450,7 @@
                                 </div>
                             </div>
                             <div class="chart-container-left" style="display: flex; flex-direction: column; min-height: 400px;">
-                                <div style="flex: 1; min-height: 400px; position: relative;">
+                                <div id="chartTopRutesBox" style="position: relative; height: 400px; width: 100%; flex: 0 0 400px;">
                                     <canvas id="chartTopRutes"></canvas>
                                 </div>
                                 <div id="chartVolumeLegend" style="display: flex; gap: 15px; justify-content: center; margin-top: 15px; padding: 12px; background: #f8f9fa; border-radius: 8px; flex-shrink: 0; flex-wrap: wrap;">
@@ -1488,7 +1488,7 @@
                                 </div>
                                 <div style="flex:1.2; display:flex; flex-direction:column; justify-content:center; padding-top: 40px; min-width: 280px;">
                                     <h4 style="color:#1e3c72; margin-bottom:12px; font-weight:700; font-size:14px; text-align:center;">📊 Breakdown</h4>
-                                    <canvas id="chartBreakdown" style="max-height:180px; max-width:180px; margin:0 auto; display:block;"></canvas>
+                                    <div id="chartBreakdownBox" style="position:relative; width:180px; height:180px; margin:0 auto;"><canvas id="chartBreakdown"></canvas></div>
                                     <div id="chartBreakdownLegend" style="margin-top:5px; font-size:14px; color:#555;"></div>
                                 </div>
                             </div>
@@ -2133,7 +2133,7 @@
                 }
 
                 // Tambahkan Piechart, Tabel, dan Label di bawah stat cards
-                const breakdownContainer = document.querySelector('.doughnut-chart-container') || document.querySelector('#chartBreakdown')?.parentElement?.parentElement?.parentElement;
+                const breakdownContainer = document.querySelector('.doughnut-chart-container') || document.querySelector('#chartBreakdown')?.parentElement?.parentElement?.parentElement?.parentElement; // +1 level karena canvas kini dibungkus #chartBreakdownBox
                 if (breakdownContainer) {
                     const canvas = await html2canvas(breakdownContainer, {
                         backgroundColor: '#ffffff',
@@ -2867,6 +2867,7 @@
                     ];
                 }
 
+                chartDatasets.forEach(function(ds){ ds.maxBarThickness = 38; });
                 _chartInstances.top = new Chart(ctx1, {
                     type: 'bar',
                     data: {
@@ -2944,9 +2945,7 @@
                         }
                     }
                 });
-                // Set fixed height untuk chart agar konsisten di semua halaman
-                ctx1.parentElement.style.height = '400px';
-                ctx1.style.height = '400px';
+                // Tinggi chart kini ditentukan wrapper #chartTopRutesBox (400px, di HTML) - tidak perlu dipaksa lewat JS.
             }
 
             // Chart 2: Doughnut - ambil dari stats agar cocok dengan stat cards atas
@@ -2984,7 +2983,7 @@
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: true,
+                        maintainAspectRatio: false,
                         cutout: '60%',
                         plugins: { 
                             legend: { display: false },
@@ -7800,9 +7799,7 @@
         async function saveRouteSettings() { await applyRouteSettings(); }
 
     </script>
+    <!-- Penanda versi (boleh dihapus): memastikan file yang aktif di server adalah yang terbaru -->
+    <div style="position:fixed;bottom:6px;right:8px;font-size:10px;color:#fff;background:#333;opacity:0.55;padding:2px 8px;border-radius:6px;z-index:9999;font-family:monospace;pointer-events:none;">chart-fix-v1</div>
 </body>
 </html>
-
-
-
-
