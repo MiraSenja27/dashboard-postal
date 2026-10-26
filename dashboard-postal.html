@@ -908,6 +908,12 @@
         #table-action-bar.visible {
             display: flex;
         }
+        /* Volume: tombol digeser ke kanan supaya tidak tertimpa angka total di atas kolom Postal/Poslog */
+        #volume-action-btns.align-right { justify-content: flex-end; }
+        /* Kalau di kanan angka total tidak cukup ruang untuk tombol: angka total pindah ke baris sendiri */
+        #table-action-bar.totals-below { padding-bottom: 38px; }
+        #table-action-bar.totals-below #total-postal-label,
+        #table-action-bar.totals-below #total-poslog-label { top: auto !important; bottom: 8px !important; margin-top: 0 !important; }
 
         /* Thead asli disembunyikan setelah clone siap — tidak dipakai lagi */
         .data-table thead.is-cloned {
@@ -5059,6 +5065,26 @@
             spanPoslog.style.transform = 'translateX(-50%)';
             spanPoslog.style.top      = '50%';
             spanPoslog.style.marginTop = '-0.5em';
+
+            // --- Hindari angka total tertimpa tombol Upload/Hapus/Excel ---
+            // Tombol digeser ke kanan bila ada ruang di kanan angka Poslog; bila tidak muat,
+            // angka total dipindah ke baris sendiri (tetap tepat di atas kolomnya).
+            var btnWrap  = document.getElementById('volume-action-btns');
+            var btnGroup = btnWrap && btnWrap.firstElementChild;
+            if (btnWrap && btnGroup) {
+                var cs   = getComputedStyle(actionBar);
+                var padL = parseFloat(cs.paddingLeft)  || 0;
+                var padR = parseFloat(cs.paddingRight) || 0;
+                var btnW = btnGroup.offsetWidth;
+                // pakai posisi kolom TANPA geseran horizontal tabel, supaya mode tidak berganti-ganti saat tabel digeser
+                var wrapEl = poslogTh.closest ? poslogTh.closest('.table-scroll-wrapper') : null;
+                var sl = wrapEl ? wrapEl.scrollLeft : 0;
+                var poslogRightRel = (poslogRect.left + sl - barRect.left) + poslogRect.width / 2 + spanPoslog.offsetWidth / 2;
+                var fitsRight  = (barRect.width - padR) - (poslogRightRel + 16) >= btnW;
+                var fitsAtAll  = (barRect.width - padL - padR) >= btnW;
+                btnWrap.classList.toggle('align-right', fitsAtAll);
+                actionBar.classList.toggle('totals-below', !fitsRight);
+            }
         }
 
         function applyFixedHeader() {
@@ -7834,6 +7860,6 @@
 
     </script>
     <!-- Penanda versi (boleh dihapus): memastikan file yang aktif di server adalah yang terbaru -->
-    <div style="position:fixed;bottom:6px;right:8px;font-size:10px;color:#fff;background:#333;opacity:0.55;padding:2px 8px;border-radius:6px;z-index:9999;font-family:monospace;pointer-events:none;">chart-fix-v6</div>
+    <div style="position:fixed;bottom:6px;right:8px;font-size:10px;color:#fff;background:#333;opacity:0.55;padding:2px 8px;border-radius:6px;z-index:9999;font-family:monospace;pointer-events:none;">chart-fix-v7</div>
 </body>
 </html>
