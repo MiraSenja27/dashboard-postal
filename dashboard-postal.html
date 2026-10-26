@@ -1186,7 +1186,7 @@
         }
         .charts-row-grid {
             display: grid;
-            grid-template-columns: 1.6fr 1fr;
+            grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
             gap: 15px;
             height: 100%;
             width: 100%;
@@ -1204,7 +1204,7 @@
                 min-height: 450px;
             }
             .charts-row-grid {
-                grid-template-columns: 1.6fr 1fr;
+                grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
                 gap: 20px;
             }
             .ranking-container {
@@ -1217,7 +1217,7 @@
                 min-height: 500px;
             }
             .charts-row-grid {
-                grid-template-columns: 1.6fr 1fr;
+                grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
                 gap: 25px;
                 max-width: 1800px;
                 margin: 0 auto;
@@ -1229,11 +1229,11 @@
                 min-height: 380px;
             }
             .charts-row-grid {
-                grid-template-columns: 1.6fr 1fr;
+                grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
                 gap: 15px;
             }
             .ranking-container {
-                grid-template-columns: 1fr;
+                grid-template-columns: minmax(0, 1fr);
             }
         }
         @media (max-width: 1199px) {
@@ -1242,13 +1242,19 @@
                 min-height: 350px;
             }
             .charts-row-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: minmax(0, 1fr);
                 gap: 15px;
             }
             .ranking-container {
-                grid-template-columns: 1fr;
+                grid-template-columns: minmax(0, 1fr);
             }
         }
+
+        /* FIX zoom/resize: item grid & wadah chart boleh menyusut (tanpa ini canvas Chart.js
+           "mengunci" lebar kolom kiri, kolom kanan terdorong & pie chart terpotong) */
+        .charts-row-grid > div { min-width: 0; }
+        .chart-container-left { min-width: 0; }
+        #chartTopRutesBox, #chartBreakdownBox { min-width: 0; }
     </style>
 </head>
 
@@ -1479,7 +1485,7 @@
 
                         <!-- Doughnut Chart & Insight -->
                         <div style="background:white; padding:20px; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.08); display:flex; flex-direction:column;">
-                            <div style="display:flex; flex-direction:row; align-items:flex-start; justify-content:space-between; flex:1; gap:15px;">
+                            <div style="display:flex; flex-direction:row; flex-wrap:wrap; align-items:flex-start; justify-content:space-between; flex:1; gap:15px;">
                                 <div style="flex:1; min-width:140px;">
                                     <h4 style="color:#1e3c72; margin-bottom:15px; font-weight:700; font-size:14px;">📋 Rute Tertinggi (Volume)</h4>
                                     <div id="chartTopRutesInsight" style="font-size:13px;">
@@ -7800,6 +7806,6 @@
 
     </script>
     <!-- Penanda versi (boleh dihapus): memastikan file yang aktif di server adalah yang terbaru -->
-    <div style="position:fixed;bottom:6px;right:8px;font-size:10px;color:#fff;background:#333;opacity:0.55;padding:2px 8px;border-radius:6px;z-index:9999;font-family:monospace;pointer-events:none;">chart-fix-v1</div>
+    <div style="position:fixed;bottom:6px;right:8px;font-size:10px;color:#fff;background:#333;opacity:0.55;padding:2px 8px;border-radius:6px;z-index:9999;font-family:monospace;pointer-events:none;">chart-fix-v2</div>
 </body>
 </html>
