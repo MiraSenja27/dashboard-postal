@@ -558,6 +558,20 @@
         }
         .routes-grid > * { min-width: 0; }
 
+        /* ===== Legend Postal / Poslog / Space di bawah chartbar: SELALU sebaris (tidak ada yang turun) =====
+           Kartu lebar : satu baris panjang seperti aslinya.
+           Kartu sedang/sempit : tiga kotak sejajar, nama di atas & angka di bawahnya (ukuran huruf mengikuti lebar). */
+        .volume-legend { container-type: inline-size; container-name: vleg; flex-wrap: nowrap !important; gap: 12px !important; }
+        .volume-legend .legend-item { min-width: 0; }
+        .volume-legend .lg-head { display: flex; align-items: center; gap: 10px; }
+        @container vleg (max-width: 839px) {
+            .volume-legend .legend-item { flex: 1 1 auto; flex-direction: column; align-items: center !important; justify-content: center; gap: 4px !important; padding: 8px 6px; margin-left: 0 !important; text-align: center; border-left-width: 0; }
+            .volume-legend .lg-head { gap: 6px; justify-content: center; }
+            .volume-legend .lg-head > span { font-size: clamp(10.5px, 2.7cqw, 15px) !important; }
+            .volume-legend .lg-val { font-size: clamp(10.5px, 2.7cqw, 16px) !important; line-height: 1.2; }
+            .volume-legend .legend-color { width: 12px !important; height: 12px !important; flex: 0 0 auto; }
+        }
+
         .route-header {
             display: flex;
             justify-content: space-between;
@@ -5647,21 +5661,21 @@
                     // 1. Selalu render Legend Volume terlebih dahulu
                     const isExtraKcuSolo = /KCU SOLO.*SPP YOGYAKARTA.*SPP SURABAYA/i.test(routeName);
                     const legendHtml = `
-                    <div class="volume-legend" style="margin-bottom: ${isExtraKcuSolo ? '5px' : '25px'}; display: flex; flex-wrap: wrap; gap: 10px 20px; background: #f0f4f8; padding: 15px; border-radius: 12px; border: 1px solid #d1d9e6;">
+                    <div class="volume-legend" style="margin-bottom: ${isExtraKcuSolo ? '5px' : '25px'}; display: flex; flex-wrap: nowrap; gap: 12px; background: #f0f4f8; padding: 15px; border-radius: 12px; border: 1px solid #d1d9e6;">
                         <div class="legend-item" style="display: flex; align-items: center; gap: 10px;">
-                            <div class="legend-color legend-postal" style="width: 16px; height: 16px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
-                            <span style="font-size: 15px; color: #e67e22; font-weight: 800;">Postal: </span>
-                            <span style="font-size: 16px; color: #000; font-weight: 800;">${postalVal.toLocaleString()} kg (${postalPct}%)</span>
+                            <span class="lg-head"><div class="legend-color legend-postal" style="width: 16px; height: 16px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
+                            <span style="font-size: 15px; color: #e67e22; font-weight: 800;">Postal: </span></span>
+                            <span class="lg-val" style="font-size: 16px; color: #000; font-weight: 800;">${postalVal.toLocaleString()} kg (${postalPct}%)</span>
                         </div>
                         <div class="legend-item" style="display: flex; align-items: center; gap: 10px;">
-                            <div class="legend-color legend-non-postal" style="width: 16px; height: 16px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
-                            <span style="font-size: 15px; color: #008080; font-weight: 800;">Poslog: </span>
-                            <span style="font-size: 16px; color: #000; font-weight: 800;">${nonPostalVal.toLocaleString()} kg (${nonPostalPct}%)</span>
+                            <span class="lg-head"><div class="legend-color legend-non-postal" style="width: 16px; height: 16px; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
+                            <span style="font-size: 15px; color: #008080; font-weight: 800;">Poslog: </span></span>
+                            <span class="lg-val" style="font-size: 16px; color: #000; font-weight: 800;">${nonPostalVal.toLocaleString()} kg (${nonPostalPct}%)</span>
                         </div>
                         <div class="legend-item" style="display: flex; align-items: center; gap: 10px; margin-left: auto;">
-                            <div class="legend-color legend-space" style="width: 16px; height: 16px; border-radius: 4px; background: #94a3b8; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
-                            <span style="font-size: 15px; color: #1e293b; font-weight: 800;">Space: </span>
-                            <span style="font-size: 16px; color: #000; font-weight: 800;">${spacePct}%</span>
+                            <span class="lg-head"><div class="legend-color legend-space" style="width: 16px; height: 16px; border-radius: 4px; background: #94a3b8; box-shadow: 0 2px 4px rgba(0,0,0,0.1);"></div>
+                            <span style="font-size: 15px; color: #1e293b; font-weight: 800;">Space: </span></span>
+                            <span class="lg-val" style="font-size: 16px; color: #000; font-weight: 800;">${spacePct}%</span>
                         </div>
                     </div>`;
 
@@ -7860,6 +7874,6 @@
 
     </script>
     <!-- Penanda versi (boleh dihapus): memastikan file yang aktif di server adalah yang terbaru -->
-    <div style="position:fixed;bottom:6px;right:8px;font-size:10px;color:#fff;background:#333;opacity:0.55;padding:2px 8px;border-radius:6px;z-index:9999;font-family:monospace;pointer-events:none;">chart-fix-v7</div>
+    <div style="position:fixed;bottom:6px;right:8px;font-size:10px;color:#fff;background:#333;opacity:0.55;padding:2px 8px;border-radius:6px;z-index:9999;font-family:monospace;pointer-events:none;">chart-fix-v8</div>
 </body>
 </html>
