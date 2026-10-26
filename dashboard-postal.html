@@ -558,6 +558,29 @@
         }
         .routes-grid > * { min-width: 0; }
 
+        /* ===== Filter Rute multi-pilih (checkbox) ===== */
+        .rf-wrap { position: relative; display: inline-block; }
+        .rf-btn { display: flex; align-items: center; justify-content: space-between; gap: 6px; width: 160px; height: 32px; font-size: 12px; background: #fff; cursor: pointer; text-align: left; color: #0f172a; }
+        .rf-btn:hover { border-color: #1e3c72; }
+        .rf-btn .rf-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; min-width: 0; }
+        .rf-btn .rf-caret { font-size: 11px; color: #475569; flex: 0 0 auto; }
+        .rf-btn.rf-active { border-color: #1e3c72; background: #eef3fb; font-weight: 700; }
+        .rf-panel { position: fixed; z-index: 20000; display: none; flex-direction: column; background: #fff; border: 1px solid #cbd5e1; border-radius: 10px; box-shadow: 0 12px 32px rgba(15, 23, 42, 0.22); overflow: hidden; font-size: 13px; color: #0f172a; }
+        .rf-panel.open { display: flex; }
+        .rf-search { margin: 8px; padding: 7px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; outline: none; }
+        .rf-search:focus { border-color: #1e3c72; }
+        .rf-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 2px 6px 6px; }
+        .rf-item { display: flex; align-items: center; gap: 9px; padding: 7px 8px; border-radius: 7px; cursor: pointer; user-select: none; line-height: 1.25; }
+        .rf-item:hover { background: #eef3fb; }
+        .rf-item input { width: 16px; height: 16px; accent-color: #1e3c72; flex: 0 0 auto; cursor: pointer; }
+        .rf-item.rf-all { font-weight: 800; border-bottom: 1px solid #e2e8f0; border-radius: 7px 7px 0 0; margin-bottom: 3px; }
+        .rf-empty { padding: 14px 10px; color: #64748b; text-align: center; }
+        .rf-actions { display: flex; align-items: center; gap: 8px; padding: 8px; border-top: 1px solid #e2e8f0; background: #f8fafc; }
+        .rf-count { flex: 1; color: #475569; font-size: 12px; white-space: nowrap; }
+        .rf-actions button { padding: 7px 12px; border-radius: 8px; border: 1px solid #cbd5e1; background: #fff; font-weight: 700; font-size: 12px; cursor: pointer; }
+        .rf-actions button.rf-apply { background: #1e3c72; border-color: #1e3c72; color: #fff; }
+        .rf-actions button:hover { filter: brightness(0.96); }
+
         /* ===== Legend Postal / Poslog / Space di bawah chartbar: SELALU sebaris (tidak ada yang turun) =====
            Kartu lebar : satu baris panjang seperti aslinya.
            Kartu sedang/sempit : tiga kotak sejajar, nama di atas & angka di bawahnya (ukuran huruf mengikuti lebar). */
@@ -1402,34 +1425,12 @@
                     <select class="filter-input" id="weekFilter" onchange="applyWeeklyFilter()" style="width: 150px; height: 32px; font-size: 12px;">
                         <option value="">📅 Pilih Minggu</option>
                     </select>
-                    <select class="filter-input" id="routeFilter" onchange="applyFilter()" style="width: 160px; height: 32px; font-size: 12px;">
-                        <option value="">Semua Rute</option>
-                        <option value="Rute 1 JAT-SB">Rute 1 JAT-SB</option>
-                        <option value="Rute 2 JAT-YK">Rute 2 JAT-YK</option>
-                        <option value="Rute 3 JAT-MN">Rute 3 JAT-MN</option>
-                        <option value="Rute 4 JAT-PWT">Rute 4 JAT-PWT</option>
-                        <option value="Rute 5 JAT-SLO">Rute 5 JAT-SLO</option>
-                        <option value="Rute 6 BD-JAT">Rute 6 BD-JAT</option>
-                        <option value="Rute 8 JAT-SB">Rute 8 JAT-SB</option>
-                        <option value="Rute 9 JAT-BD">Rute 9 JAT-BD</option>
-                        <option value="Rute 10 BD-CN">Rute 10 BD-CN</option>
-                        <option value="Rute 11A BD-SB">Rute 11A BD-SB</option>
-                        <option value="Rute 11B SB-MTR">Rute 11B SB-MTR</option>
-                        <option value="Rute 12 YK-SB">Rute 12 YK-SB</option>
-                        <option value="Rute 13 YK-SB">Rute 13 YK-SB</option>
-                        <option value="Rute 14 SM-SB">Rute 14 SM-SB</option>
-                        <option value="Rute 15 JAT-SB">Rute 15 JAT-SB</option>
-                        <option value="Rute B1 JAT-SLO">Rute B1 JAT-SLO</option>
-                        <option value="Rute 1 PBR-MDN">Rute 1 PBR-MDN</option>
-                        <option value="Rute 2A JAT-PG Fuso">Rute 2A JAT-PG Fuso</option>
-                        <option value="Rute 2B Sumatera PG - PBR">Rute 2B Sumatera PG - PBR</option>
-                        <option value="Rute 3 JAT-PG express">Rute 3 JAT-PG express</option>
-                        <option value="Rute 4A Kcu Purwokerto - Kcu Cirebon">Rute 4A Kcu Purwokerto - Kcu Cirebon</option>
-                        <option value="Exstra SPP Bndung - SPP Jakarta Timur">Exstra SPP Bndung - SPP Jakarta Timur</option>
-                        <option value="EXTRA KCU SOLO - SPP YOGYAKARTA - SPP SURABAYA">EXTRA KCU SOLO - SPP YOGYAKARTA - SPP SURABAYA</option>
-                        <option value="Extra Spp Semarang - Spp Jakarta Timur">Extra Spp Semarang - Spp Jakarta Timur</option>
-                        <option value="EXTRA SPP YOGYA - KCU SOLO - SPP JAT">EXTRA SPP YOGYA - KCU SOLO - SPP JAT</option>
-                    </select>
+                    <div class="rf-wrap" id="routeFilterWrap">
+                        <input type="hidden" id="routeFilter" value="">
+                        <button type="button" class="filter-input rf-btn" id="routeFilterBtn" aria-haspopup="true" aria-expanded="false" title="Klik untuk memilih satu atau lebih rute">
+                            <span class="rf-label" id="routeFilterLabel">Semua Rute</span><span class="rf-caret">&#9662;</span>
+                        </button>
+                    </div>
                     <button class="filter-btn" onclick="resetFilter()" style="height: 32px; padding: 5px 12px; font-size: 12px;">🔄 Reset</button>
                 </div>
             </div>
@@ -2404,6 +2405,157 @@
         }
 
         // Global filter states for each view
+
+        // =================== FILTER RUTE MULTI-PILIH ===================
+        // Nilai #routeFilter sekarang berupa daftar nama rute dipisah ROUTE_FILTER_SEP.
+        // Kosong = semua rute. Satu rute = nama rute itu sendiri (sama seperti dulu).
+        var ROUTE_FILTER_SEP = '||';
+        function routeFilterList(v) {
+            if (!v || v === 'Semua Rute') return [];
+            return String(v).split(ROUTE_FILTER_SEP).map(function (x) { return x.trim(); }).filter(Boolean);
+        }
+        function routeMatchesFilter(name, v) {
+            var list = routeFilterList(v);
+            if (!list.length) return true;
+            var n = (name || '').trim().toLowerCase();
+            return list.some(function (f) { return f.toLowerCase() === n; });
+        }
+        function isSingleRouteFilter(v) { return routeFilterList(v).length === 1; }
+        function routeFilterFileTag(v) {
+            var l = routeFilterList(v);
+            if (!l.length) return 'Semua_Rute';
+            if (l.length === 1) return l[0].replace(/\s+/g, '_');
+            return l.length + '_Rute';
+        }
+
+        var RouteFilterUI = (function () {
+            var DEFAULTS = ["Rute 1 JAT-SB", "Rute 2 JAT-YK", "Rute 3 JAT-MN", "Rute 4 JAT-PWT", "Rute 5 JAT-SLO", "Rute 6 BD-JAT", "Rute 8 JAT-SB", "Rute 9 JAT-BD", "Rute 10 BD-CN", "Rute 11A BD-SB", "Rute 11B SB-MTR", "Rute 12 YK-SB", "Rute 13 YK-SB", "Rute 14 SM-SB", "Rute 15 JAT-SB", "Rute B1 JAT-SLO", "Rute 1 PBR-MDN", "Rute 2A JAT-PG Fuso", "Rute 2B Sumatera PG - PBR", "Rute 3 JAT-PG express", "Rute 4A Kcu Purwokerto - Kcu Cirebon", "Exstra SPP Bndung - SPP Jakarta Timur", "EXTRA KCU SOLO - SPP YOGYAKARTA - SPP SURABAYA", "Extra Spp Semarang - Spp Jakarta Timur", "EXTRA SPP YOGYA - KCU SOLO - SPP JAT"];
+            var applied = [];      // pilihan yang sedang berlaku
+            var draft = [];        // pilihan sementara saat panel terbuka
+            var options = DEFAULTS.slice();
+            var el = {}, ready = false, isOpen = false;
+
+            function uniq(a) { var seen = {}, out = []; a.forEach(function (x) { if (!seen[x]) { seen[x] = 1; out.push(x); } }); return out; }
+
+            function syncButton() {
+                if (!el.btn) return;
+                var n = applied.length;
+                el.label.textContent = n === 0 ? 'Semua Rute' : (n === 1 ? applied[0] : n + ' rute dipilih');
+                el.btn.title = n === 0 ? 'Klik untuk memilih satu atau lebih rute' : applied.join(', ');
+                el.btn.classList.toggle('rf-active', n > 0);
+            }
+
+            function updateCount() {
+                el.count.textContent = draft.length === 0 ? 'Semua rute' : draft.length + ' rute dipilih';
+            }
+
+            function renderList() {
+                var q = (el.search.value || '').trim().toLowerCase();
+                el.list.innerHTML = '';
+                var all = document.createElement('label');
+                all.className = 'rf-item rf-all';
+                var allCb = document.createElement('input'); allCb.type = 'checkbox'; allCb.checked = draft.length === 0;
+                allCb.addEventListener('change', function () { draft = []; renderList(); updateCount(); });
+                all.appendChild(allCb); all.appendChild(document.createTextNode('Semua Rute'));
+                el.list.appendChild(all);
+                var shown = 0;
+                options.forEach(function (name) {
+                    if (q && name.toLowerCase().indexOf(q) === -1) return;
+                    shown++;
+                    var lab = document.createElement('label'); lab.className = 'rf-item';
+                    var cb = document.createElement('input'); cb.type = 'checkbox'; cb.value = name; cb.checked = draft.indexOf(name) !== -1;
+                    cb.addEventListener('change', function () {
+                        if (cb.checked) { if (draft.indexOf(name) === -1) draft.push(name); }
+                        else { draft = draft.filter(function (x) { return x !== name; }); }
+                        allCb.checked = draft.length === 0;
+                        updateCount();
+                    });
+                    lab.appendChild(cb); lab.appendChild(document.createTextNode(name));
+                    el.list.appendChild(lab);
+                });
+                if (!shown) { var e = document.createElement('div'); e.className = 'rf-empty'; e.textContent = 'Rute tidak ditemukan'; el.list.appendChild(e); }
+            }
+
+            function position() {
+                if (!isOpen) return;
+                var r = el.btn.getBoundingClientRect();
+                var w = Math.max(r.width, 310);
+                var left = Math.min(Math.max(8, r.left), Math.max(8, window.innerWidth - w - 8));
+                var top = r.bottom + 4;
+                el.panel.style.width = w + 'px';
+                el.panel.style.left = left + 'px';
+                el.panel.style.top = top + 'px';
+                el.panel.style.maxHeight = Math.max(200, Math.min(window.innerHeight - top - 12, 460)) + 'px';
+            }
+
+            function open() {
+                if (!ready || isOpen) return;
+                draft = applied.slice();
+                el.search.value = '';
+                renderList(); updateCount();
+                isOpen = true; el.panel.classList.add('open'); el.btn.setAttribute('aria-expanded', 'true');
+                position();
+                setTimeout(function () { try { el.search.focus(); } catch (e) {} }, 0);
+            }
+
+            function close() {
+                if (!isOpen) return;
+                isOpen = false; el.panel.classList.remove('open'); el.btn.setAttribute('aria-expanded', 'false');
+            }
+
+            function commit() {
+                var next = draft.slice();
+                if (options.length && next.length >= options.length) next = [];   // semua dipilih = Semua Rute
+                var changed = next.join(ROUTE_FILTER_SEP) !== applied.join(ROUTE_FILTER_SEP);
+                applied = next; syncButton(); close();
+                if (changed && typeof applyFilter === 'function') {
+                    try { Promise.resolve(applyFilter()).catch(function (e) { console.error('applyFilter error:', e); }); }
+                    catch (e) { console.error('applyFilter error:', e); }
+                }
+            }
+
+            function init() {
+                if (ready) return;
+                el.input = document.getElementById('routeFilter');
+                el.btn = document.getElementById('routeFilterBtn');
+                el.label = document.getElementById('routeFilterLabel');
+                if (!el.input || !el.btn) return;
+                var panel = document.createElement('div'); panel.className = 'rf-panel'; panel.id = 'routeFilterPanel';
+                panel.innerHTML = '<input type="text" class="rf-search" placeholder="Cari rute..." autocomplete="off">' +
+                    '<div class="rf-list"></div>' +
+                    '<div class="rf-actions"><span class="rf-count"></span><button type="button" class="rf-clear">Hapus pilihan</button><button type="button" class="rf-apply">Terapkan</button></div>';
+                document.body.appendChild(panel);
+                el.panel = panel; el.search = panel.querySelector('.rf-search'); el.list = panel.querySelector('.rf-list'); el.count = panel.querySelector('.rf-count');
+                panel.querySelector('.rf-clear').addEventListener('click', function () { draft = []; renderList(); updateCount(); });
+                panel.querySelector('.rf-apply').addEventListener('click', commit);
+                el.search.addEventListener('input', renderList);
+                el.btn.addEventListener('click', function (e) { e.stopPropagation(); if (isOpen) commit(); else open(); });
+                panel.addEventListener('click', function (e) { e.stopPropagation(); });
+                document.addEventListener('click', function () { if (isOpen) commit(); });
+                document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && isOpen) { close(); } });
+                window.addEventListener('resize', position);
+                window.addEventListener('scroll', position, true);
+                // #routeFilter tetap dipakai kode lama: .value = daftar rute (dipisah ||); menulis .value menyinkronkan tampilan
+                Object.defineProperty(el.input, 'value', {
+                    configurable: true,
+                    get: function () { return applied.join(ROUTE_FILTER_SEP); },
+                    set: function (v) { applied = routeFilterList(v); options = uniq(options.concat(applied)); syncButton(); if (isOpen) { draft = applied.slice(); renderList(); updateCount(); } }
+                });
+                ready = true; syncButton();
+            }
+
+            function setOptions(list) {
+                options = uniq((list || []).concat(applied));
+                if (isOpen) { renderList(); updateCount(); }
+            }
+
+            return { init: init, setOptions: setOptions, open: open, close: close };
+        })();
+        window.RouteFilterUI = RouteFilterUI;
+        if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', RouteFilterUI.init);
+        else RouteFilterUI.init();
+
+
         let viewFilters = {
             dashboard: { startDate: '', endDate: '', weekKey: '', routeFilter: '' },
             sla: { startDate: '', endDate: '', weekKey: '', routeFilter: '' },
@@ -2436,7 +2588,7 @@
                 const filter = routeFilter.trim();
                 
                 // ONLY exact match (case insensitive)
-                return ruteName.toLowerCase() === filter.toLowerCase();
+                return routeMatchesFilter(ruteName, routeFilter);
             });
             
             console.log('calculateStatsFromFilteredData - Filtered data count:', filteredData.length);
@@ -2609,7 +2761,7 @@
                     const filter = routeFilter.trim();
                     
                     // ONLY exact match (case insensitive)
-                    return ruteName.toLowerCase() === filter.toLowerCase();
+                    return routeMatchesFilter(ruteName, routeFilter);
                 });
                 console.log('_renderDashboardCharts - Route Filter:', routeFilter);
                 console.log('_renderDashboardCharts - Data after EXACT filter:', rawData.length);
@@ -2826,7 +2978,7 @@
                 const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
                 let chartData = [];
                 
-                if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
+                if (isSingleRouteFilter(routeFilter)) {
                     // Mode filter rute aktif - tampilkan titik pemberhentian
                     const stops = getRouteStops(routeFilter);
                     const routeData = top10.find(r => r.name === routeFilter);
@@ -2957,7 +3109,7 @@
                                         const item = chartData[index];
                                         
                                         // Jika dalam mode filter rute, tampilkan info pemberhentian
-                                        if (routeFilter && routeFilter !== '' && routeFilter !== 'Semua Rute') {
+                                        if (isSingleRouteFilter(routeFilter)) {
                                             return `${item.label} - ${item.originalRoute}`;
                                         }
                                         
@@ -3357,7 +3509,7 @@
                         // Filter stats berdasarkan rute yang dipilih
                         filteredStats = {
                             ...statsData.data,
-                            total_routes: 1 // Jika filter rute aktif, total routes = 1
+                            total_routes: routeFilterList(routeFilter).length || 1 // jumlah rute yang dipilih
                         };
                     }
                     updateStatistics(filteredStats);
@@ -3378,7 +3530,7 @@
                             const filter = routeFilter.trim();
                             
                             // ONLY exact match (case insensitive)
-                            const match = ruteName.toLowerCase() === filter.toLowerCase();
+                            const match = routeMatchesFilter(ruteName, routeFilter);
                             console.log('loadDashboardData SLA - Comparing:', ruteName, 'with', filter, 'Match:', match);
                             return match;
                         });
@@ -3666,7 +3818,7 @@
 
             const categoryTag = '[' + currentMenu.toUpperCase() + ']';
             const routeFilter = document.getElementById('routeFilter') ? document.getElementById('routeFilter').value : '';
-            const routeTag = (routeFilter && routeFilter !== 'Semua Rute') ? ' | Rute: ' + routeFilter : '';
+            const routeTag = (routeFilter && routeFilter !== 'Semua Rute') ? ' | Rute: ' + (routeFilterList(routeFilter).length <= 3 ? routeFilterList(routeFilter).join(', ') : routeFilterList(routeFilter).length + ' rute dipilih') : '';
 
             label.textContent = categoryTag + ' ' + text + routeTag;
             label.style.display = 'block';
@@ -4264,7 +4416,7 @@
                             const filter = routeFilter.trim();
                             
                             // ONLY exact match (case insensitive)
-                            const match = ruteName.toLowerCase() === filter.toLowerCase();
+                            const match = routeMatchesFilter(ruteName, routeFilter);
                             console.log('loadSLAData - Comparing:', ruteName, 'with', filter, 'Match:', match);
                             return match;
                         });
@@ -4521,7 +4673,7 @@
                             const filter = routeFilter.trim();
                             
                             // ONLY exact match (case insensitive)
-                            return ruteName.toLowerCase() === filter.toLowerCase();
+                            return routeMatchesFilter(ruteName, routeFilter);
                         });
                         console.log('loadVolumeData - Data after route filter:', finalData.length);
                     }
@@ -5016,7 +5168,7 @@
 
                 // Generate nama file (dengan info filter rute/minggu)
                 const rf = document.getElementById('routeFilter')?.value || 'Semua Rute';
-                const filename = `Volume_Kiriman_${rf.replace(/\s+/g, '_')}_${new Date().getTime()}.xlsx`;
+                const filename = `Volume_Kiriman_${routeFilterFileTag(rf)}_${new Date().getTime()}.xlsx`;
 
                 // Download
                 XLSX.writeFile(wb, filename);
@@ -5463,22 +5615,13 @@
             const dropdown = document.getElementById('routeFilter');
             if (!dropdown) return;
             
-            const currentValue = dropdown.value;
-            
-            // Keep "Semua Rute" as first option
-            let optionsHTML = '<option value="">Semua Rute</option>';
-            
             // Get unique route names from data and sort using the custom route order
             const uniqueRouteNames = [...new Set(data.map(item => item.name))];
             const sortedRouteObjects = sortRoutesByOrder(uniqueRouteNames.map(name => ({ name })));
             const uniqueRoutes = sortedRouteObjects.map(obj => obj.name);
-            
-            uniqueRoutes.forEach(routeName => {
-                const selected = routeName === currentValue ? 'selected' : '';
-                optionsHTML += `<option value="${routeName}" ${selected}>${routeName}</option>`;
-            });
-            
-            dropdown.innerHTML = optionsHTML;
+
+            // Isi daftar checkbox filter rute (pilihan yang aktif tetap dipertahankan)
+            if (window.RouteFilterUI) window.RouteFilterUI.setOptions(uniqueRoutes);
         }
 
         // Fallback hardcoded data (existing data)
@@ -6011,8 +6154,9 @@
                     console.log(`Renderroutes - Card ${index}: Route Names: [${allRouteNames.join(', ')}] vs Filter: "${routeFilter}"`);
                     
                     // Check if ANY of the routes in this card match the filter
+                    routeFilterList(routeFilter).forEach(function (oneFilter) {
                     allRouteNames.forEach((routeName, routeIndex) => {
-                        const filterLower = routeFilter.toLowerCase().trim();
+                        const filterLower = oneFilter.toLowerCase().trim();
                         const routeNameLower = routeName.toLowerCase().trim();
                         
                         console.log(`  Checking route ${routeIndex}: "${routeName}"`);
@@ -6062,6 +6206,7 @@
                         }
                         
                         console.log(`    ✗ No match for this route`);
+                    });
                     });
                     
                     if (!shouldShow) {
@@ -6264,7 +6409,7 @@
                 XLSX.utils.book_append_sheet(wb, ws, "SLA Waktu");
 
                 const rf = document.getElementById('routeFilter')?.value || 'Semua Rute';
-                const filename = `SLA_Waktu_${rf.replace(/\s+/g, '_')}_${new Date().getTime()}.xlsx`;
+                const filename = `SLA_Waktu_${routeFilterFileTag(rf)}_${new Date().getTime()}.xlsx`;
 
                 XLSX.writeFile(wb, filename);
             } catch (err) {
@@ -7874,6 +8019,6 @@
 
     </script>
     <!-- Penanda versi (boleh dihapus): memastikan file yang aktif di server adalah yang terbaru -->
-    <div style="position:fixed;bottom:6px;right:8px;font-size:10px;color:#fff;background:#333;opacity:0.55;padding:2px 8px;border-radius:6px;z-index:9999;font-family:monospace;pointer-events:none;">chart-fix-v8</div>
+    <div style="position:fixed;bottom:6px;right:8px;font-size:10px;color:#fff;background:#333;opacity:0.55;padding:2px 8px;border-radius:6px;z-index:9999;font-family:monospace;pointer-events:none;">chart-fix-v10</div>
 </body>
 </html>
